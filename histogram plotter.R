@@ -9,7 +9,6 @@ df_index_100 <- as.data.frame(df_index_100)
 
 #=== Code for 26th Dec =====
 ##Cleaned up and removed old code
-
 ########### ---------- Create box plots and quintile plots ----------- #########
 
 #back looking at counties color
