@@ -8,15 +8,16 @@ df_index_100 <- as.data.frame(df_index_100)
 # quintiles <- sapply(df0[3:16], function(x) split(x, cut(x, quantile(x, prob = 0:10 / 10, names = FALSE), include = TRUE)))
 
 #=== Code for 26th Dec =====
+##Cleaned up and removed old code
 
 ########### ---------- Create box plots and quintile plots ----------- #########
 
 #back looking at counties color
 # First, individual histograms for the CWBI and the Subindexes
-# ggplot(df$Educ_HS_GradRateF, aes(CWB_Z)) + 
-#   geom_histogram(bins = 5, color = "black", fill = "gray") + 
-#   labs(title = "Child Well-Being Index", x = "Index Score", y = "Number of Census Tracts")
-# 
+ggplot(df_index_100, aes(CWB_Z)) + 
+  geom_histogram(bins = 5, color = "black", fill = "gray") + 
+  labs(title = "Child Well-Being Index", x = "Index Score", y = "Number of Census Tracts")
+ 
 ggplot2::ggplot(df_index_100, aes(ChildZ)) + 
   geom_histogram(bins = 5, color = "black", fill = "lightgray") + 
   labs(title = "Child Sub-Index", x = "Sub-Index Score", y = "Number of Census Tracts")
