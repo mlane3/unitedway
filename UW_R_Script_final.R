@@ -83,13 +83,13 @@ df_trans_zlim2 <- as.data.frame(sapply(df_trans_zlim,function(x) ifelse(x < -3.1
 summary <- summary(df_trans_zlim2)
 
 # Reunite the categorical and transformed variables into a new complete dataset
-df_complete <- as.data.frame(c(df0[,1:2], df_trans_zlim2)) #*** this is the Z-scores
-summary <- summary(df_complete)
+df_Zscore <- as.data.frame(c(df0[,1:2], df_trans_zlim2)) #*** this is the Z-scores
+summary <- summary(df_Zscore)
 # These values match the 'Original Data' tab, cells S29:S806
 
 # rm(list = "df_trans_zlim", "df_trans_zlim2", "dfNorm", "dfNormZ", "dfNormZV", "dfNormZV2")
 
-write.csv(df_complete, file = "Complete Z-score table.csv")
+write.csv(df_Zscore, file = "Complete Z-score table.csv")
 
 #  Also, create box/quintile plots of each Z-score
 
@@ -114,20 +114,20 @@ df0_sd = sapply(df0[,c(-1,-2)],pop.sd)
 #                                                       Health_pc_Under18_no_Health_InsF,
 #                                                       Income_Unemployment_rateF)))
 
-df_index <-  df_complete[,FALSE] #intialize a data frame of same number of rows
-# df_index$county <- df_complete$county
-# df_index$weave_ct2010 <- df_complete$weave_ct2010
-df_index$ChildZ = rowMeans(subset(df_complete, select = c( Educ_HS_GradRateF, 
+df_index <-  df_Zscore[,FALSE] #intialize a data frame of same number of rows
+# df_index$county <- df_Zscore$county
+# df_index$weave_ct2010 <- df_Zscore$weave_ct2010
+df_index$ChildZ = rowMeans(subset(df_Zscore, select = c( Educ_HS_GradRateF, 
                                                            Educ_HS_CCRPI_ScoreF,
                                                            Educ_pcExceeding_3Grade_ReadingF,
                                                            Educ_pc_Exceeding_8Grade_MathF,
                                                            Health_pcLBW_BirthsF,
                                                            Health_pc_Under18_no_Health_InsF,
                                                            Income_pcUnder18_in_povF)))
-df_index$FamilyZ <- rowMeans(subset(df_complete, select = c(Income_pcFam_below200pc_povF, 
+df_index$FamilyZ <- rowMeans(subset(df_Zscore, select = c(Income_pcFam_below200pc_povF, 
                                                             Income_pcHH_HousingBurdenF, 
                                                             Birth_to_Moms_noHSF)))
-df_index$CommunityZ <- rowMeans(subset(df_complete, select = c(Educ_pc_postsecF,
+df_index$CommunityZ <- rowMeans(subset(df_Zscore, select = c(Educ_pc_postsecF,
                                                                Educ_pcAdults_no_HSF,
                                                                Health_pcAdults_no_Health_InsF,
                                                                Income_Unemployment_rateF)))
@@ -163,8 +163,8 @@ summary(df_index$CWB_Z)
 summary(df_index_100$CWB_Z)
 
 # Add in the categoricals (county and census tract)
-df_index_100$county <- df_complete$county
-df_index_100$weave_ct2010 <- df_complete$weave_ct2010
+df_index_100$county <- df_Zscore$county
+df_index_100$weave_ct2010 <- df_Zscore$weave_ct2010
 
 # reorder the columns 
 # df_index_100 <- as.data.frame(df_index_100[c(5, 6, 4, 1, 2, 3)]) #*** Mike check reordering
