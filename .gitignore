@@ -10,3 +10,5 @@ UW_R_Script corrections.R
 df_complete1.rattle
 df_complete.rattle
 *.csv
+dontsave.R
+*.xlsx
