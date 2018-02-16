@@ -13,7 +13,7 @@ df_index_100 <- as.data.frame(df_index_100)
 
 #back looking at counties color
 # First, individual histograms for the CWBI and the Subindexes
-ggplot(df_index_100, aes(CWB_Z)) + 
+ggplot(df_index_100, aes(CWB_Index)) + 
   geom_histogram(bins = 5, color = "black", fill = "gray") + 
   labs(title = "Child Well-Being Index", x = "Index Score", y = "Number of Census Tracts")
  
@@ -32,7 +32,7 @@ ggplot(df_index_100, aes(CommunityZ)) +
 # One plot that shows all four, from https://cran.r-project.org/web/packages/egg/vignettes/Ecosystem.html
 # Looks best once you Zoom the plot)
 library(gridExtra)
-hist_CWB <- ggplot(df_index_100, aes(CWB_Z)) + 
+hist_CWB <- ggplot(df_index_100, aes(CWB_Index)) + 
   geom_histogram(bins = 5, color = "black", fill = "gray") + 
   labs(title = "Child Well-Being Index", x = "Index Score", y = "Number of Census Tracts")
 hist_Child <- ggplot(df_index_100, aes(ChildZ)) + 
@@ -57,7 +57,7 @@ grid.arrange(
 # Code for 31 Dec
 
 # Define the quintile bounds for each index and put them in a dataframe for reference
-quintile_CWBI <- quantile(df_index_100$CWB_Z, seq(0, 1, by = 0.2))
+quintile_CWBI <- quantile(df_index_100$CWB_Index, seq(0, 1, by = 0.2))
 quintile_Child <- quantile(df_index_100$ChildZ, seq(0, 1, by = 0.2))
 quintile_Family <- quantile(df_index_100$FamilyZ, seq(0, 1, by = 0.2))
 quintile_Community <- quantile(df_index_100$CommunityZ, seq(0, 1, by = 0.2))
@@ -77,9 +77,9 @@ boxplot(quintile_df$quintile_CWBI, quintile_df$quintile_Child, quintile_df$quint
 # using them for quintiles won't make a lot of sense (to me)
 
 # An approach to graphing quintiles as described by https://stackoverflow.com/questions/46628958/making-a-specific-quantile-plot-in-r
-# This example uses the CWB_Z column values from df_index_100
+# This example uses the CWB_Index column values from df_index_100
 
-d1 <- data_frame(x = df_index_100[ , 1])
+d1 <- data_frame(x = df_index_100[ , 3])
 
 breaks <- seq(min(d1$x), max(d1$x), length.out = 50)
 quantiles <- quantile(d1$x, seq(0, 1, 0.2))
@@ -97,7 +97,7 @@ d1_plot <- ggplot(d1, aes(bar, y = 1, fill = fill)) +
 d1_plot
 
 # Here's the same plot but with the Child Sub-Index
-d2 <- data_frame(x = df_index_100[ , 2])
+d2 <- data_frame(x = df_index_100[ , 4])
 
 breaks <- seq(min(d2$x), max(d2$x), length.out = 50)
 quantiles <- quantile(d2$x, seq(0, 1, 0.2))
@@ -115,7 +115,7 @@ d2_plot <- ggplot(d2, aes(bar, y = 1, fill = fill)) +
 d2_plot
 
 # Here's the same plot but with the Family Sub-Index
-d3 <- data_frame(x = df_index_100[ , 3])
+d3 <- data_frame(x = df_index_100[ , 5])
 
 breaks <- seq(min(d3$x), max(d3$x), length.out = 50)
 quantiles <- quantile(d3$x, seq(0, 1, 0.2))
