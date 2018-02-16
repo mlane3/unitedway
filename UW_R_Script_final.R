@@ -1,4 +1,3 @@
-
 #12/10/17
 
 #unpacking libraries ----
@@ -8,20 +7,17 @@ library(tidyr)
 library(dplyr)
 library(datasets)
 library(tidyverse)
-# library(readxl)
-# library(arules)
-# library(tidyr)
-# library(dplyr)
-# library(datasets)
+
 # Setting Working Directory ------
 setwd("~/R/unitedway")
 
+##lapply function's  -----
 df0 <- read_xlsx("2016 Original Data.xlsx")
-dfNorm <- df0[,3:16]
+dfNorm <- df0[,3:16] #sifeal takes this line right here: average per county and average again
+
 # dfNorm <- as.data.frame(sapply(dfNorm, normalize))
 
 # df <- select_if(df, is.numeric)
-##lapply function's  -----
 normalize <- function(x) {
   return ((x - min(x)) / (max(x) - min(x))) #*this is the proper arthematic normalization
 }
@@ -164,7 +160,9 @@ summary(df_index_100$CWB_Z)
 
 # Add in the categoricals (county and census tract)
 df_index_100$county <- df_Zscore$county
-df_index_100$weave_ct2010 <- df_Zscore$weave_ct2010
+df_index_100$weave_ct2010 <- df_Zscore$weave_ct2010 
+
+print(df_index_100) #OutPUT
 
 # reorder the columns 
 # df_index_100 <- as.data.frame(df_index_100[c(5, 6, 4, 1, 2, 3)]) #*** Mike check reordering
@@ -172,7 +170,7 @@ df_index_100$weave_ct2010 <- df_Zscore$weave_ct2010
 # df_index_100 <- summary(df_index_100)
 # These values match the 'Original Data' tab, cells AK29:AN806
 
-#write.csv(df_index_100, file = "Complete index table.csv") ##** This c
+write.csv(df_index_100, file = "Complete index table.csv") ##** This c
 
 # # 5)  Create box plots and quartile plots -----
 # ##
