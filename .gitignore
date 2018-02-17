@@ -1,14 +1,32 @@
+# These are the files github ignores
+# Rstudio files
 .Rproj.user
+
+# History Files
 .Rhistory
-.RData
+.Rapp.history
+
+# Session Data files
 .Ruserdata
+.RData
+2.RData
+
+# Data files
 2016 Original Data.xlsx
 County Index computation checker version.xlsm
 County Index computation with Indicator PC change or Net Quantile input table V61.xlsm
-UW_R_Script corrections.R
+*.csv
+*.xlsx
+
+# Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
+rsconnect/
+
+# Backup and rattle files
 ~$United Way.pptx
 df_complete1.rattle
 df_complete.rattle
-*.csv
+
+#Junk Script Files and new files
 dontsave.R
-*.xlsx
+UW_R_Script corrections.R
+trash/
