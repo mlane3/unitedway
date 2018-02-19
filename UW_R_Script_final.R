@@ -8,7 +8,7 @@ library(tidyr)
 library(dplyr)
 library(datasets)
 library(tidyverse)
-
+library(datatable)
 ########### ---- Setting Working Directory and load data ---- ########### 
 setwd("~/R/unitedway")
 df0 <- read_xlsx("2016 Original Data.xlsx")
