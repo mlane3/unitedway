@@ -45,8 +45,9 @@ pop.sd <- function(x) {
 }
 
 ########### ---- Child Well Being Code ---- ###########
-#function currently requires you load in df0
-cwbcalc <- function(df0){
+
+cwbcalc <- function(dfNorm){
+  #function currently requires you load in dfNorm and df0.  Call dfNorm
   ########### ---- 1) Calculate Z-scores for each indicator ---- ###########
   dfNormZ <- as.data.frame(sapply(dfNorm, pop.zscore))#Does Zscore
   # summarydfNormZ <- summary(dfNormZ) 
