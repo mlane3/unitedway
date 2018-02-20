@@ -1,4 +1,6 @@
 #A simple plot histogram
+#Contributors: Dan Donlensky, Matma Basnet
+#Editor: Michael Lane
 library(reshape2)
 library(ggplot2)
 require(dplyr)
