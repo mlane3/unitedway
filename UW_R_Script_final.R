@@ -14,12 +14,15 @@ library(tidyr)
 library(dplyr)
 library(datasets)
 library(tidyverse)
-library(datatable)
+library(data.table)
 
-########### ---- Setting Working Directory and load data ---- ###########
-setwd("~/R/unitedway") #change this working directory to 'yourpath/unitedway/'
+########### ---- Setting Working Directory and load data ---- ########### 
+setwd("~/R/unitedway")
 df0 <- read_xlsx("2016 Original Data.xlsx")
-
+names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
+                'grade3','grade8','lbw','childnohealth',
+                'childpoverty','povertyrate','housingburden','momsnohs',
+                'collegerate','adultnoedu','adultsnohealth','unemployment')
 dfNorm <- df0[,3:16] # ***sifeal manipulate sliders around this line right here: average per county and average again
 
 
@@ -78,20 +81,17 @@ rm(list = "df_trans_zlim", "df_trans_zlim2", "dfNorm", "dfNormZ", "dfNormZV", "d
 # df0_sd = sapply(df0[,c(-1,-2)],pop.sd)
 
 df_index <-  df_Zscore[,FALSE] #intialize a data frame of same number of rows
-df_index$ChildZ = rowMeans(subset(df_Zscore, select = c( Educ_HS_GradRateF, 
-                                                           Educ_HS_CCRPI_ScoreF,
-                                                           Educ_pcExceeding_3Grade_ReadingF,
-                                                           Educ_pc_Exceeding_8Grade_MathF,
-                                                           Health_pcLBW_BirthsF,
-                                                           Health_pc_Under18_no_Health_InsF,
-                                                           Income_pcUnder18_in_povF)))
-df_index$FamilyZ <- rowMeans(subset(df_Zscore, select = c(Income_pcFam_below200pc_povF, 
-                                                            Income_pcHH_HousingBurdenF, 
-                                                            Birth_to_Moms_noHSF)))
-df_index$CommunityZ <- rowMeans(subset(df_Zscore, select = c(Educ_pc_postsecF,
-                                                               Educ_pcAdults_no_HSF,
-                                                               Health_pcAdults_no_Health_InsF,
-                                                               Income_Unemployment_rateF)))
+df_index$ChildZ = rowMeans(subset(df_Zscore, select = c(gradrate,ccrpi,
+                                                        grade3,grade8,
+                                                        lbw,childnohealth,
+                                                        childpoverty)))
+df_index$FamilyZ <- rowMeans(subset(df_Zscore, select = c(povertyrate, 
+                                                          housingburden, 
+                                                          momsnohs)))
+df_index$CommunityZ <- rowMeans(subset(df_Zscore, select = c(collegerate,
+                                                             adultnoedu,
+                                                             adultsnohealth,
+                                                             unemployment)))
 #***SO dfindex is the index values and df2
 df_index <- as.data.frame(c(df0[,1:2], df_index)) #***All the indexes before we scale to 100
 
@@ -136,4 +136,4 @@ df_complete <- merge(as.data.table(df0),as.data.table(df_index_100), by = "weave
 #** df_complete is the complete data table
 print(df_index_100) 
 print(df_index_100$CWB_Index) #**This is the Output!!!
-write.csv(df_index_100, file = "Complete index table.csv") 
+write.csv(df_index_100, file = "Complete index table.csv")
