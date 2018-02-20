@@ -1,5 +1,11 @@
 #2/16/18 This is the algorithm to calculate CWBI for united way
 # search for *** for important comments
+# CC BY-NC-SA 4.0
+
+# Contributors: Michael Lane, Dan Donlensky, Matma Basnet, Vincent Jullien
+# also by Purushothama Ranganatha, Sifael Karla Brown, Betty Glover
+# under direction by: Vincent Jullien, Eric Sonmezer, and Hamid Arjmand
+# for contact permission to reproduce please contact united way info @ unitedwayatlanta.org 
 
 ########### ---- unpacking libraries ---- ########### 
 library(readxl)
@@ -9,8 +15,9 @@ library(dplyr)
 library(datasets)
 library(tidyverse)
 library(datatable)
-########### ---- Setting Working Directory and load data ---- ########### 
-setwd("~/R/unitedway")
+
+########### ---- Setting Working Directory and load data ---- ###########
+setwd("~/R/unitedway") #change this working directory to 'yourpath/unitedway/'
 df0 <- read_xlsx("2016 Original Data.xlsx")
 
 dfNorm <- df0[,3:16] # ***sifeal manipulate sliders around this line right here: average per county and average again
