@@ -28,11 +28,14 @@ dfNorm <- df0[,3:16] # ***sifeal manipulate sliders around this line right here:
 
 # lapply function's  -----------------------------------
 # dfNorm <- as.data.frame(sapply(dfNorm, normalize))
-normalize <- function(x) {
-  return ((x - min(x)) / (max(x) - min(x))) #*this is the proper arthematic normalization
+pop <- function (x, ...){UseMethod("pop", x)}
+#***pop is just a very basic R S3 object to group. R6 might be better
+pop.normalize <- function(x) {
+  #*this is the proper arthematic normalization
+  return ((x - min(x)) / (max(x) - min(x)))
 }
 pop.zscore <- function(x) {
-  #Caclulated the population standard deviation or uncorrected sd()
+  #Calculated the population standard deviation or uncorrected sd()
   deviation <- sd(x, na.rm = TRUE)*sqrt((length(x)-1)/(length(x)))
   output <- (x-mean(x))/deviation
   return(output)
@@ -46,7 +49,7 @@ pop.sd <- function(x) {
 
 ########### ---- Child Well Being Code ---- ###########
 
-cwbcalc <- function(dfNorm){
+pop.cwbcalc <- function(dfNorm, ...){
   #function currently requires you load in dfNorm and df0.  Call dfNorm
   ########### ---- 1) Calculate Z-scores for each indicator ---- ###########
   dfNormZ <- as.data.frame(sapply(dfNorm, pop.zscore))#Does Zscore
@@ -96,21 +99,17 @@ cwbcalc <- function(dfNorm){
                                                                adultnoedu,
                                                                adultsnohealth,
                                                                unemployment)))
-  df_index <<- as.data.frame(c(df0[,1:2], df_index))
-  #***so df_index is All the indexes before we scale to 100. <<- sets to global
-  
   # 3)  Average the 3 sub-indexes ----
   df_index$CWB_Z <- rowMeans(subset(df_index, select = c(ChildZ, FamilyZ, CommunityZ)))
+  df_index <<- as.data.frame(c(df0[,1:2], df_index))
+  #***so df_index is All the indexes before we scale to 100. <<- sets to global
   # summarydfindex <- summary(df_index)
   
   # 4)  Rescale/ Denormalize the Score -----
-  #Need to talk about
-  #Calculate Means
-  #Calculate STDEV
   #Formula =+(AG7-MIN(AG$7:AG$782))/(MAX(AG$7:AG$782)-MIN(AG$7:AG$782)
   df_index_100 <- df_index[,FALSE] 
   
-  # dfindex100 <- 100*(dfindex - min(dfindex))/(max(dfindex)-min(dfindex)) #this is the scale score 1-100
+  # dfindex_100 <- 100*(dfindex - min(dfindex))/(max(dfindex)-min(dfindex)) #this is the scale score 1-100
   
   df_index_100$ChildZ <- (df_index$ChildZ - min(df_index$ChildZ)) / (max(df_index$ChildZ) - min(df_index$ChildZ))
   # summary(df_index$ChildZ)
@@ -138,7 +137,10 @@ cwbcalc <- function(dfNorm){
   ##### --- Return Output ---- #####
   df_complete <<- merge(as.data.table(df0),as.data.table(df_index_100), by = "weave_ct2010")
   #*** df_complete is the complete data table. By using <<- we set to global
-  print(df_index_100$CWB_Index) #***This is the Output!!!
+  # print(df_index_100$CWB_Index) #***This is the Output!!!
   write.csv(df_index_100, file = "Complete index table.csv")
   return(df_index_100)
 }
+
+df_index_100 <- as.data.frame(pop.cwbcalc(dfNorm)) #line to get CWBI
+#verage(df_index10
