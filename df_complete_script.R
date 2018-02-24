@@ -1,3 +1,5 @@
+cwbcalc(dfNorm) #this will load in df_complete by default. Below is the rattle code
+#we used to confirm that cwbcalc is linear algorithm.
 #============================================================
 
 # Rattle is Copyright (c) 2006-2017 Togaware Pty Ltd.
