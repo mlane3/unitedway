@@ -4,7 +4,7 @@
 library(reshape2)
 library(ggplot2)
 require(dplyr)
-df_index_100 <- as.data.frame(cwbcalc(dfNorm)) #call from UW_R_Script_final.R
+df_index_100 <- as.data.frame(pop.cwbcalc(dfNorm)) #call from UW_R_Script_final.R
 # 5)  Create box plots and quartile plots -----
 ##
 # quintiles <- sapply(df0[3:16], function(x) split(x, cut(x, quantile(x, prob = 0:10 / 10, names = FALSE), include = TRUE)))

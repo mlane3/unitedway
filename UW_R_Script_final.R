@@ -17,7 +17,7 @@ library(tidyverse)
 library(data.table)
 
 ########### ---- Setting Working Directory and load data ---- ########### 
-setwd("~/R/unitedway")
+# setwd("~/R/unitedway")
 df0 <- read_xlsx("2016 Original Data.xlsx")
 names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
                 'grade3','grade8','lbw','childnohealth',
