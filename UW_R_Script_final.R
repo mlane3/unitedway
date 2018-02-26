@@ -9,10 +9,10 @@
 
 ########### ---- unpacking libraries ---- ########### 
 library(readxl)
-library(arules)
-library(tidyr)
+# library(arules)
+# library(tidyr)
 library(dplyr)
-library(datasets)
+# library(datasets)
 library(tidyverse)
 library(data.table)
 
@@ -135,7 +135,7 @@ pop.cwbcalc <- function(dfNorm, ...){
   # These values match the 'Original Data' tab, cells AK29:AN806
   
   ##### --- Return Output ---- #####
-  df_complete <<- merge(as.data.table(df0),as.data.table(df_index_100), by = "weave_ct2010")
+  df_complete <<- merge(as.data.table(df0),as.data.table(df_index_100))
   #*** df_complete is the complete data table. By using <<- we set to global
   # print(df_index_100$CWB_Index) #***This is the Output!!!
   write.csv(df_index_100, file = "Complete index table.csv")
@@ -143,4 +143,3 @@ pop.cwbcalc <- function(dfNorm, ...){
 }
 
 df_index_100 <- as.data.frame(pop.cwbcalc(dfNorm)) #line to get CWBI
-#verage(df_index10
