@@ -15,7 +15,6 @@
 2016 Original Data.xlsx
 County Index computation checker version.xlsm
 County Index computation with Indicator PC change or Net Quantile input table V61.xlsm
-*.csv
 *.xlsx
 
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
@@ -30,3 +29,7 @@ df_complete.rattle
 dontsave.R
 UW_R_Script corrections.R
 trash/
+Complete index table.csv
+censusdata.csv
+Complete Z-score table.csv
+corrplot.csv
