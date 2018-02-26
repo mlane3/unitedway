@@ -4,7 +4,7 @@
 #Z score of 0.33886 or CWB_index = .689 is the goal!
 # It requires you to preload the other functions besides pop.cwbcalc()
 source('UW_R_Script_final.R')
-df_index_100 <- as.data.frame(pop.cwbcalc(dfNorm)) #line to get CWBI
+df_index_100 <- as.data.frame(pop.cwbcalc(df0[,3:16])) #line to get CWBI
 
 # Getting Started EXample --
 # Run lines below 33 if you get an error.
