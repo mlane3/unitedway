@@ -17,13 +17,13 @@ source('UW_R_Script_final.R')
 # Load in the coeffcients. I have written the algorithm
 source('coefficents.R')
 # coefficents.R contains some test script and you don't need the excess stuff
-rm(CWBZ,CWB1,CWB2,CWB3,dfNorm,) 
+rm(CWBZ,CWB1,CWB2,CWB3,dfNorm) 
 
 ########### ---- Linear Optimizer TEST CODE ---- ###########
-
-maxCWB_Z = -1.969282
-minCWB_Z = minCWB_Z = min(df_index$CWB_Z)
-Value = .689 / (maxCWB_Z - minCWB_Z) + minCWB_Z
+Value = .689
+maxCWB_Z = max(df_index$CWB_Z)
+minCWB_Z = min(df_index$CWB_Z)
+Value = (.689*(maxCWB_Z - minCWB_Z)) + minCWB_Z
 
 library(lpSolve)
 library(lpSolveAPI)
@@ -34,7 +34,7 @@ set.objfn(model, c(1/(7*3), 1/(3*3), 1/(4*3))) #Replica of Child well being inde
 # Add the constraints
 add.constraint(model, c(1/(7*3), 1/(3*3), 1/(4*3)), "=", Value)
 # Set the upper and lower bounds
-set.bounds(model, lower=c(0.0, 0.0, 0.0), upper=c(1, 1, 1)) #***We are using for constraints
+set.bounds(model, lower=c(0.0, 0.0, 0.0), upper=c(1.0, 1.0, 1.0)) #***We are using for constraints
 # Compute the optimized model
 solve(model) 
 # Get the value of the optimized parameters
