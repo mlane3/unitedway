@@ -12,6 +12,7 @@ source('coefficents.R')
 library(readxl)
 library(dplyr)
 library(data.table)
+#rm(CWB1,CWB2,CWB3,CWBZ,df_complete) #Mike will to clean this
 
 # setwd("~/R/unitedway")
 df0 <- read_xlsx("2016 Original Data.xlsx")
@@ -19,12 +20,14 @@ names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
                 'grade3','grade8','lbw','childnohealth',
                 'childpoverty','povertyrate','housingburden','momsnohs',
                 'collegerate','adultnoedu','adultsnohealth','unemployment')
+minCWB_Z = min(df_index$CWB_Z) #-1.969282
+maxCWB_Z = max(df_index$CWB_Z) #1.380706
+df2 <- as.data.frame(read.csv("overall constrants.csv", skip = 2, row.names = 1)) 
 
 "===========================================
                 HEADER
 ==========================================="
 header = dashboardHeader(title = 'United Way App')
-
 
 "===========================================
                 SIDEBAR
@@ -43,8 +46,17 @@ sidebar = dashboardSidebar(
                          )
     
     
-              )
-  
+              ),
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("lbw",
+                  "Low Weight Births",
+                  min = df2$lwb[1],
+                  max = df2$lwb[2],
+                  value = df2$lwb[3])
+    )#,
+  )
 )
 
 "===========================================
@@ -53,15 +65,6 @@ sidebar = dashboardSidebar(
 body = dashboardBody()
 # Getting Started EXample --
 
-# mean(df_index_100$CWB_Index) #the actual CWBI 
-minCWB_Z = min(df_index$CWB_Z) #-1.969282
-maxCWB_Z = max(df_index$CWB_Z) #1.380706
-df2 <- as.data.frame(read.csv("overall constrants.csv", skip = 2, row.names = 1)) 
-#^***Sifeal df2 is what your taking in for this one and can use to modify the sliders
-myCoef <- pop.Coef(df0) #use for the orginal data frame to get y = m*x - b coeff
-CWBZ <- rowMeans(myCoef$coefficients*df2["Mean",] - myCoef$B) #***We are optimizing this
-CWB_Index <- (CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z) 
-#which should equal 0.5895567 our test CWBI and .001 away from actual CWBI
 
 "===========================================
                 SERVER
