@@ -3,7 +3,7 @@
 # This creates a coefficent table for linear optimization
 #Z score of 0.33886 or CWB_index = .689 is the goal!
 # It requires you to preload the other functions besides pop.cwbcalc()
-source('UW_R_Script_final.R')
+source('model/UW_R_Script_final.R')
 # df_index_100 <- as.data.frame(pop.cwbcalc(df0[,3:16])) #line to get CWBI
 
 # Getting Started EXample --
@@ -66,7 +66,7 @@ pop.Coef <- function(df0){
 mean(df_index_100$CWB_Index) #the actual CWBI 
 minCWB_Z = min(df_index$CWB_Z) #-1.969282
 maxCWB_Z = max(df_index$CWB_Z) #1.380706
-df2 <- as.data.frame(read.csv("overall constrants.csv", skip = 2, row.names = 1)) 
+df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 #^***Sifeal df2 is what your taking in for this one and can use to modify the sliders
 myCoef <- pop.Coef(df0) #use for the orginal data frame to get y = m*x - b coeff
 CWBZ <- rowMeans(myCoef$coefficients*df2["Mean",] - myCoef$B) #***We are optimizing this
