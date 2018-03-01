@@ -8,8 +8,8 @@
 library(shiny)
 library(flexdashboard)
 library(shinydashboard)
-source("UW_R_Script_final.R")
-source('coefficents.R')
+source('model/UW_R_Script_final.R')
+source('model/coefficents.R')
 library(readxl)
 library(dplyr)
 library(data.table)
@@ -23,7 +23,7 @@ names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
                 'collegerate','adultnoedu','adultsnohealth','unemployment')
 minCWB_Z = min(df_index$CWB_Z) #-1.969282
 maxCWB_Z = max(df_index$CWB_Z) #1.380706
-df2 <- as.data.frame(read.csv("overall constrants.csv", skip = 2, row.names = 1)) 
+df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 
 # "===========================================
 #                 HEADER -----

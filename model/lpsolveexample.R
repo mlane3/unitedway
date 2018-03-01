@@ -96,7 +96,7 @@ test <- function(){
 
 ## Attempts with optim() ----
 testfunction <-  function (myCoef,data){
-  # source("coefficents.R") #run this if you are missing the coefficents
+  # source("model/coefficents.R") #run this if you are missing the coefficents
   rowMeans(myCoef$coefficients*data["Mean",] - myCoef$B) #***We are optimizing this
   return(CWBZ)
 }

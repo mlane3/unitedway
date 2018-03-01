@@ -13,9 +13,9 @@
 df2 <- as.data.frame(read.csv("overall constrants.csv", skip = 2, row.names = 1))
 
 # Load in the original script.  We need df0 and dfindex from it
-source('UW_R_Script_final.R')
+source('model/UW_R_Script_final.R')
 # Load in the coeffcients. I have written the algorithm
-source('coefficents.R')
+source('model/coefficents.R')
 # coefficents.R contains some test script and you don't need the excess stuff
 rm(CWBZ,CWB1,CWB2,CWB3,dfNorm) 
 
