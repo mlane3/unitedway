@@ -12,7 +12,7 @@ source('coefficents.R')
 library(readxl)
 library(dplyr)
 library(data.table)
-#rm(CWB1,CWB2,CWB3,CWBZ,df_complete) #Mike will to clean this
+#Mike will to clean this
 
 # setwd("~/R/unitedway")
 df0 <- read_xlsx("2016 Original Data.xlsx")
@@ -32,8 +32,9 @@ header = dashboardHeader(title = 'United Way App')
 "===========================================
                 SIDEBAR
 ==========================================="
+choices <- unique("overall",df0$county)
 sidebar = dashboardSidebar(
-  
+
   sidebarMenu( 
                 menuItem( text = "Select County:",
                           icon = icon("th"),
@@ -43,9 +44,13 @@ sidebar = dashboardSidebar(
                                                   "Purush",
                                                   "Sifael"))
                           
-                         )
+                         ),
     
-    
+                sliderInput("lbw",
+                            "Low Weight Births",
+                            min = df2$lwb[1],
+                            max = df2$lwb[2],
+                            value = df2$lwb[3])
               ),
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
@@ -55,7 +60,11 @@ sidebar = dashboardSidebar(
                   min = df2$lwb[1],
                   max = df2$lwb[2],
                   value = df2$lwb[3])
-    )#,
+    ),
+    # Show a plot of the generated distribution
+    mainPanel(
+      plotOutput("distPlot")
+    )
   )
 )
 

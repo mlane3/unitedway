@@ -24,9 +24,9 @@ set.bounds(model, lower=c(0.1, 0.1, 0.1), upper=c(1, 1, 1)) #***We are using for
 # Compute the optimized model
 solve(model) #[1] 0
 # Get the value of the optimized parameters
-get.variables(model) #[1] 0.3333333 0.1666667 0.5000000
+print(get.variables(model)) #[1] 0.3333333 0.1666667 0.5000000
 # Get the value of the objective function
-get.objective(model) #[1] -0.05333333
+print(get.objective(model)) #[1] -0.05333333
 # Get the value of the constraint
 get.constraints(model) #[1] 1 0 0
 
