@@ -10,7 +10,7 @@
 #average weighted equally by each county.  We cannot use the simple overall average
 #for testing because our Z-score are calculated using that average.
 # Goal: A Z score of 0.33886 or CWB_index = .689 is the goal!
-df2 <- as.data.frame(read.csv("overall constrants.csv", skip = 2, row.names = 1))
+
 
 # Load in the original script.  We need df0 and dfindex from it
 source('UW_R_Script_final.R')
