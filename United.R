@@ -130,10 +130,22 @@ sidebar = dashboardSidebar(
 # ==========================================="
 body = dashboardBody(
   # source(coefficients) #to get pop.Coef
-  fluidRow(column = 2,gaugeOutput("gauge"),gaugeOutput("gauge2"))
-  #, fluidRow(
-  #   plotlyOutput("gauge2")
-  # )
+  fluidRow(gaugeOutput("gauge")),
+  fluidRow(box(plotlyOutput("gauge2",height = 200)),
+           box(plotlyOutput("gauge3",height = 200)),
+           box(plotlyOutput("gauge4",height = 200)),
+           box(plotlyOutput("gauge5",height = 200))),
+  fluidRow(box(plotlyOutput("gauge6",height = 200)),
+           box(plotlyOutput("gauge7",height = 200)),
+           box(plotlyOutput("gauge8",height = 200)),
+           box(plotlyOutput("gauge9",height = 200))),
+  fluidRow(box(plotlyOutput("gauge10",height = 200)),
+           box(plotlyOutput("gauge11",height = 200)),
+           box(plotlyOutput("gauge12",height = 200))
+           #box(plotlyOutput("gauge13",height = 200))
+  )
+  # fluidRow(box(plotlyOutput("gauge14",height = 200)),
+  #          box(plotlyOutput("gauge15",height = 200)))
 )
 
 # "===========================================
@@ -143,16 +155,17 @@ body = dashboardBody(
 # input <- append(input,df2) #How do I make reactive?
 
 server = function(input, output){
-  #I tried to make a reactive dashboard but I am really not sure how to hook this up
+  #Sifael I tried to make a reactive dashboard but I am really not sure how to hook this up
   # df3 <- reactive({
   #   df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
   #   return(df2)
   # })
   # Actual Calculation and react step----
-  # To Do later: I still cannot get this to work right. 
+  # Sifael I still cannot get this to work right. 
   CWBI <- reactive({
     #From Mike to Sifael: this and the next line are the react steps I am stuck on
-    df3 <- df4 <- df2
+    #From Mike to Sifael: The second line replaces the values in df2 by the median of each slider
+    df3 <- df2
     df3["Mean",] <- c(median(input$gradrate),median(input$ccrpi),median(input$grade3),
              median(input$grade8),median(input$lwb),median(input$childnohealth),
              median(input$childpoverty),median(input$povertyrate),median(input$housingburden),
@@ -168,19 +181,920 @@ server = function(input, output){
     unname(CWBI)
     # CWBI <- median(input$gradrate)*(1+input$final/100)
   })
-  output$gauge = renderGauge({
+  output$gauge = renderGauge({str(input)
+    str(input$attribs)
+    str(input$lwb)
+    typeof(input$lwb)
     CWBI <- CWBI()
-    gauge(CWBI, 
-          min = 0,
-          max = 1,
-          sectors = gaugeSectors(success = c(.589, 1.0),
-                                 danger = c(0, .589))
+    gauge(CWBI, min = 0, max = 1,
+          sectors = gaugeSectors(success = c(.589, 1.0),danger = c(0, .589))
     )
   })
-  output$gauge2 = renderGauge({finalvalue = median(input$lwb)
-    gauge(finalvalue, min = df2$lwb[1], max = df2$lwb[2],
-          sectors = gaugeSectors(success = c(0, df2$lwb[3]),
-                                 danger = c(df2$lwb[3], 100)))})
+  # output$gauge2 = renderGauge({finalvalue = median(input$lwb)
+  #   gauge(finalvalue, min = df2$lwb[1], max = df2$lwb[2],
+  #         sectors = gaugeSectors(success = c(0, df2$lwb[4]),
+  #                                danger = c(df2$lwb[4], df2$lwb[2])))})
+  output$gauge2 <- renderPlotly({
+    name = "Graduation Rate"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$gradrate)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$gradrate[4]-df2$gradrate[1])/(df2$gradrate[2]-df2$gradrate[1])
+    scaled <- (df2$gradrate[2]-rawvalue)/(df2$gradrate[2]-df2$gradrate[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$gradrate[1])), paste(round(df2$gradrate[4])), paste(round(df2$gradrate[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge3 <- renderPlotly({
+    name = "College and Career Readiness"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$ccrpi)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$ccrpi[4]-df2$ccrpi[1])/(df2$ccrpi[2]-df2$ccrpi[1])
+    scaled <- (df2$ccrpi[2]-rawvalue)/(df2$ccrpi[2]-df2$ccrpi[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$ccrpi[1])), paste(round(df2$ccrpi[4])), paste(round(df2$ccrpi[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  
+  output$gauge4 <- renderPlotly({
+    name = "% Exceed 3rd Grade Reading"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$grade3)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$grade3[4]-df2$grade3[1])/(df2$grade3[2]-df2$grade3[1])
+    scaled <- (df2$grade3[2]-rawvalue)/(df2$grade3[2]-df2$grade3[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$grade3[1])), paste(round(df2$grade3[4])), paste(round(df2$grade3[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge4 <- renderPlotly({
+    name = "% Exceed 8th Grade Math"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$grade8)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$grade8[4]-df2$grade8[1])/(df2$grade8[2]-df2$grade8[1])
+    scaled <- (df2$grade8[2]-rawvalue)/(df2$grade8[2]-df2$grade8[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$grade8[1])), paste(round(df2$grade8[4])), paste(round(df2$grade8[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge5 <- renderPlotly({
+    name = "Low Weight Births"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$lwb)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$lwb[4]-df2$lwb[1])/(df2$lwb[2]-df2$lwb[1])
+    scaled <- (df2$lwb[2]-rawvalue)/(df2$lwb[2]-df2$lwb[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$lwb[1])), paste(round(df2$lwb[4])), paste(round(df2$lwb[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge6 <- renderPlotly({
+    name = "Childern without Health Ins"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$childnohealth)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$childnohealth[4]-df2$childnohealth[1])/(df2$childnohealth[2]-df2$childnohealth[1])
+    scaled <- (df2$childnohealth[2]-rawvalue)/(df2$childnohealth[2]-df2$childnohealth[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$childnohealth[1])), paste(round(df2$childnohealth[4])), paste(round(df2$childnohealth[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge7 <- renderPlotly({
+    name = "Child Poverity Rate"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$childpoverty)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$childpoverty[4]-df2$childpoverty[1])/(df2$childpoverty[2]-df2$childpoverty[1])
+    scaled <- (df2$childpoverty[2]-rawvalue)/(df2$childpoverty[2]-df2$childpoverty[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$childpoverty[1])), paste(round(df2$childpoverty[4])), paste(round(df2$childpoverty[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge8 <- renderPlotly({
+    name = "povertyrate"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$povertyrate)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$povertyrate[4]-df2$povertyrate[1])/(df2$povertyrate[2]-df2$povertyrate[1])
+    scaled <- (df2$povertyrate[2]-rawvalue)/(df2$povertyrate[2]-df2$povertyrate[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$povertyrate[1])), paste(round(df2$povertyrate[4])), paste(round(df2$povertyrate[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge9 <- renderPlotly({
+    name = "housingburden"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$housingburden)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$housingburden[4]-df2$housingburden[1])/(df2$housingburden[2]-df2$housingburden[1])
+    scaled <- (df2$housingburden[2]-rawvalue)/(df2$housingburden[2]-df2$housingburden[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$housingburden[1])), paste(round(df2$housingburden[4])), paste(round(df2$housingburden[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge10 <- renderPlotly({
+    name = "momsnohs"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$momsnohs)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$housingburden[4]-df2$housingburden[1])/(df2$housingburden[2]-df2$housingburden[1])
+    scaled <- (df2$housingburden[2]-rawvalue)/(df2$housingburden[2]-df2$housingburden[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$housingburden[1])), paste(round(df2$housingburden[4])), paste(round(df2$housingburden[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge11 <- renderPlotly({
+    name = "collegerate"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$collegerate)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$housingburden[4]-df2$housingburden[1])/(df2$housingburden[2]-df2$housingburden[1])
+    scaled <- (df2$housingburden[2]-rawvalue)/(df2$housingburden[2]-df2$housingburden[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$housingburden[1])), paste(round(df2$housingburden[4])), paste(round(df2$housingburden[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge12 <- renderPlotly({
+    name = "adultsnoedu"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$adultsnoedu)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$adultsnoedu[4]-df2$adultsnoedu[1])/(df2$adultsnoedu[2]-df2$adultsnoedu[1])
+    scaled <- (df2$adultsnoedu[2]-rawvalue)/(df2$adultsnoedu[2]-df2$adultsnoedu[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$adultsnoedu[1])), paste(round(df2$adultsnoedu[4])), paste(round(df2$adultsnoedu[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Bad", "Good"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
 }
 
 
