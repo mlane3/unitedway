@@ -39,7 +39,7 @@ get.constraints(model) #[1] 1 0 0
 Value = .689
 maxCWB_Z = 1.380706 # maxCWB_Z = min(df_index$CWB_Z)
 minCWB_Z = -1.969282 # minCWB_Z = max(df_index$CWB_Z)
-Value = (Value*(maxCWB_Z - minCWB_Z)) + minCWB_Z
+ValueZ = (Value*(maxCWB_Z - minCWB_Z)) + minCWB_Z
 
 library(lpSolve)
 library(lpSolveAPI)
@@ -49,7 +49,7 @@ test <- function(){
   # Define the object function: for Minimize, use -ve
   set.objfn(model, c(7/(7*3), 3/(3*3), 4/(4*3))) #Replica of Child well being index but by sub-indexes
   # Add the constraints
-  add.constraint(model, c(7/(7*3), 3/(3*3), 4/(4*3)), "<=", Value)
+  add.constraint(model, c(7/(7*3), 3/(3*3), 4/(4*3)), "<=", ValueZ)
   add.constraint(model, c(1, 0, 0), ">", 0) #average x1 = .518
   add.constraint(model, c(0, 0, 1), ">", 0) #average x2 = .500
   add.constraint(model, c(0, 1, 0), ">", 0) #average x3 = .469
