@@ -66,32 +66,39 @@ body = dashboardBody(
 ==========================================="
 server = function(input, output){
   output$gauge2 <- renderPlotly({
+    name = "Graduation Rate"
     h = 0.24
-    k = 0.5
+    k = 0.62
     r = 0.15
-    my_raw_value = 35
-    theta = my_raw_value * 180/df2$gradrate[2]
+    rawvalue <- reactive({
+      rawvalue <- median(input$gradrate)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$gradrate[4]-df2$gradrate[1])/(df2$gradrate[2]-df2$gradrate[1])
+    scaled <- (df2$gradrate[2]-rawvalue)/(df2$gradrate[2]-df2$gradrate[1])
+    theta = scaled * 180
     theta = theta * pi / 180
     x = h + r*cos(theta)
     y = k + r*sin(theta)
     base_plot <- plot_ly(
         type = "pie",
-        values = c(40, 10, 10, 10, 10),
-        labels = c("-",paste(df2$gradrate[1]), "20", "70", paste(df2$gradrate[2])),
+        values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+        labels = c("-",paste(round(df2$gradrate[1])), paste(round(df2$gradrate[4])), paste(round(df2$gradrate[2]))),
         rotation = 108,
         direction = "clockwise",
+        sort = FALSE,
         hole = 0.4,
         textinfo = "label",
         textposition = "outside",
         hoverinfo = "none",
         domain = list(x = c(0, 0.48), y = c(0, 1)),
-        marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)')),
+        marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
         showlegend = FALSE)
         base_plot <- add_trace(
           base_plot,
           type = "pie",
-          values = c(50, 20, 10, 10, 10),
-          labels = c("Error Log Level Meter", "Debug", "Info", "Warn", "Error"),
+          values = c(50, scaled0*50, (1-scaled0)*50),
+          labels = c(name, "Bad", "Good"),
           rotation = 90,
           direction = "clockwise",
           hole = 0.3,
@@ -99,7 +106,7 @@ server = function(input, output){
           textposition = "inside",
           hoverinfo = "none",
           domain = list(x = c(0, 0.48), y = c(0, 1)),
-          marker = list(colors = c('rgb(255, 255, 255)', 'rgb(232,226,202)', 'rgb(226,210,172)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+          marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
           showlegend= FALSE
         )
         a <- list(
@@ -114,7 +121,7 @@ server = function(input, output){
           x = 0.23,
           y = 0.45,
           showarrow = FALSE,
-          text = str("40"))
+          text = paste(rawvalue))
         
         base_chart <- layout(
           base_plot,
@@ -122,7 +129,7 @@ server = function(input, output){
             list(
               type = 'path',
               line = list(width = .5),
-              path =  paste('M 0.235 0.5 L' , 0.24, 0.62, 'L 0.245 0.5 Z'),
+              path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
               xref = 'paper',
               yref = 'paper',
               fillcolor = 'rgba(44, 160, 101, 0.5)'
