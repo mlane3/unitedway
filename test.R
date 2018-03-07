@@ -7,7 +7,7 @@ Date: February 28th 2018
 # NECESSARY PACKAGES
 library(shiny)
 library(shinydashboard)
-
+library(plotly)
 "===========================================
 HEADER
 ==========================================="
@@ -44,7 +44,7 @@ sidebar = dashboardSidebar(
     sidebarMenu(
       sliderInput("gradrate","Gradrate Range",
                   min = df2$gradrate[1],max = df2$gradrate[2],
-                  value = c(df2$gradrate[3],df2$gradrate[2]), #for the upper range
+                  value = c(df2$gradrate[4],df2$gradrate[2]), #for the upper range
                   sep ="",step = .01, ticks = FALSE)
               
     )
@@ -65,74 +65,87 @@ body = dashboardBody(
                 SERVER
 ==========================================="
 server = function(input, output){
-  output$gauge2 <- renderPlotly({
-    h = 0.24
-    k = 0.5
-    r = 0.15
-    my_raw_value = 35
-    theta = my_raw_value * 180/df2$gradrate[2]
-    theta = theta * pi / 180
-    x = h + r*cos(theta)
-    y = k + r*sin(theta)
-    base_plot <- plot_ly(
+  plotgauge <- function(name,value,min,max,average){
+    output <- renderPlotly({
+      h = 0.24
+      k = 0.62
+      r = 0.15
+      scaled0 <- (average-min)/(max-min)
+      scaled <- (max-value)/(max-min)
+      theta = scaled * 180
+      theta = theta * pi / 180
+      x = h + r*cos(theta)
+      y = k + r*sin(theta)
+      base_plot <- plot_ly(
         type = "pie",
-        values = c(40, 10, 10, 10, 10),
-        labels = c("-",paste(df2$gradrate[1]), "20", "70", paste(df2$gradrate[2])),
+        values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+        labels = c("-",paste(round(min)), paste(round(average)), paste(round(max))),
         rotation = 108,
         direction = "clockwise",
+        sort = FALSE,
         hole = 0.4,
         textinfo = "label",
         textposition = "outside",
         hoverinfo = "none",
         domain = list(x = c(0, 0.48), y = c(0, 1)),
-        marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)')),
+        marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
         showlegend = FALSE)
-        base_plot <- add_trace(
-          base_plot,
-          type = "pie",
-          values = c(50, 20, 10, 10, 10),
-          labels = c("Error Log Level Meter", "Debug", "Info", "Warn", "Error"),
-          rotation = 90,
-          direction = "clockwise",
-          hole = 0.3,
-          textinfo = "label",
-          textposition = "inside",
-          hoverinfo = "none",
-          domain = list(x = c(0, 0.48), y = c(0, 1)),
-          marker = list(colors = c('rgb(255, 255, 255)', 'rgb(232,226,202)', 'rgb(226,210,172)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
-          showlegend= FALSE
-        )
-        a <- list(
-          showticklabels = FALSE,
-          autotick = FALSE,
-          showgrid = FALSE,
-          zeroline = FALSE)
-        
-        b <- list(
-          xref = 'paper',
-          yref = 'paper',
-          x = 0.23,
-          y = 0.45,
-          showarrow = FALSE,
-          text = str("40"))
-        
-        base_chart <- layout(
-          base_plot,
-          shapes = list(
-            list(
-              type = 'path',
-              line = list(width = .5),
-              path =  paste('M 0.235 0.5 L' , 0.24, 0.62, 'L 0.245 0.5 Z'),
-              xref = 'paper',
-              yref = 'paper',
-              fillcolor = 'rgba(44, 160, 101, 0.5)'
-            )
-          ),
-          xaxis = a,
-          yaxis = a,
-          annotations = b
-        )
-      })
+      base_plot <- add_trace(
+        base_plot,
+        type = "pie",
+        values = c(50, scaled0*50, (1-scaled0)*50),
+        labels = c(name, "Bad", "Good"),
+        rotation = 90,
+        direction = "clockwise",
+        hole = 0.3,
+        textinfo = "label",
+        textposition = "inside",
+        hoverinfo = "none",
+        domain = list(x = c(0, 0.48), y = c(0, 1)),
+        marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+        showlegend= FALSE
+      )
+      a <- list(
+        showticklabels = FALSE,
+        autotick = FALSE,
+        showgrid = FALSE,
+        zeroline = FALSE)
+      
+      b <- list(
+        xref = 'paper',
+        yref = 'paper',
+        x = 0.23,
+        y = 0.45,
+        showarrow = FALSE,
+        text = paste(value))
+      
+      base_chart <- layout(
+        base_plot,
+        shapes = list(
+          list(
+            type = 'path',
+            line = list(width = .5),
+            path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+            xref = 'paper',
+            yref = 'paper',
+            fillcolor = 'rgba(44, 160, 101, 0.5)'
+          )
+        ),
+        xaxis = a,
+        yaxis = a,
+        annotations = b
+      )
+    })
+    return(output)
+  }
+  rawvalue <- reactive({
+  rawvalue <- median(input$gradrate)
+     return(rawvalue)
+  })
+  # value = reactive({value = median(input$gradrate); return(value)})
+  # value = value()
+  output$gauge2 <- plotgauge(name = "Graduation Rate",rawvalue(),min=df2$gradrate[1],
+                             max =df2$gradrate[2], average = df2$gradrate[4])
 }
 
 
