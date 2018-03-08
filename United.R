@@ -17,12 +17,12 @@ library(data.table)
 library(plotly)
 #Mike will to clean this
 
-# setwd("~/R/unitedway")
+#setwd("~/R/unitedway")
 df0 <- read_xlsx("2016 Original Data.xlsx")
 names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
                 'grade3','grade8','lbw','childnohealth',
                 'childpoverty','povertyrate','housingburden','momsnohs',
-                'collegerate','adultnoedu','adultsnohealth','unemployment')
+                'collegerate','adultsnoedu','adultnohealth','unemployment')
 minCWB_Z = min(df_index$CWB_Z) #-1.969282
 maxCWB_Z = max(df_index$CWB_Z) #1.380706
 df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
@@ -75,10 +75,10 @@ sidebar = dashboardSidebar(
     sliderInput("grade8","% Exceed 8th Grade Math",
                 min = df2$grade8[1],max = df2$grade8[2],
                 value = c(df2$grade8[3],df2$grade8[2]), sep ="",step = .01, ticks = FALSE),
-    sliderInput("lwb","Low Weight Births",
-                min = df2$lwb[1],
-                max = df2$lwb[2],
-                value = c(df2$lwb[1],df2$lwb[3]), sep ="",step = .01, ticks = FALSE),
+    sliderInput("lbw","Low Weight Births",
+                min = df2$lbw[1],
+                max = df2$lbw[2],
+                value = c(df2$lbw[1],df2$lbw[3]), sep ="",step = .01, ticks = FALSE),
     sliderInput("childnohealth","% Childern No Health Ins",
                 min = df2$childnohealth[1],
                 max = df2$childnohealth[2],
@@ -141,11 +141,11 @@ body = dashboardBody(
            box(plotlyOutput("gauge9",height = 200))),
   fluidRow(box(plotlyOutput("gauge10",height = 200)),
            box(plotlyOutput("gauge11",height = 200)),
-           box(plotlyOutput("gauge12",height = 200))
-           #box(plotlyOutput("gauge13",height = 200))
-  )
-  # fluidRow(box(plotlyOutput("gauge14",height = 200)),
-  #          box(plotlyOutput("gauge15",height = 200)))
+           box(plotlyOutput("gauge12",height = 200)),
+           box(plotlyOutput("gauge13",height = 200))
+  ),
+  fluidRow(box(plotlyOutput("gauge14",height = 200)),
+          box(plotlyOutput("gauge15",height = 200)))
 )
 
 # "===========================================
@@ -167,7 +167,7 @@ server = function(input, output){
     #From Mike to Sifael: The second line replaces the values in df2 by the median of each slider
     df3 <- df2
     df3["Mean",] <- c(median(input$gradrate),median(input$ccrpi),median(input$grade3),
-             median(input$grade8),median(input$lwb),median(input$childnohealth),
+             median(input$grade8),median(input$lbw),median(input$childnohealth),
              median(input$childpoverty),median(input$povertyrate),median(input$housingburden),
              median(input$momsnohs),median(input$collegerate),median(input$adultsnoedu),
              median(input$adultnohealth),median(input$unemployment))
@@ -175,25 +175,27 @@ server = function(input, output){
     minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
     maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
     #***We are optimizing this CwBZ
-    Mean <- df3["Mean",]*(1+input$final/100) #(1+input$final)/100 is a placeholder for optimizer) 
-    CWBZ <- rowMeans(myCoef$coefficients*Mean - myCoef$B)
-    CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z),3)*(1+input$final/100)
+    df3["Mean",]
+    Mean <- df3["Mean",]#*(1+input$final/100) #(1+input$final)/100 is a placeholder for optimizer) 
+    print(myCoef$coefficients*Mean - myCoef$B)*100
+    CWBZ <- sum(myCoef$coefficients*Mean - myCoef$B)*100
+    CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z),3)
     unname(CWBI)
     # CWBI <- median(input$gradrate)*(1+input$final/100)
   })
   output$gauge = renderGauge({str(input)
-    str(input$attribs)
-    str(input$lwb)
-    typeof(input$lwb)
+    #str(input$attribs)
+    #str(input$lbw)
+    #typeof(input$lbw)
     CWBI <- CWBI()
-    gauge(CWBI, min = 0, max = 1,
-          sectors = gaugeSectors(success = c(.589, 1.0),danger = c(0, .589))
+    gauge(CWBI, min = 0, max = 100,
+          sectors = gaugeSectors(success = c(58.9, 100),danger = c(0, 58.9))
     )
   })
-  # output$gauge2 = renderGauge({finalvalue = median(input$lwb)
-  #   gauge(finalvalue, min = df2$lwb[1], max = df2$lwb[2],
-  #         sectors = gaugeSectors(success = c(0, df2$lwb[4]),
-  #                                danger = c(df2$lwb[4], df2$lwb[2])))})
+  # output$gauge2 = renderGauge({finalvalue = median(input$lbw)
+  #   gauge(finalvalue, min = df2$lbw[1], max = df2$lbw[2],
+  #         sectors = gaugeSectors(success = c(0, df2$lbw[4]),
+  #                                danger = c(df2$lbw[4], df2$lbw[2])))})
   output$gauge2 <- renderPlotly({
     name = "Graduation Rate"
     h = 0.24
@@ -344,7 +346,6 @@ server = function(input, output){
       annotations = b
     )
   })
-  
   output$gauge4 <- renderPlotly({
     name = "% Exceed 3rd Grade Reading"
     h = 0.24
@@ -420,7 +421,7 @@ server = function(input, output){
       annotations = b
     )
   })
-  output$gauge4 <- renderPlotly({
+  output$gauge5 <- renderPlotly({
     name = "% Exceed 8th Grade Math"
     h = 0.24
     k = 0.62
@@ -495,17 +496,17 @@ server = function(input, output){
       annotations = b
     )
   })
-  output$gauge5 <- renderPlotly({
+  output$gauge6 <- renderPlotly({
     name = "Low Weight Births"
     h = 0.24
     k = 0.62
     r = 0.15
     rawvalue <- reactive({
-      rawvalue <- median(input$lwb)
+      rawvalue <- median(input$lbw)
       return(rawvalue)})
     rawvalue <- rawvalue()
-    scaled0 <- (df2$lwb[4]-df2$lwb[1])/(df2$lwb[2]-df2$lwb[1])
-    scaled <- (df2$lwb[2]-rawvalue)/(df2$lwb[2]-df2$lwb[1])
+    scaled0 <- (df2$lbw[4]-df2$lbw[1])/(df2$lbw[2]-df2$lbw[1])
+    scaled <- (df2$lbw[2]-rawvalue)/(df2$lbw[2]-df2$lbw[1])
     theta = scaled * 180
     theta = theta * pi / 180
     x = h + r*cos(theta)
@@ -513,7 +514,7 @@ server = function(input, output){
     base_plot <- plot_ly(
       type = "pie",
       values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
-      labels = c("-",paste(round(df2$lwb[1])), paste(round(df2$lwb[4])), paste(round(df2$lwb[2]))),
+      labels = c("-",paste(round(df2$lbw[1])), paste(round(df2$lbw[4])), paste(round(df2$lbw[2]))),
       rotation = 108,
       direction = "clockwise",
       sort = FALSE,
@@ -528,82 +529,7 @@ server = function(input, output){
       base_plot,
       type = "pie",
       values = c(50, scaled0*50, (1-scaled0)*50),
-      labels = c(name, "Bad", "Good"),
-      rotation = 90,
-      direction = "clockwise",
-      hole = 0.3,
-      textinfo = "label",
-      textposition = "inside",
-      hoverinfo = "none",
-      domain = list(x = c(0, 0.48), y = c(0, 1)),
-      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
-      showlegend= FALSE
-    )
-    a <- list(
-      showticklabels = FALSE,
-      autotick = FALSE,
-      showgrid = FALSE,
-      zeroline = FALSE)
-    
-    b <- list(
-      xref = 'paper',
-      yref = 'paper',
-      x = 0.23,
-      y = 0.45,
-      showarrow = FALSE,
-      text = paste(rawvalue))
-    
-    base_chart <- layout(
-      base_plot,
-      shapes = list(
-        list(
-          type = 'path',
-          line = list(width = .5),
-          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
-          xref = 'paper',
-          yref = 'paper',
-          fillcolor = 'rgba(44, 160, 101, 0.5)'
-        )
-      ),
-      xaxis = a,
-      yaxis = a,
-      annotations = b
-    )
-  })
-  output$gauge6 <- renderPlotly({
-    name = "Childern without Health Ins"
-    h = 0.24
-    k = 0.62
-    r = 0.15
-    rawvalue <- reactive({
-      rawvalue <- median(input$childnohealth)
-      return(rawvalue)})
-    rawvalue <- rawvalue()
-    scaled0 <- (df2$childnohealth[4]-df2$childnohealth[1])/(df2$childnohealth[2]-df2$childnohealth[1])
-    scaled <- (df2$childnohealth[2]-rawvalue)/(df2$childnohealth[2]-df2$childnohealth[1])
-    theta = scaled * 180
-    theta = theta * pi / 180
-    x = h + r*cos(theta)
-    y = k + r*sin(theta)
-    base_plot <- plot_ly(
-      type = "pie",
-      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
-      labels = c("-",paste(round(df2$childnohealth[1])), paste(round(df2$childnohealth[4])), paste(round(df2$childnohealth[2]))),
-      rotation = 108,
-      direction = "clockwise",
-      sort = FALSE,
-      hole = 0.4,
-      textinfo = "label",
-      textposition = "outside",
-      hoverinfo = "none",
-      domain = list(x = c(0, 0.48), y = c(0, 1)),
-      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
-      showlegend = FALSE)
-    base_plot <- add_trace(
-      base_plot,
-      type = "pie",
-      values = c(50, scaled0*50, (1-scaled0)*50),
-      labels = c(name, "Bad", "Good"),
+      labels = c(name, "Good", "Bad"),
       rotation = 90,
       direction = "clockwise",
       hole = 0.3,
@@ -646,16 +572,16 @@ server = function(input, output){
     )
   })
   output$gauge7 <- renderPlotly({
-    name = "Child Poverity Rate"
+    name = "Childern without Health Ins"
     h = 0.24
     k = 0.62
     r = 0.15
     rawvalue <- reactive({
-      rawvalue <- median(input$childpoverty)
+      rawvalue <- median(input$childnohealth)
       return(rawvalue)})
     rawvalue <- rawvalue()
-    scaled0 <- (df2$childpoverty[4]-df2$childpoverty[1])/(df2$childpoverty[2]-df2$childpoverty[1])
-    scaled <- (df2$childpoverty[2]-rawvalue)/(df2$childpoverty[2]-df2$childpoverty[1])
+    scaled0 <- (df2$childnohealth[4]-df2$childnohealth[1])/(df2$childnohealth[2]-df2$childnohealth[1])
+    scaled <- (df2$childnohealth[2]-rawvalue)/(df2$childnohealth[2]-df2$childnohealth[1])
     theta = scaled * 180
     theta = theta * pi / 180
     x = h + r*cos(theta)
@@ -663,7 +589,7 @@ server = function(input, output){
     base_plot <- plot_ly(
       type = "pie",
       values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
-      labels = c("-",paste(round(df2$childpoverty[1])), paste(round(df2$childpoverty[4])), paste(round(df2$childpoverty[2]))),
+      labels = c("-",paste(round(df2$childnohealth[1])), paste(round(df2$childnohealth[4])), paste(round(df2$childnohealth[2]))),
       rotation = 108,
       direction = "clockwise",
       sort = FALSE,
@@ -678,7 +604,7 @@ server = function(input, output){
       base_plot,
       type = "pie",
       values = c(50, scaled0*50, (1-scaled0)*50),
-      labels = c(name, "Bad", "Good"),
+      labels = c(name, "Good", "Bad"),
       rotation = 90,
       direction = "clockwise",
       hole = 0.3,
@@ -721,16 +647,16 @@ server = function(input, output){
     )
   })
   output$gauge8 <- renderPlotly({
-    name = "povertyrate"
+    name = "Child Poverity Rate"
     h = 0.24
     k = 0.62
     r = 0.15
     rawvalue <- reactive({
-      rawvalue <- median(input$povertyrate)
+      rawvalue <- median(input$childpoverty)
       return(rawvalue)})
     rawvalue <- rawvalue()
-    scaled0 <- (df2$povertyrate[4]-df2$povertyrate[1])/(df2$povertyrate[2]-df2$povertyrate[1])
-    scaled <- (df2$povertyrate[2]-rawvalue)/(df2$povertyrate[2]-df2$povertyrate[1])
+    scaled0 <- (df2$childpoverty[4]-df2$childpoverty[1])/(df2$childpoverty[2]-df2$childpoverty[1])
+    scaled <- (df2$childpoverty[2]-rawvalue)/(df2$childpoverty[2]-df2$childpoverty[1])
     theta = scaled * 180
     theta = theta * pi / 180
     x = h + r*cos(theta)
@@ -738,7 +664,7 @@ server = function(input, output){
     base_plot <- plot_ly(
       type = "pie",
       values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
-      labels = c("-",paste(round(df2$povertyrate[1])), paste(round(df2$povertyrate[4])), paste(round(df2$povertyrate[2]))),
+      labels = c("-",paste(round(df2$childpoverty[1])), paste(round(df2$childpoverty[4])), paste(round(df2$childpoverty[2]))),
       rotation = 108,
       direction = "clockwise",
       sort = FALSE,
@@ -753,7 +679,7 @@ server = function(input, output){
       base_plot,
       type = "pie",
       values = c(50, scaled0*50, (1-scaled0)*50),
-      labels = c(name, "Bad", "Good"),
+      labels = c(name, "Good", "Bad"),
       rotation = 90,
       direction = "clockwise",
       hole = 0.3,
@@ -796,16 +722,16 @@ server = function(input, output){
     )
   })
   output$gauge9 <- renderPlotly({
-    name = "housingburden"
+    name = "povertyrate"
     h = 0.24
     k = 0.62
     r = 0.15
     rawvalue <- reactive({
-      rawvalue <- median(input$housingburden)
+      rawvalue <- median(input$povertyrate)
       return(rawvalue)})
     rawvalue <- rawvalue()
-    scaled0 <- (df2$housingburden[4]-df2$housingburden[1])/(df2$housingburden[2]-df2$housingburden[1])
-    scaled <- (df2$housingburden[2]-rawvalue)/(df2$housingburden[2]-df2$housingburden[1])
+    scaled0 <- (df2$povertyrate[4]-df2$povertyrate[1])/(df2$povertyrate[2]-df2$povertyrate[1])
+    scaled <- (df2$povertyrate[2]-rawvalue)/(df2$povertyrate[2]-df2$povertyrate[1])
     theta = scaled * 180
     theta = theta * pi / 180
     x = h + r*cos(theta)
@@ -813,7 +739,7 @@ server = function(input, output){
     base_plot <- plot_ly(
       type = "pie",
       values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
-      labels = c("-",paste(round(df2$housingburden[1])), paste(round(df2$housingburden[4])), paste(round(df2$housingburden[2]))),
+      labels = c("-",paste(round(df2$povertyrate[1])), paste(round(df2$povertyrate[4])), paste(round(df2$povertyrate[2]))),
       rotation = 108,
       direction = "clockwise",
       sort = FALSE,
@@ -828,7 +754,7 @@ server = function(input, output){
       base_plot,
       type = "pie",
       values = c(50, scaled0*50, (1-scaled0)*50),
-      labels = c(name, "Bad", "Good"),
+      labels = c(name, "Good", "Bad"),
       rotation = 90,
       direction = "clockwise",
       hole = 0.3,
@@ -871,12 +797,12 @@ server = function(input, output){
     )
   })
   output$gauge10 <- renderPlotly({
-    name = "momsnohs"
+    name = "housingburden"
     h = 0.24
     k = 0.62
     r = 0.15
     rawvalue <- reactive({
-      rawvalue <- median(input$momsnohs)
+      rawvalue <- median(input$housingburden)
       return(rawvalue)})
     rawvalue <- rawvalue()
     scaled0 <- (df2$housingburden[4]-df2$housingburden[1])/(df2$housingburden[2]-df2$housingburden[1])
@@ -903,7 +829,7 @@ server = function(input, output){
       base_plot,
       type = "pie",
       values = c(50, scaled0*50, (1-scaled0)*50),
-      labels = c(name, "Bad", "Good"),
+      labels = c(name, "Good", "Bad"),
       rotation = 90,
       direction = "clockwise",
       hole = 0.3,
@@ -946,12 +872,12 @@ server = function(input, output){
     )
   })
   output$gauge11 <- renderPlotly({
-    name = "collegerate"
+    name = "momsnohs"
     h = 0.24
     k = 0.62
     r = 0.15
     rawvalue <- reactive({
-      rawvalue <- median(input$collegerate)
+      rawvalue <- median(input$momsnohs)
       return(rawvalue)})
     rawvalue <- rawvalue()
     scaled0 <- (df2$housingburden[4]-df2$housingburden[1])/(df2$housingburden[2]-df2$housingburden[1])
@@ -964,6 +890,81 @@ server = function(input, output){
       type = "pie",
       values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
       labels = c("-",paste(round(df2$housingburden[1])), paste(round(df2$housingburden[4])), paste(round(df2$housingburden[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Good", "Bad"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge12 <- renderPlotly({
+    name = "collegerate"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$collegerate)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$collegerate[4]-df2$collegerate[1])/(df2$collegerate[2]-df2$collegerate[1])
+    scaled <- (df2$collegerate[2]-rawvalue)/(df2$collegerate[2]-df2$collegerate[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$collegerate[1])), paste(round(df2$collegerate[4])), paste(round(df2$housingburden[2]))),
       rotation = 108,
       direction = "clockwise",
       sort = FALSE,
@@ -1020,7 +1021,7 @@ server = function(input, output){
       annotations = b
     )
   })
-  output$gauge12 <- renderPlotly({
+  output$gauge13 <- renderPlotly({
     name = "adultsnoedu"
     h = 0.24
     k = 0.62
@@ -1053,7 +1054,157 @@ server = function(input, output){
       base_plot,
       type = "pie",
       values = c(50, scaled0*50, (1-scaled0)*50),
-      labels = c(name, "Bad", "Good"),
+      labels = c(name, "Good", "Bad"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge14 <- renderPlotly({
+    name = "adultnohealth"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$adultnohealth)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$adultnohealth[4]-df2$adultnohealth[1])/(df2$adultnohealth[2]-df2$adultnohealth[1])
+    scaled <- (df2$adultnohealth[2]-rawvalue)/(df2$adultnohealth[2]-df2$adultnohealth[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$adultnohealth[1])), paste(round(df2$adultnohealth[4])), paste(round(df2$adultnohealth[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Good", "Bad"),
+      rotation = 90,
+      direction = "clockwise",
+      hole = 0.3,
+      textinfo = "label",
+      textposition = "inside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(223,189,139)', 'rgb(223,162,103)')),
+      showlegend= FALSE
+    )
+    a <- list(
+      showticklabels = FALSE,
+      autotick = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE)
+    
+    b <- list(
+      xref = 'paper',
+      yref = 'paper',
+      x = 0.23,
+      y = 0.45,
+      showarrow = FALSE,
+      text = paste(rawvalue))
+    
+    base_chart <- layout(
+      base_plot,
+      shapes = list(
+        list(
+          type = 'path',
+          line = list(width = .5),
+          path =  paste('M 0.235 0.5 L' , x, y, 'L 0.245 0.5 Z'),
+          xref = 'paper',
+          yref = 'paper',
+          fillcolor = 'rgba(44, 160, 101, 0.5)'
+        )
+      ),
+      xaxis = a,
+      yaxis = a,
+      annotations = b
+    )
+  })
+  output$gauge15 <- renderPlotly({
+    name = "unemployment"
+    h = 0.24
+    k = 0.62
+    r = 0.15
+    rawvalue <- reactive({
+      rawvalue <- median(input$unemployment)
+      return(rawvalue)})
+    rawvalue <- rawvalue()
+    scaled0 <- (df2$unemployment[4]-df2$unemployment[1])/(df2$unemployment[2]-df2$unemployment[1])
+    scaled <- (df2$unemployment[2]-rawvalue)/(df2$unemployment[2]-df2$unemployment[1])
+    theta = scaled * 180
+    theta = theta * pi / 180
+    x = h + r*cos(theta)
+    y = k + r*sin(theta)
+    base_plot <- plot_ly(
+      type = "pie",
+      values = c(40, (1-scaled0)*30, scaled0*60, (1-scaled0)*30),
+      labels = c("-",paste(round(df2$unemployment[1])), paste(round(df2$unemployment[4])), paste(round(df2$unemployment[2]))),
+      rotation = 108,
+      direction = "clockwise",
+      sort = FALSE,
+      hole = 0.4,
+      textinfo = "label",
+      textposition = "outside",
+      hoverinfo = "none",
+      domain = list(x = c(0, 0.48), y = c(0, 1)),
+      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
+      showlegend = FALSE)
+    base_plot <- add_trace(
+      base_plot,
+      type = "pie",
+      values = c(50, scaled0*50, (1-scaled0)*50),
+      labels = c(name, "Good", "Bad"),
       rotation = 90,
       direction = "clockwise",
       hole = 0.3,

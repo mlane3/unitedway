@@ -22,7 +22,7 @@ df0 <- read_xlsx("2016 Original Data.xlsx")
 names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
                 'grade3','grade8','lbw','childnohealth',
                 'childpoverty','povertyrate','housingburden','momsnohs',
-                'collegerate','adultnoedu','adultsnohealth','unemployment')
+                'collegerate','adultsnoedu','adultnohealth','unemployment')
 dfNorm <- df0[,3:16] # ***sifeal manipulate sliders around this line right here: average per county and average again
 
 
@@ -96,7 +96,7 @@ pop.cwbcalc <- function(dfNorm, ...){
                                                             housingburden, 
                                                             momsnohs)))
   df_index$CommunityZ <- rowMeans(subset(df_Zscore, select = c(collegerate,
-                                                               adultnoedu,
+                                                               adultsnoedu,
                                                                adultsnohealth,
                                                                unemployment)))
   # 3)  Average the 3 sub-indexes ----
@@ -141,5 +141,3 @@ pop.cwbcalc <- function(dfNorm, ...){
   write.csv(df_index_100, file = "Complete index table.csv")
   return(df_index_100)
 }
-
-df_index_100 <- as.data.frame(pop.cwbcalc(dfNorm)) #line to get CWBI
