@@ -39,7 +39,28 @@ test <- function(){
   # add.constraint(model, c(0, 1, 0), "<", 1) #average x3 = .469 Community
   lp.control(model,sense='min')
   # Set the upper and lower bounds
-  set.bounds(model, lower=c(df2$gradrate[1], df2$ccrpi[1], 0.0), upper=c(df2$gradrate[2], df2$ccrpi[2], 1.0)) #***We are using for constraints
+  gradrate      
+  ccrpi         
+  grade3  
+  grade8       
+  lwb  
+  childnohealth
+  childpoverty
+  povertyrate  
+  housingburden
+  momsnohs
+  collegerate
+  adultsnoedu
+  adultnohealth
+  unemployment
+  set.bounds(model,
+             lower=c(df2$gradrate[1], df2$ccrpi[1], df2$X3grade[1], df2$X8grade[1], df2$lwb[1],
+                     df2$childnohealth[1], df2$childpoverty[1], df2$povertyrate[1], df2$housingburden[1], 
+                     df2$momsnohs[1], df2$collegerate[1], df2$adultsnoedu[1], df2$unemployment[1]), 
+             upper=c(df2$gradrate[2], df2$ccrpi[2], df2$X3grade[2], df2$X8grade[2], df2$lwb[2],
+                     df2$childnohealth[2], df2$childpoverty[2], df2$povertyrate[2], df2$housingburden[2],
+                     df2$momsnohs[2], df2$collegerate[2], df2$adultsnoedu[2], df2$unemployment[2])
+             ) #***We are using for constraints
   # Compute the optimized model
   print(solve(model))
   # Get the value of the optimized parameters
