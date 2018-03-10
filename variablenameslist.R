@@ -3,7 +3,7 @@ gradrate
 ccrpi         
 grade3  
 grade8       
-lwb  
+lbw  
 childnohealth
 childpoverty
 povertyrate  
