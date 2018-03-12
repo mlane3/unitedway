@@ -22,7 +22,7 @@ df0 <- read_xlsx("2016 Original Data.xlsx")
 names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
                 'grade3','grade8','lbw','childnohealth',
                 'childpoverty','povertyrate','housingburden','momsnohs',
-                'collegerate','adultnoedu','adultsnohealth','unemployment')
+                'collegerate','adultsnoedu','adultnohealth','unemployment')
 dfNorm <- df0[,3:16] # ***sifeal manipulate sliders around this line right here: average per county and average again
 
 
@@ -96,8 +96,8 @@ pop.cwbcalc <- function(dfNorm, ...){
                                                             housingburden, 
                                                             momsnohs)))
   df_index$CommunityZ <- rowMeans(subset(df_Zscore, select = c(collegerate,
-                                                               adultnoedu,
-                                                               adultsnohealth,
+                                                               adultsnoedu,
+                                                               adultnohealth,
                                                                unemployment)))
   # 3)  Average the 3 sub-indexes ----
   df_index$CWB_Z <- rowMeans(subset(df_index, select = c(ChildZ, FamilyZ, CommunityZ)))
@@ -111,15 +111,15 @@ pop.cwbcalc <- function(dfNorm, ...){
   
   # dfindex_100 <- 100*(dfindex - min(dfindex))/(max(dfindex)-min(dfindex)) #this is the scale score 1-100
   
-  df_index_100$ChildZ <- (df_index$ChildZ - min(df_index$ChildZ)) / (max(df_index$ChildZ) - min(df_index$ChildZ))
+  df_index_100$Child_Index <- (df_index$ChildZ - min(df_index$ChildZ)) / (max(df_index$ChildZ) - min(df_index$ChildZ))
   # summary(df_index$ChildZ)
   # summary(df_index_100$ChildZ)
   
-  df_index_100$FamilyZ <- (df_index$FamilyZ - min(df_index$FamilyZ)) / (max(df_index$FamilyZ) - min(df_index$FamilyZ))
+  df_index_100$Family_Index <- (df_index$FamilyZ - min(df_index$FamilyZ)) / (max(df_index$FamilyZ) - min(df_index$FamilyZ))
   # summary(df_index$FamilyZ)
   # summary(df_index_100$FamilyZ)
   
-  df_index_100$CommunityZ <- (df_index$CommunityZ - min(df_index$CommunityZ)) / (max(df_index$CommunityZ) - min(df_index$CommunityZ))
+  df_index_100$Community_Index <- (df_index$CommunityZ - min(df_index$CommunityZ)) / (max(df_index$CommunityZ) - min(df_index$CommunityZ))
   # summary(df_index$CommunityZ)
   # summary(df_index_100$CommunityZ)
   
@@ -135,11 +135,12 @@ pop.cwbcalc <- function(dfNorm, ...){
   # These values match the 'Original Data' tab, cells AK29:AN806
   
   ##### --- Return Output ---- #####
-  df_complete <<- merge(as.data.table(df0),as.data.table(df_index_100))
+  # df_complete 
+  df_complete <- merge(as.data.table(df0),as.data.table(df_index_100))
+  df_complete <<- merge(as.data.table(df_complete),as.data.table(df_index))
+  
   #*** df_complete is the complete data table. By using <<- we set to global
   # print(df_index_100$CWB_Index) #***This is the Output!!!
   write.csv(df_index_100, file = "Complete index table.csv")
   return(df_index_100)
 }
-
-df_index_100 <- as.data.frame(pop.cwbcalc(dfNorm)) #line to get CWBI
