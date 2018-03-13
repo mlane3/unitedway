@@ -1,3 +1,4 @@
+#For united way and new contributors to R stuff
 #============================================================
 
 # Rattle is Copyright (c) 2006-2017 Togaware Pty Ltd.
