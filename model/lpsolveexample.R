@@ -20,7 +20,8 @@ minCWB_Z = minCWB_Z = max(df_index$CWB_Z) # -1.969282
 ValueZ = (Value*(maxCWB_Z - minCWB_Z)) + minCWB_Z #inverse formula for normalization
 
 source("model/coefficents.R")
-mycoef <- pop.Coef(df0)
+mycoef <- as.data.frame(pop.Coef(df0)) #MIke: fix this!
+names(mycoef) <- c("names","coeff","B") #I rename this table to simplify
 
 
 library(lpSolve)
@@ -34,8 +35,7 @@ test <- function(){
     return(ans) }
   
   # Define the object function: for Minimize, use -ve
-  set.objfn(model, c(mycoef$coeff[1],
-                     mycoef$coeff[2], 
+  set.objfn(model, unname(c(mycoef$coeff[1],mycoef$coeff[2], 
                      mycoef$coeff[3],
                      mycoef$coeff[4],
                      mycoef$coeff[5],
@@ -47,43 +47,41 @@ test <- function(){
                      mycoef$coeff[11], 
                      mycoef$coeff[12],
                      mycoef$coeff[13],
-                     mycoef$coeff[14]))
+                     mycoef$coeff[14])))
                       #Replica of Child well being index but by sub-indexes
                     #0.003860932 #average Z scofre
   # Add the constraints
   # 1/n*coeff
   add.constraint(model, c(mycoef$coeff[1],mycoef$coeff[2], mycoef$coeff[3],mycoef$coeff[4],
                           mycoef$coeff[5],mycoef$coeff[6], mycoef$coeff[7], mycoef$coeff[8],  
-                          mycoef$coeff[9], mycoef$coeff[10], 
-                          mycoef$coeff[11], 
-                          mycoef$coeff[12],
-                          mycoef$coeff[13],
-                          mycoef$coeff[14]), "<=",  ValueZ - 0.003860932)
-  add.constraint(model, c(1, 0, 0, 0, 0,0, 0, 0, 0, 0,0, 0, 0, 0), ">", df2$gradrate[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 1, 0, 0, 0,0, 0, 0, 0, 0,0, 0, 0, 0), ">", df2$ccrpi[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 1, 0, 0,0, 0, 0, 0, 0,0, 0, 0, 0), ">", df2$grade3[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 1, 0,0, 0, 0, 0, 0,0, 0, 0, 0), ">", df2$grade8[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 0, 1,0, 0, 0, 0, 0,0, 0, 0, 0), ">", df2$lbw[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 0, 0,1, 0, 0, 0, 0,0, 0, 0, 0), ">", df2$childnohealth[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 1, 0, 0, 0,0, 0, 0, 0), ">", df2$childpoverty[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 0, 1, 0, 0,0, 0, 0, 0), ">", df2$povertyrate[1]) 
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 0, 0, 1, 0,0, 0, 0, 0), ">", df2$housingburden[1]) 
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 0, 0, 0, 1, 0, 0, 0, 0), ">", df2$momsnohs[1]) 
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 0, 0, 0, 0, 1, 0, 0, 0), ">", df2$collegerate[1]) 
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 0, 0, 0, 0,0, 1, 0, 0), ">", df2$adultsnoedu[1]) 
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 0, 0, 0, 0,0, 0, 1, 0), ">", df2$adultnohealth[1])
-  add.constraint(model, c(0, 0, 0, 0, 0,0, 0, 0, 0, 0,0, 0, 0, 1), ">", df2$unemployment[1])
+                          mycoef$coeff[9], mycoef$coeff[10],mycoef$coeff[11],mycoef$coeff[12],mycoef$coeff[13],
+                          mycoef$coeff[14]-sum(mycoef$B)), "<=",  ValueZ - 0.003860932)
+  add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$gradrate[1]) #average x1 = .518 Child
+  add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$ccrpi[1]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$grade3[1]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$grade8[1]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$lbw[1]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$childnohealth[1]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0), ">", df2$childpoverty[1]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0), ">", df2$povertyrate[1]) 
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0), ">", df2$housingburden[1]) 
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0), ">", df2$momsnohs[1]) 
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0), ">", df2$collegerate[1]) 
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0), ">", df2$adultsnoedu[1]) 
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0), ">", df2$adultnohealth[1])
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), ">", df2$unemployment[1])
   # add.constraint(model, c(0, 0, 1), "<", 1) #average x2 = .500 Family
   # add.constraint(model, c(0, 1, 0), "<", 1) #average x3 = .469 Community
   lp.control(model,sense='min')
   # Set the upper and lower bounds
-  set.bounds(model,
-             lower=c(df2$gradrate[1], df2$ccrpi[1], df2$X3grade[1], df2$X8grade[1], df2$lwb[1],
+  #set.bounds(model,
+             #lower=
+               print(length(c(df2$gradrate[1], df2$ccrpi[1], df2$X3grade[1], df2$X8grade[1], df2$lwb[1],
                      df2$childnohealth[1], df2$childpoverty[1], df2$povertyrate[1], df2$housingburden[1], 
-                     df2$momsnohs[1], df2$collegerate[1], df2$adultsnoedu[1], df2$unemployment[1]), 
-             upper=c(df2$gradrate[2], df2$ccrpi[2], df2$X3grade[2], df2$X8grade[2], df2$lwb[2],
-                     df2$childnohealth[2], df2$childpoverty[2], df2$povertyrate[2], df2$housingburden[2],
-                     df2$momsnohs[2], df2$collegerate[2], df2$adultsnoedu[2], df2$unemployment[2])) #***We are using for constraints
+                     df2$momsnohs[1], df2$collegerate[1], df2$adultsnoedu[1], df2$unemployment[1]))) 
+             # upper=c(df2$gradrate[2], df2$ccrpi[2], df2$X3grade[2], df2$X8grade[2], df2$lwb[2],
+             #         df2$childnohealth[2], df2$childpoverty[2], df2$povertyrate[2], df2$housingburden[2],
+             #         df2$momsnohs[2], df2$collegerate[2], df2$adultsnoedu[2], df2$unemployment[2])) #***We are using for constraints
   # Compute the optimized model
   print(solve(model))
   # Get the value of the optimized parameters
