@@ -6,8 +6,8 @@
 df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 
 Value = .689
-maxCWB_Z = maxCWB_Z = min(df_index$CWB_Z) # Value is 1.380706
-minCWB_Z = minCWB_Z = max(df_index$CWB_Z) # -1.969282
+maxCWB_Z = max(df_index$CWB_Z) # Value is 1.380706
+minCWB_Z = min(df_index$CWB_Z) # -1.969282
 ValueZ = (Value*(maxCWB_Z - minCWB_Z)) + minCWB_Z #inverse formula for normalization
 
 source("model/coefficents.R")
@@ -33,20 +33,19 @@ lptest <- function(){
       df2[1,i] <- min(df0[,i+2])
     }
   }
-  # Define the object function: for Minimize, use -ve
+  # Define the object function: for Minimize, use -ve or lp.control
   set.objfn(model, c(mycoef$coeff[1],mycoef$coeff[2],mycoef$coeff[3],mycoef$coeff[4],
                      mycoef$coeff[5],mycoef$coeff[6],mycoef$coeff[7],mycoef$coeff[8],  
                      mycoef$coeff[9],mycoef$coeff[10],mycoef$coeff[11],mycoef$coeff[12],
-                     mycoef$coeff[13],
-                     mycoef$coeff[14]))
+                     mycoef$coeff[13],mycoef$coeff[14]))
                     # Replica of Child well being index but by sub-indexes
-                    #0.003860932 #average Z scofre
+                    #0.003860932 is average Z-score of the orignal data
   # Add the constraints
   # 1/n*coeff
   add.constraint(model, c(mycoef$coeff[1],mycoef$coeff[2], mycoef$coeff[3],mycoef$coeff[4],
                           mycoef$coeff[5],mycoef$coeff[6], mycoef$coeff[7], mycoef$coeff[8],  
-                          mycoef$coeff[9], mycoef$coeff[10],mycoef$coeff[11],mycoef$coeff[12],mycoef$coeff[13],
-                          mycoef$coeff[14]-sum(mycoef$B)), "<=",  ValueZ - 0.003860932)
+                          mycoef$coeff[9], mycoef$coeff[10],mycoef$coeff[11],mycoef$coeff[12],
+                          mycoef$coeff[13],mycoef$coeff[14]-sum(mycoef$B)), "<=",  ValueZ - 0.003860932)
   # add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$gradrate[1]) #average x1 = .518 Child
   # add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$ccrpi[1]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">", df2$grade3[1]) #average x1 = .518 Child
