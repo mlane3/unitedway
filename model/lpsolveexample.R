@@ -15,7 +15,7 @@ library(lpSolve)
 df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 
 Value = .689
-maxCWB_Z = maxCWB_Z = min(df_index$CWB_Z) # 1.380706
+maxCWB_Z = maxCWB_Z = min(df_index$CWB_Z) # Value is 1.380706
 minCWB_Z = minCWB_Z = max(df_index$CWB_Z) # -1.969282
 ValueZ = (Value*(maxCWB_Z - minCWB_Z)) + minCWB_Z #inverse formula for normalization
 
@@ -27,7 +27,9 @@ names(mycoef) <- c("names","coeff","B") #I rename this table to simplify
 
 library(lpSolve)
 library(lpSolveAPI)
-test <- function(){
+
+
+lptest <- function(){
   # Set the number of vars
   model <- make.lp(0, 14)
   fx <- function(n){
@@ -87,20 +89,19 @@ test <- function(){
                      df2$momsnohs[2], df2$collegerate[2], df2$adultsnoedu[2], df2$adultnohealth[2], df2$unemployment[2])) #***We are using for constraints
   # Compute the optimized model
   print("hello")
-  print(solve(model))
+  solve(model)
   # Get the value of the optimized parameters
   print(get.variables(model)) 
   # Get the value of the objective function
   print(get.objective(model))
   # Get the value of the constraint
   print(get.constraints(model))
-  model
-  test2 <<-- get.variables(model)
+  print(model)
   return(get.variables(model))
 }
-test2 <- test()
-test2 <- rowSums(mycoef$coeff*t(test2) - mycoef$B)
-test2 <- 100*(test2 - minCWB_Z)/(maxCWB_Z - minCWB_Z)
+lineartest <- lptest()
+lineartest <- rowSums(mycoef$coeff*t(test2) - mycoef$B)
+lineartest <- 100*(test2 - minCWB_Z)/(maxCWB_Z - minCWB_Z)
 print(paste0("test equals"," ",test2))
 
 # library(lpSolve)

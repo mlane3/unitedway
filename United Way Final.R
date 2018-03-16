@@ -7,6 +7,7 @@
 
 # NECESSARY PACKAGES
 # Shiny Dependencies
+#library(leaflet)
 library(rAmCharts)
 library(shiny)
 library(shinydashboard)
@@ -25,7 +26,7 @@ source('model/coefficents.R')
 
 # DATA CLEANING BEFORE SHINY
 # Original dataset
-original = read_xlsx("2016 Original Data.xlsx")
+original = df0 = read_xlsx("2016 Original Data.xlsx")
 names(original) = c('county','weave_ct2010','gradrate','ccrpi',
                     'grade3','grade8','lbw','childnohealth',
                     'childpoverty','povertyrate','housingburden','momsnohs',
@@ -33,7 +34,8 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 
 
 # Overall Constraints
-overall_constraints = as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
+overall_constraints = df2 = as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
+test2 <- overall_constraints
 overall_constraints[1,] = round(overall_constraints[1,],.1)
 overall_constraints[2,] = round(overall_constraints[2,],.1)
 overall_constraints[3,] = round(overall_constraints[3,],.1)
@@ -86,20 +88,18 @@ server = function(input, output){
 # COUNTRY REACTIVE
 variable_reactive = eventReactive(input$variable, 
 {
-  test2 <- overall_constraints
   min_value = overall_constraints[1, input$variable]
   max_value = overall_constraints[2, input$variable]
   values <- c( overall_constraints[3, input$variable], max_value ) #not sure about this change
-  # if (values[1] < values[2]){
-  #   test["Mean", input$variable] = values[1]
-  # }
+
+  
   if (length(input$variable == 1) )
     
       sidebarMenu( 
                     menuItem( text = "Metric Slider",
                               icon = icon('th'),
                               sliderInput( inputId = "metric",
-                                           label = input$label,
+                                           label = input$variable,
                                            min = min_value,
                                            max = max_value,
                                            value = values,
@@ -112,11 +112,14 @@ variable_reactive = eventReactive(input$variable,
       )
   # CWBI <- median(input$gradrate)*(1+input$final/100)
 })
+
+#max_value = overall_constraints[2, input$variable]
 myCoef <- pop.Coef(df0) #prep step from coefficents.R
+linear <- (overall_constraints) # test2 <- overall_constraints
 minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
 maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
 #***We are optimizing this CwBZ
-Mean <- test2["Mean",]#*(1+input$final/100) #(1+input$final)/100 is a placeholder for optimizer)
+Mean <- linear["Mean",]#*(1+input$final/100) #(1+input$final)/100 is a placeholder for optimizer)
 CWBZ <- sum(myCoef$coefficients*Mean - myCoef$B)
 CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)
 
@@ -149,11 +152,11 @@ output$GaugeCWBI = renderAmCharts({
 
 output$sample = renderText({ input$metric })
 output$GaugePlot = renderAmCharts({
-    START = round(overall_constraints[1, input$variable],1)
-    original = round(overall_constraints[3, input$variable],1)
-    END = round(overall_constraints[2, input$variable],1)
+    START = round(overall_constraints[1, input$variable],.1)
+    value = round(overall_constraints[3, input$variable],.1)
+    END = round(overall_constraints[2, input$variable],.1)
     # AM Angular Gauge
-    bands = data.frame(start = c(START,original), end = c(original, END), 
+    bands = data.frame(start = c(START,value), end = c(value, END), 
                        color = c("#00CC00", "#ea3838"),
                        stringsAsFactors = FALSE)
     amAngularGauge(x = median(as.vector(input$metric)), 
@@ -174,7 +177,7 @@ output$MainGrid = renderUI({
           "Please Select a county to begin")
       } else {
         tabsetPanel(tabPanel("Gauge Plots Here", amChartsOutput('GaugePlot')),
-                    tabPanel("Additional Content here", amChartsOutput('Gauge')))        
+                    tabPanel("Additional Content here", textOutput('sample')))        
         # textOutput('sample')
         
       }
