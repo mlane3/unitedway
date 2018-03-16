@@ -35,7 +35,7 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 
 # Overall Constraints
 overall_constraints = df2 = as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
-test2 <- overall_constraints
+lineartest <- overall_constraints
 overall_constraints[1,] = round(overall_constraints[1,],.1)
 overall_constraints[2,] = round(overall_constraints[2,],.1)
 overall_constraints[3,] = round(overall_constraints[3,],.1)
@@ -114,12 +114,12 @@ variable_reactive = eventReactive(input$variable,
 })
 
 myCoef <- pop.Coef(df0) #prep step from coefficents.R
-linear <- (overall_constraints) # test2 <- overall_constraints
+final <- (overall_constraints) # this used to be test2 <- overall_constraints
 minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
 maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
 #***We are optimizing this CwBZ
-Mean <- linear["Mean",] #input$final is a placeholder for optimizer)
-CWBZ <- sum(myCoef$coefficients*Mean - myCoef$B)
+final2 <- final["Mean",] #input$final is a placeholder for optimizer)
+CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B)
 CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)
 
 
