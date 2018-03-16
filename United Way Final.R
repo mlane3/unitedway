@@ -113,13 +113,12 @@ variable_reactive = eventReactive(input$variable,
   # CWBI <- median(input$gradrate)*(1+input$final/100)
 })
 
-#max_value = overall_constraints[2, input$variable]
 myCoef <- pop.Coef(df0) #prep step from coefficents.R
 linear <- (overall_constraints) # test2 <- overall_constraints
 minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
 maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
 #***We are optimizing this CwBZ
-Mean <- linear["Mean",]#*(1+input$final/100) #(1+input$final)/100 is a placeholder for optimizer)
+Mean <- linear["Mean",] #input$final is a placeholder for optimizer)
 CWBZ <- sum(myCoef$coefficients*Mean - myCoef$B)
 CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)
 
