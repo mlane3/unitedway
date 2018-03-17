@@ -161,6 +161,7 @@ output$GaugeCWBI = renderAmCharts({
                  main = "CWBI", bands = bands)}) 
 
 output$sample = renderText({ input$metric })
+
 output$GaugePlot = renderAmCharts({
     START = round(overall_constraints[1, input$variable],.1)
     value = round(overall_constraints[3, input$variable],.1)

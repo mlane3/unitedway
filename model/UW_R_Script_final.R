@@ -101,7 +101,7 @@ pop.cwbcalc <- function(dfNorm, ...){
                                                                unemployment)))
   # 3)  Average the 3 sub-indexes ----
   df_index$CWB_Z <- rowMeans(subset(df_index, select = c(ChildZ, FamilyZ, CommunityZ)))
-  df_index <<- as.data.frame(c(df0[,1:2], df_index))
+  df_index <<- df_index <- as.data.frame(c(df0[,1:2], df_index))
   #***so df_index is All the indexes before we scale to 100. <<- sets to global
   # summarydfindex <- summary(df_index)
   
@@ -131,16 +131,17 @@ pop.cwbcalc <- function(dfNorm, ...){
   df_index_100$county <- df_Zscore$county
   df_index_100$weave_ct2010 <- df_Zscore$weave_ct2010 
   df_index_100 <- as.data.table(df_index_100)
-  df_index_100 <- setcolorder(df_index_100,c("county","weave_ct2010","ChildZ","FamilyZ","CommunityZ","CWB_Index"))
+  df_index_100 <- setcolorder(df_index_100,c("county","weave_ct2010","Child_Index","Family_Index","Community_Index","CWB_Index"))
   # These values match the 'Original Data' tab, cells AK29:AN806
   
   ##### --- Return Output ---- #####
   # df_complete 
-  df_complete <- merge(as.data.table(df0),as.data.table(df_index_100))
-  df_complete <<- merge(as.data.table(df_complete),as.data.table(df_index))
+  df_complete <- merge(as.data.table(df0),as.data.table(df_index_100),by="weave_ct2010")
+  df_complete <<- merge(as.data.table(df_complete),as.data.table(df_index),by="weave_ct2010")
   
   #*** df_complete is the complete data table. By using <<- we set to global
   # print(df_index_100$CWB_Index) #***This is the Output!!!
   write.csv(df_index_100, file = "Complete index table.csv")
   return(df_index_100)
 }
+df_index_100 <- pop.cwbcalc(dfNorm)
