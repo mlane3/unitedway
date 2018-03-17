@@ -141,13 +141,14 @@ output$metric_slider = renderMenu( variable_reactive() )
 output$GaugeCWBI = renderAmCharts({
   # CWBI (Load child well being)
   # AM Angular Gauge
-  print(CWBI)
-  bands = data.frame(start = c(0,CWBI), end = c(CWBI, 100), 
+  # browser()
+  CWBI <- 67.2 #as.vector(CWBI) breaks things?
+  bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
                      color = c("#00CC00", "#ea3838"),
                      stringsAsFactors = FALSE)
-  amAngularGauge(x = CWBI, 
+  amAngularGauge(x = CWBI,
                  start = 0, end = 100,
-                 main = "Child Well Being Index", bands = bands)}) 
+                 main = "CWBI", bands = bands)}) 
 
 output$sample = renderText({ input$metric })
 output$GaugePlot = renderAmCharts({
@@ -176,7 +177,7 @@ output$MainGrid = renderUI({
           "Please Select a county to begin")
       } else {
         tabsetPanel(tabPanel("Gauge Plots Here", amChartsOutput('GaugePlot')),
-                    tabPanel("Additional Content here", textOutput('sample')))        
+                    tabPanel("Additional Content here", amChartsOutput('GaugeCWBI')))        
         # textOutput('sample')
         
       }
@@ -189,7 +190,9 @@ output$MainGrid = renderUI({
 "*********************************************
                  RUNAPP
 *********************************************"
-shinyApp( ui = dashboardPage( skin = 'blue',
+#display.mode="showcase"
+options(shiny.reactlog=TRUE) 
+app <- shinyApp( ui = dashboardPage( skin = 'blue',
                               header = header,
                               sidebar = sidebar,
                               body = body),
