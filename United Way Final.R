@@ -35,10 +35,8 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 
 # Overall Constraints
 overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
-lineartest <- overall_constraints
-overall_constraints[1,] = round(overall_constraints[1,],.1)
-overall_constraints[2,] = round(overall_constraints[2,],.1)
-overall_constraints[3,] = round(overall_constraints[3,],.1)
+# county_constraints <- df1 = as.data.frame(read.csv("data/county constrants.csv"))
+overall_constraints[1:3,] = round(overall_constraints[1:3,],.1)
 
 #full_names = as.data.frame(read.csv("data/overall constrants.csv", nrows = 3, row.names = 1)
 
@@ -137,7 +135,6 @@ CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)
 output$metric_slider = renderMenu( variable_reactive() )
 
 
-
 # PLOTTING THE GAUGE
 # output$gauge = renderGauge({
 #   #str(input$attribs)
@@ -148,12 +145,10 @@ output$metric_slider = renderMenu( variable_reactive() )
 #   )
 # })
 output$GaugeCWBI = renderAmCharts({
-  getCWBI()
-  # browser()
-  # CWBI (Load child well being)
+  test <- getCWBI()
+  # getCWBI (Load child well being)
   # AM Angular Gauge
   # browser()
-  CWBI <- as.vector(CWBI) #breaks things?
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
                      color = c("#00CC00", "#ea3838"),
                      stringsAsFactors = FALSE)
@@ -183,7 +178,7 @@ output$GaugePlot = renderAmCharts({
 *******************************"
 output$MainGrid = renderUI({
   
-      # Evaluating the  Overall Page
+      # Evaluating the Overall Page
       if (is.null(input$county))
       {
         p("Welcome to United Way App", br,
