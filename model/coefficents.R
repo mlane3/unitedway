@@ -10,9 +10,8 @@ source('model/UW_R_Script_final.R')
 # Run lines below 33 if you get an error.
 ########### ---- Create a Coefficent Table: Code ---- ###########
 pop.Coef <- function(df0){
-  library(data.table)
+  # library(data.table)
   #Calculate df0_average
-  
   df0_ave = colMeans(df0[,c(-1,-2)]) #the df0_average (weighted by track/row/county)
   #Calculate STDEV
   df0_sd = sapply(df0[,c(-1,-2)],pop.sd) #the population deviation
@@ -35,8 +34,8 @@ pop.Coef <- function(df0){
     -1*FamilyCoef(df0_sd["housingburden"]),
     -1*FamilyCoef(df0_sd["momsnohs"]),
     ComCoef(df0_sd["collegerate"]),
-    -1*ComCoef(df0_sd["adultsnoedu"]),
-    -1*ComCoef(df0_sd["adultnohealth"]),
+    -1*ComCoef(df0_sd["adultnoedu"]),
+    -1*ComCoef(df0_sd["adultsnohealth"]),
     -1*ComCoef(df0_sd["unemployment"]))
   B <- list(
     ChildB(df0_ave["gradrate"],df0_sd["gradrate"]),
@@ -50,8 +49,8 @@ pop.Coef <- function(df0){
     -1*FamilyB(df0_ave["housingburden"],df0_sd["housingburden"]),
     -1*FamilyB(df0_ave["momsnohs"],df0_sd["momsnohs"]),
     ComB(df0_ave["collegerate"],df0_sd["collegerate"]),
-    -1*ComB(df0_ave["adultsnoedu"],df0_sd["adultsnoedu"]),
-    -1*ComB(df0_ave["adultnohealth"],df0_sd["adultnohealth"]),
+    -1*ComB(df0_ave["adultnoedu"],df0_sd["adultnoedu"]),
+    -1*ComB(df0_ave["adultsnohealth"],df0_sd["adultsnohealth"]),
     -1*ComB(df0_ave["unemployment"],df0_sd["unemployment"])
   )
   rownames(Coeff)

@@ -26,7 +26,7 @@ source('model/coefficents.R')
 
 # DATA CLEANING BEFORE SHINY
 # Original dataset
-original = df0 = read_xlsx("2016 Original Data.xlsx")
+original = read_xlsx("2016 Original Data.xlsx")
 names(original) = c('county','weave_ct2010','gradrate','ccrpi',
                     'grade3','grade8','lbw','childnohealth',
                     'childpoverty','povertyrate','housingburden','momsnohs',
