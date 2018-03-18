@@ -34,7 +34,7 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 
 
 # Overall Constraints
-overall_constraints = df2 = as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
+overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 lineartest <- overall_constraints
 overall_constraints[1,] = round(overall_constraints[1,],.1)
 overall_constraints[2,] = round(overall_constraints[2,],.1)
@@ -92,7 +92,7 @@ variable_reactive = eventReactive(input$variable,
   max_value = overall_constraints[2, input$variable]
   values <- c( overall_constraints[3, input$variable], max_value ) #not sure about this change
 
-  
+  # browser() #debug code
   if (length(input$variable == 1) )
     
       sidebarMenu( 
@@ -148,6 +148,8 @@ output$metric_slider = renderMenu( variable_reactive() )
 #   )
 # })
 output$GaugeCWBI = renderAmCharts({
+  getCWBI()
+  # browser()
   # CWBI (Load child well being)
   # AM Angular Gauge
   # browser()
@@ -155,7 +157,7 @@ output$GaugeCWBI = renderAmCharts({
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
                      color = c("#00CC00", "#ea3838"),
                      stringsAsFactors = FALSE)
-  browser()
+  # browser()
   amAngularGauge(x = CWBI,
                  start = 0, end = 100,
                  main = "CWBI", bands = bands)}) 
@@ -201,8 +203,8 @@ output$MainGrid = renderUI({
 "*********************************************
                  RUNAPP
 *********************************************"
-#display.mode="showcase"
-options(shiny.reactlog=TRUE) 
+# display.mode="showcase" #debug code
+# options(shiny.reactlog=TRUE) #debug code
 app <- shinyApp( ui = dashboardPage( skin = 'blue',
                               header = header,
                               sidebar = sidebar,
