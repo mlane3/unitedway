@@ -7,14 +7,14 @@
 
 # NECESSARY PACKAGES
 # Shiny Dependencies
-#library(leaflet)
-library(rAmCharts)
 library(shiny)
 library(shinydashboard)
-library(flexdashboard)
 # Plotting Dependencies
 library(ggplot2)
 library(plotly)
+library(flexdashboard)
+library(leaflet)
+library(rAmCharts)
 # Data Processing Dependencies
 library(dplyr)
 library(readxl)
@@ -110,24 +110,20 @@ variable_reactive = eventReactive(input$variable,
       )
   # CWBI <- median(input$gradrate)*(1+input$final/100)
 })
-# getCWBI <- reactive(input$variable,overall_constraints){
-#   myCoef <- pop.Coef(df0) #prep step from coefficents.R
-#   final <- (overall_constraints) # this used to be test2 <- overall_constraints
-#   minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
-#   maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
-#   #***We are optimizing this CwBZ
-#   final2 <- final["Mean",] #input$final is a placeholder for optimizer)
-#   CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B)
-#   CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)
-# }
-myCoef <- pop.Coef(df0) #prep step from coefficents.R
-final <- (overall_constraints) # this used to be test2 <- overall_constraints
-minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
-maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
-#***We are optimizing this CwBZ
-final2 <- final["Mean",] #input$final is a placeholder for optimizer)
-CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B)
-CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)
+getCWBI <- reactive({
+  req(overall_constraints)
+  req(original)
+  final <- overall_constraints # this used to be test2 <- overall_constraints
+  myCoef <- pop.Coef(original) # prep step from coefficents.R
+  minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
+  maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
+  #***We are optimizing this CWBZ
+  final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
+  CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B)
+  CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
+  browser()
+  # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
+})
 
 
 
@@ -152,8 +148,8 @@ output$GaugeCWBI = renderAmCharts({
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
                      color = c("#00CC00", "#ea3838"),
                      stringsAsFactors = FALSE)
-  # browser()
-  amAngularGauge(x = CWBI,
+  browser()
+  amAngularGauge(x = getCWBI(),
                  start = 0, end = 100,
                  main = "CWBI", bands = bands)}) 
 
