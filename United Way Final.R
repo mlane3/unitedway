@@ -36,8 +36,7 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 # Overall Constraints
 overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 # county_constraints <- df1 = as.data.frame(read.csv("data/county constrants.csv"))
-overall_constraints[1:3,] = round(overall_constraints[1:3,],.1)
-
+overall_constraints[1:3,] = df2[1:3,] = round(overall_constraints[1:3,],.01)
 #full_names = as.data.frame(read.csv("data/overall constrants.csv", nrows = 3, row.names = 1)
 
 "*********************************************
