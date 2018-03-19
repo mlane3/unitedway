@@ -159,24 +159,51 @@ output$GaugeCWBI = renderAmCharts({
   # getCWBI (Load child well being)
   # AM Angular Gauge
   # browser()
+<<<<<<< HEAD
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
                      color = c("#ea3838", "#00CC00"),
                      stringsAsFactors = FALSE)
   # browser()
   amAngularGauge(x = getCWBI(),
+=======
+  
+
+  CWBI <- as.vector(CWBI) #breaks things?
+  
+  amAngularGauge(x = CWBI,
+>>>>>>> 4423481e187a654bb0a68fccd688a36d2edaf236
                  start = 0, end = 100,
                  main = "CWBI", bands = bands)}) 
 
 output$sample = renderText({ input$metric })
 
 output$GaugePlot = renderAmCharts({
+  
+  
+  
     START = round(overall_constraints[1, input$variable],.1)
     value = round(overall_constraints[3, input$variable],.1)
     END = round(overall_constraints[2, input$variable],.1)
     # AM Angular Gauge
-    bands = data.frame(start = c(START,value), end = c(value, END), 
-                       color = c("#00CC00", "#ea3838"),
-                       stringsAsFactors = FALSE)
+    # bands = data.frame(start = c(START,value), end = c(value, END), 
+    #                    color = c("#00CC00", "#ea3838"),
+    #                    stringsAsFactors = FALSE)
+    
+    #PURU_COMMENT_START
+    #Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
+    #PURU_COMMENT_END
+    if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate'))
+    {
+      bands <- data.frame(start = c(START,value), end = c(value, END), 
+                          color = c("#ea3838","#00CC00"),
+                          stringsAsFactors = FALSE)
+    }
+    else
+    {  
+      bands <- data.frame(start = c(START,value), end = c(value, END), 
+                          color = c("#00CC00", "#ea3838"),
+                          stringsAsFactors = FALSE)
+    }
     amAngularGauge(x = median(as.vector(input$metric)), 
                    start = START, end = END,
                    main = input$variable, bands = bands)
