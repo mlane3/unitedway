@@ -3,8 +3,8 @@ gradrate,Educ_HS_GradRateF,High School Graduation Rate,Average,79.4,83.42692308,
 ccrpi,Educ_HS_CCRPI_ScoreF,Avg Governors CCRPI or School Score,Average,70.9,78.81923077,58.21,74.34416667,72.31,63.75,71.01,81.28,68.96,75.35,68.48,69.57,65.8
 3grade,Educ_pcExceeding_3Grade_ReadingF,% of childern exceed 3rd grade reading score,Average,38.2,58.61153846,29.98979592,53.60979667,50.97,36.57361111,45.545,64.865,44.52623762,52.82743363,43.864,50.44210526,41.7
 8grade,Educ_pc_Exceeding_8Grade_MathF,% of childern exceed 8th grade math score,Average,14.8,47.48461538,18.56938776,37.32916667,37.155,21.73888889,24.15,55.98,32.06732673,47.57168142,29.068,35.56842105,23.39090909
-lwb,Health_pcLBW_BirthsF,Low Weight Births,Lower LWB,7.4,6.1,9.2,7.3,5.8,9.5,6.7,5.3,9.7,6.9,6.8,5.9,6.9
-,,,Upper LWB,12,8.3,12.7,8.8,9,10.7,10.2,9.4,11.3,9.4,9.9,8.2,12.5
+lbw,Health_pcLBW_BirthsF,Low Weight Births,Lower LBW,7.4,6.1,9.2,7.3,5.8,9.5,6.7,5.3,9.7,6.9,6.8,5.9,6.9
+,,,Upper LBW,12,8.3,12.7,8.8,9,10.7,10.2,9.4,11.3,9.4,9.9,8.2,12.5
 ,,,Average,9.833333333,7.380769231,10.90446531,8.212773333,7.165,10.04057431,9.42,8.00898,10.59286337,7.777876106,8.796,6.873684211,9.681818182
 childnohealth, Health_pc_Under18_no_Health_InsF,% children wo health insurance,Lower childnohealth,6.3,6.7,12.2,8.4,5.3,9.1,8,4.9,6.5,9.5,5.8,7.6,9.8
 ,,,Upper childnohealth,7.6,7.8,14.6,10.3,6.4,11.5,9.6,5.9,8,12.6,8.3,8.6,11

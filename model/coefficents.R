@@ -10,9 +10,8 @@ source('model/UW_R_Script_final.R')
 # Run lines below 33 if you get an error.
 ########### ---- Create a Coefficent Table: Code ---- ###########
 pop.Coef <- function(df0){
-  library(data.table)
+  # library(data.table)
   #Calculate df0_average
-  
   df0_ave = colMeans(df0[,c(-1,-2)]) #the df0_average (weighted by track/row/county)
   #Calculate STDEV
   df0_sd = sapply(df0[,c(-1,-2)],pop.sd) #the population deviation
@@ -54,9 +53,10 @@ pop.Coef <- function(df0){
     -1*ComB(df0_ave["adultsnohealth"],df0_sd["adultsnohealth"]),
     -1*ComB(df0_ave["unemployment"],df0_sd["unemployment"])
   )
-  df0_Coef <- data.table(name = names(df0[,c(-1,-2)]),
-                         coefficients = Coeff,
-                         B = B)
+  rownames(Coeff)
+  df0_Coef <- data.frame(name = names(df0[,c(-1,-2)]),
+                         coefficients = as.numeric(Coeff),
+                         B = as.numeric(B))
   rm(B,Coeff,ChildCoef,ChildB,FamilyCoef,FamilyB,ComCoef,ComB)
   return(df0_Coef)
 }
@@ -70,17 +70,16 @@ pop.Coef <- function(df0){
 # df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 # #^***Sifeal df2 is what your taking in for this one and can use to modify the sliders
 # myCoef <- pop.Coef(df0) #use for the orginal data frame to get y = m*x - b coeff
-# CWBZ <- rowMeans(myCoef$coefficients*df2["Mean",] - myCoef$B) #***We are optimizing this
+# CWBZ <- rowSums(myCoef$coefficients*df2["Mean",] - myCoef$B) #***We are optimizing this
 # CWB_Index <- (CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z) 
 #which should equal 0.5895567 our test CWBI and .001 away from actual CWBI
 
 # # Test Code Case 1: For True Average or Average weighted by each track/row ----
 # # **And no I am not making a pivot table for original data again
-# CWB1 <- rowMeans(myCoef$coefficients*df2["df0_ave",] - myCoef$B)
+# CWB1 <- rowSums(myCoef$coefficients*df2["df0_ave",] - myCoef$B)
 # CWB2 <- (CWB1  - minCWB_Z)/(maxCWB_Z - minCWB_Z) 
 # CWB2 #is .5878474 which the same as CWBI we find from excel! and dfindex_100
 # # Case 2: for 0 ----
 # CWB3 <- (0 - minCWB_Z)/(maxCWB_Z - minCWB_Z) #is literally .5878474
 # #This is why we don't use average of the columns to test!!!
 # rm(CWB1,CWB2,CWB3,CWBZ,df_complete)
-rm(df_complete)
