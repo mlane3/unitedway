@@ -66,8 +66,8 @@ The CWBI, Pillar, and 14 Measure calculation capabilities were necessary to allo
 ### United Way Great Atlanta Mission and V2 Requirements:
 The term "levers" is a fitting descriptor, the objective of this Phase is to allow UWGA to predict **what allocations of resources can have the most positive impact on child well-being into the future**.  ECE is enhancing the system so that UWGA will be able to provide inputs in the form of priorities given to certain measures (akin to real world allocation of resources/funds to certain programs) and then see the impact on the CWBI and other measures.
 
-### Analysis of the Components of an Optimization Model
-
+### Analysis of the Components of Optimization Model
+    This is a placeholder to provide "functional architecture" of the optimization model that we are using on this project.  It will help to baseline knowledge across the team, and to avoid confusion by using like terms.
 
 ### Requirements for V2 (Interactive) phase of project (3 releases defined):
 
@@ -82,8 +82,10 @@ The term "levers" is a fitting descriptor, the objective of this Phase is to all
     2.2.2 The operator will also select new desired values for some of the 14 indicators, and click on a "Execute" button.
     2.2.3 The resulting forecast for the other indicators (not touched by the Operator) will be displayed.
 
-    2.3 V3, Release 3
-    2.3 The third version needs to be firmed up in a joint modeling session.
+    2.3 V2, Release 3
+    2.3 Updating (3/19/18) with most recent info.- this still requires nail-down through client meeting.
+        United way wants to do linear optimization at the Zip code level. To do this we will basically do two optimizations. First we the linear optimizer at the county level, which will give us prediction for what the CWBI should be for each county. Then using the predicted final CWBI we solve it at the zip level. **needs feedback from stakeholders**, this involves doing some exploratory data analytics (descriptive analysis) of the results.
+        To validate our model for this, we will reach out to experts like Deepa during process.
 
 
 # CWBI System Architecture
