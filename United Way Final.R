@@ -112,10 +112,12 @@ variable_reactive = eventReactive(input$variable,
       )
   
 })
+# Update Slider ----
 observeEvent(input$metric,{
   overall_constraints[3, input$variable] <<- input$metric[1]
   # overall_constraints[2, input$variable] <<- input$metric[2]
 })
+# Calc CWBI ----
 getCWBI <- eventReactive(input$metric,{
   # req(overall_constraints)
   req(original)
@@ -159,28 +161,17 @@ output$GaugeCWBI = renderAmCharts({
   # getCWBI (Load child well being)
   # AM Angular Gauge
   # browser()
-<<<<<<< HEAD
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
                      color = c("#ea3838", "#00CC00"),
                      stringsAsFactors = FALSE)
   # browser()
   amAngularGauge(x = getCWBI(),
-=======
-  
-
-  CWBI <- as.vector(CWBI) #breaks things?
-  
-  amAngularGauge(x = CWBI,
->>>>>>> 4423481e187a654bb0a68fccd688a36d2edaf236
                  start = 0, end = 100,
                  main = "CWBI", bands = bands)}) 
 
 output$sample = renderText({ input$metric })
 
 output$GaugePlot = renderAmCharts({
-  
-  
-  
     START = round(overall_constraints[1, input$variable],.1)
     value = round(overall_constraints[3, input$variable],.1)
     END = round(overall_constraints[2, input$variable],.1)
