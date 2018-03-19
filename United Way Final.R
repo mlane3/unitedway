@@ -85,13 +85,18 @@ server = function(input, output){
 # COUNTRY REACTIVE
 variable_reactive = eventReactive(input$variable, 
 {
-  min_value = overall_constraints[1, input$variable]
-  max_value = overall_constraints[2, input$variable]
-  values <- c( overall_constraints[3, input$variable], max_value ) #not sure about this change
-
+  min_value = df2[1, input$variable]
+  max_value = df2[2, input$variable]
+  if(df2[3,input$variable] == overall_constraints[3,input$variable]){ #I am trying to intalize values here.
+    values <- c(df2[3, input$variable], max_value) #not sure about this change
+  } else {
+    # min_value = overall_constraints[1, input$variable]
+    # max_value = overall_constraints[2, input$variable]
+    values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
+  }
   # browser() #debug code
-  if (length(input$variable == 1) )
     
+  if (length(input$variable == 1) )
       sidebarMenu( 
                     menuItem( text = "Metric Slider",
                               icon = icon('th'),
@@ -103,28 +108,39 @@ variable_reactive = eventReactive(input$variable,
                                            sep ="",
                                            step = .1)
                               
-                              
         )
-                  
       )
-  # CWBI <- median(input$gradrate)*(1+input$final/100)
+  
 })
-getCWBI <- reactive({
-  req(overall_constraints)
+observeEvent(input$metric,{
+  overall_constraints[3, input$variable] <<- input$metric[1]
+  # overall_constraints[2, input$variable] <<- input$metric[2]
+})
+getCWBI <- eventReactive(input$metric,{
+  # req(overall_constraints)
   req(original)
   final <- overall_constraints # this used to be test2 <- overall_constraints
   myCoef <- pop.Coef(original) # prep step from coefficents.R
-  minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
-  maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
+  minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
+  maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
+  if(overall_constraints[3,input$variable] != input$metric[1] 
+     && final["Mean",input$variable] != median(as.vector(input$metric))){
+    final[1,input$variable] <- input$metric[1] # I wante to store metric changes to go to optimizer
+    final[2,input$variable] <- input$metric[2]  # I wante to store metric changes to go to optimizer
+    final["Mean",input$variable] <- median(as.vector(input$metric)) #This is just a placeholder line for sending intial guess
+  } else {
+    final["Mean",input$variable] <- overall_constraints[3,input$variable]}
+  
   #***We are optimizing this CWBZ
   final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
-  CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B)
+  CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B) #Calculate optimized value
+  # CWBI <- median(input$gradrate)*(1+input$final/100)
   CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
-  browser()
+  # browser()
   # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
 })
 
-
+# Rest of Server -----
 
 # RENDER MENU
 output$metric_slider = renderMenu( variable_reactive() )
@@ -140,14 +156,13 @@ output$metric_slider = renderMenu( variable_reactive() )
 #   )
 # })
 output$GaugeCWBI = renderAmCharts({
-  test <- getCWBI()
   # getCWBI (Load child well being)
   # AM Angular Gauge
   # browser()
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
-                     color = c("#00CC00", "#ea3838"),
+                     color = c("#ea3838", "#00CC00"),
                      stringsAsFactors = FALSE)
-  browser()
+  # browser()
   amAngularGauge(x = getCWBI(),
                  start = 0, end = 100,
                  main = "CWBI", bands = bands)}) 
@@ -164,7 +179,8 @@ output$GaugePlot = renderAmCharts({
                        stringsAsFactors = FALSE)
     amAngularGauge(x = median(as.vector(input$metric)), 
                    start = START, end = END,
-                   main = input$variable, bands = bands)}) 
+                   main = input$variable, bands = bands)
+    }) 
 
 # output$test = renderTable(append(input$metric))
 
