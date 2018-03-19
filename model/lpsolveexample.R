@@ -48,16 +48,11 @@ lptest <- function(df2){
                     # The actual Child well being index but linearized
                     #0.003860932 is average Z-score of the orignal data
   # Add the constraints -sum(mycoef$B)
-  # 1/n*coeff is how we will add it for multple contraints
-  add.constraint(model, -c(mycoef$coeff[1],mycoef$coeff[2], mycoef$coeff[3],mycoef$coeff[4],
+  # 1/n*coeff is how we will add it for multple contraints A*x = Y +B 
+  add.constraint(model, c(mycoef$coeff[1],mycoef$coeff[2], mycoef$coeff[3],mycoef$coeff[4],
                           mycoef$coeff[5],mycoef$coeff[6], mycoef$coeff[7], mycoef$coeff[8],  
                           mycoef$coeff[9], mycoef$coeff[10],mycoef$coeff[11],mycoef$coeff[12],
-                          mycoef$coeff[13],mycoef$coeff[14]), "<=", 0.00386-ValueZ+sum(mycoef$B)) #+sum(mycoef$B))
-  # add.constraint(model, c(mycoef$coeff[1],mycoef$coeff[2], mycoef$coeff[3],mycoef$coeff[4],
-  #                         mycoef$coeff[5],mycoef$coeff[6], mycoef$coeff[7], mycoef$coeff[8],  
-  #                         mycoef$coeff[9], mycoef$coeff[10],mycoef$coeff[11],mycoef$coeff[12],
-  #                         mycoef$coeff[13],mycoef$coeff[14]), ">=", 0)
-  
+                          mycoef$coeff[13],mycoef$coeff[14]), "<=", (0.00386-ValueZ+sum(mycoef$B)))^2
   # Add New Constraints: Hypothesis Auxilary Regressions ----
   # Here are the equation written out from the power point slides
   # -6.408 >= 0.0474*childpoverty+0.562*povertyrate+0.577*momsnohs+0.311*adultsnoedu - adultsnohealth 
@@ -69,8 +64,8 @@ lptest <- function(df2){
   add.constraint(model, c(0, 0, 0, 0, 0, 0, 0.087, -0.302, 0, -1, 0, 0, 0, 0), "<=", 0.302) #momsnohs
   add.constraint(model, c(0, 0, 0.005, 0, 0, 0, 0, 0.105, 0, 0.583, 0, -1, 0, 0), ">=", -1.26) #adultsnoedu
   # Rest of the Model ----
-  add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$gradrate[1]) #average x1 = .518 Child
-  add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$ccrpi[1]) #average x1 = .518 Child
+  add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$gradrate[1]) #average x1 = .518 Child
+  add.constraint(model, c, 0, 0,(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$ccrpi[1]) #average x1 = .518 Child
   add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$grade3[1]) #average x1 = .518 Child
   add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$grade8[1]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$lbw[1]) #average x1 = .518 Child
