@@ -9,8 +9,8 @@ library(ggplot2)
 library(shiny)
 library(flexdashboard)
 library(shinydashboard)
-source('model/UW_R_Script_final.R')
-source('model/coefficents.R')
+# source('model/UW_R_Script_final.R')
+# source('model/coefficents.R')
 library(readxl)
 library(dplyr)
 library(data.table)
@@ -18,8 +18,8 @@ library(plotly)
 #Mike will to clean this
 
 #setwd("~/R/unitedway")
-df0 <- read_xlsx("2016 Original Data.xlsx")
-names(df0) <- c('county','weave_ct2010','gradrate','ccrpi',
+# df0 <- read_xlsx("2016 Original Data.xlsx")
+names2 <- c('county','weave_ct2010','gradrate','ccrpi',
                 'grade3','grade8','lbw','childnohealth',
                 'childpoverty','povertyrate','housingburden','momsnohs',
                 'collegerate','adultsnoedu','adultnohealth','unemployment')
@@ -35,7 +35,7 @@ header = dashboardHeader(title = 'United Way App')
 # "===========================================
 #                 SIDEBAR
 # ==========================================="
-choices <- unique(c("overall",df0$county))
+choices <- unique(names2)
 mynames <- names(df2)
 
 sidebar = dashboardSidebar(

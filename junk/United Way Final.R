@@ -7,14 +7,13 @@
 
 # NECESSARY PACKAGES
 # Shiny Dependencies
+library(rAmCharts)
 library(shiny)
 library(shinydashboard)
+library(flexdashboard)
 # Plotting Dependencies
 library(ggplot2)
 library(plotly)
-library(flexdashboard)
-library(leaflet)
-library(rAmCharts)
 # Data Processing Dependencies
 library(dplyr)
 library(readxl)
@@ -34,9 +33,11 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 
 
 # Overall Constraints
-overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
-# county_constraints <- df1 = as.data.frame(read.csv("data/county constrants.csv"))
-overall_constraints[1:3,] = df2[1:3,] = round(overall_constraints[1:3,],.01)
+overall_constraints = as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
+overall_constraints[1,] = round(overall_constraints[1,],.1)
+overall_constraints[2,] = round(overall_constraints[2,],.1)
+overall_constraints[3,] = round(overall_constraints[3,],.1)
+
 #full_names = as.data.frame(read.csv("data/overall constrants.csv", nrows = 3, row.names = 1)
 
 "*********************************************
@@ -85,67 +86,45 @@ server = function(input, output){
 # COUNTRY REACTIVE
 variable_reactive = eventReactive(input$variable, 
 {
-  min_value = df2[1, input$variable]
-  max_value = df2[2, input$variable]
-  if(df2[3,input$variable] == overall_constraints[3,input$variable]){ #I am trying to intalize values here.
-    values <- c(df2[3, input$variable], max_value) #not sure about this change
-  } else {
-    # min_value = overall_constraints[1, input$variable]
-    # max_value = overall_constraints[2, input$variable]
-    values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
-  }
-  # browser() #debug code
-    
+  test2 <- overall_constraints
+  min_value = overall_constraints[1, input$variable]
+  max_value = overall_constraints[2, input$variable]
+  values <- c( overall_constraints[3, input$variable], max_value ) #not sure about this change
+  # if (values[1] < values[2]){
+  #   test["Mean", input$variable] = values[1]
+  # }
   if (length(input$variable == 1) )
+    
       sidebarMenu( 
                     menuItem( text = "Metric Slider",
                               icon = icon('th'),
                               sliderInput( inputId = "metric",
-                                           label = input$variable,
+                                           label = input$label,
                                            min = min_value,
                                            max = max_value,
                                            value = values,
                                            sep ="",
                                            step = .1)
                               
+                              
         )
+                  
       )
-  
-})
-# Update Slider ----
-observeEvent(input$metric,{
-  overall_constraints[3, input$variable] <<- input$metric[1]
-  # overall_constraints[2, input$variable] <<- input$metric[2]
-})
-# Calc CWBI ----
-getCWBI <- eventReactive(input$metric,{
-  # req(overall_constraints)
-  req(original)
-  final <- overall_constraints # this used to be test2 <- overall_constraints
-  myCoef <- pop.Coef(original) # prep step from coefficents.R
-  minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
-  maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
-  if(overall_constraints[3,input$variable] != input$metric[1] 
-     && final["Mean",input$variable] != median(as.vector(input$metric))){
-    final[1,input$variable] <- input$metric[1] # I wante to store metric changes to go to optimizer
-    final[2,input$variable] <- input$metric[2]  # I wante to store metric changes to go to optimizer
-    final["Mean",input$variable] <- median(as.vector(input$metric)) #This is just a placeholder line for sending intial guess
-  } else {
-    final["Mean",input$variable] <- overall_constraints[3,input$variable]}
-  
-  #***We are optimizing this CWBZ
-  final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
-  CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B) #Calculate optimized value
   # CWBI <- median(input$gradrate)*(1+input$final/100)
-  CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
-  # browser()
-  # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
 })
+myCoef <- pop.Coef(df0) #prep step from coefficents.R
+minCWB_Z = min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
+maxCWB_Z = max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
+#***We are optimizing this CwBZ
+Mean <- test2["Mean",]#*(1+input$final/100) #(1+input$final)/100 is a placeholder for optimizer)
+CWBZ <- sum(myCoef$coefficients*Mean - myCoef$B)
+CWBI <- round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)
 
-# Rest of Server -----
+
 
 # RENDER MENU
 output$metric_slider = renderMenu( variable_reactive() )
+
 
 
 # PLOTTING THE GAUGE
@@ -158,47 +137,28 @@ output$metric_slider = renderMenu( variable_reactive() )
 #   )
 # })
 output$GaugeCWBI = renderAmCharts({
-  # getCWBI (Load child well being)
+  # CWBI (Load child well being)
   # AM Angular Gauge
-  # browser()
-  bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
-                     color = c("#ea3838", "#00CC00"),
+  print(CWBI)
+  bands = data.frame(start = c(0,CWBI), end = c(CWBI, 100), 
+                     color = c("#00CC00", "#ea3838"),
                      stringsAsFactors = FALSE)
-  # browser()
-  amAngularGauge(x = getCWBI(),
+  amAngularGauge(x = CWBI, 
                  start = 0, end = 100,
-                 main = "CWBI", bands = bands)}) 
+                 main = "Child Well Being Index", bands = bands)}) 
 
 output$sample = renderText({ input$metric })
-
 output$GaugePlot = renderAmCharts({
-    START = round(overall_constraints[1, input$variable],.1)
-    value = round(overall_constraints[3, input$variable],.1)
-    END = round(overall_constraints[2, input$variable],.1)
+    START = round(overall_constraints[1, input$variable],1)
+    original = round(overall_constraints[3, input$variable],1)
+    END = round(overall_constraints[2, input$variable],1)
     # AM Angular Gauge
-    # bands = data.frame(start = c(START,value), end = c(value, END), 
-    #                    color = c("#00CC00", "#ea3838"),
-    #                    stringsAsFactors = FALSE)
-    
-    #PURU_COMMENT_START
-    #Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
-    #PURU_COMMENT_END
-    if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate'))
-    {
-      bands <- data.frame(start = c(START,value), end = c(value, END), 
-                          color = c("#ea3838","#00CC00"),
-                          stringsAsFactors = FALSE)
-    }
-    else
-    {  
-      bands <- data.frame(start = c(START,value), end = c(value, END), 
-                          color = c("#00CC00", "#ea3838"),
-                          stringsAsFactors = FALSE)
-    }
+    bands = data.frame(start = c(START,original), end = c(original, END), 
+                       color = c("#00CC00", "#ea3838"),
+                       stringsAsFactors = FALSE)
     amAngularGauge(x = median(as.vector(input$metric)), 
                    start = START, end = END,
-                   main = input$variable, bands = bands)
-    }) 
+                   main = input$variable, bands = bands)}) 
 
 # output$test = renderTable(append(input$metric))
 
@@ -207,14 +167,14 @@ output$GaugePlot = renderAmCharts({
 *******************************"
 output$MainGrid = renderUI({
   
-      # Evaluating the Overall Page
+      # Evaluating the  Overall Page
       if (is.null(input$county))
       {
         p("Welcome to United Way App", br,
           "Please Select a county to begin")
       } else {
         tabsetPanel(tabPanel("Gauge Plots Here", amChartsOutput('GaugePlot')),
-                    tabPanel("Additional Content here", amChartsOutput('GaugeCWBI')))        
+                    tabPanel("Additional Content here", amChartsOutput('Gauge')))        
         # textOutput('sample')
         
       }
@@ -227,9 +187,7 @@ output$MainGrid = renderUI({
 "*********************************************
                  RUNAPP
 *********************************************"
-# display.mode="showcase" #debug code
-# options(shiny.reactlog=TRUE) #debug code
-app <- shinyApp( ui = dashboardPage( skin = 'blue',
+shinyApp( ui = dashboardPage( skin = 'blue',
                               header = header,
                               sidebar = sidebar,
                               body = body),

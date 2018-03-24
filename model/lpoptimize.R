@@ -25,6 +25,9 @@ maxCWB_Z = max(df_index$CWB_Z)
 minCWB_Z = min(df_index$CWB_Z)
 Value = (.689*(maxCWB_Z - minCWB_Z)) + minCWB_Z
 
+df2 <- as.data.frame(read.csv("~/data/overall constrants.csv", skip = 2, row.names = 1))
+
+
 library(lpSolve)
 library(lpSolveAPI)
 # Set the number of vars
