@@ -1,6 +1,6 @@
 Name,Graduation Rate,College and Career Readiness Score,% childern exceed 3rd grade reading standard,% childern exceed 8th grade math standard,Low Weight Births,% children wo health insurance,% childern in poverty,% families not financially stable,% with housing cost burden,% of Moms with no high school,% Adults in Post-Secondary Education,% Adults with no high school,% adults wo health insurance,Unemployment Rate
 Value,Educ_HS_GradRateF,Educ_HS_CCRPI_ScoreF,Educ_pcExceeding_3Grade_ReadingF,Educ_pc_Exceeding_8Grade_MathF,Health_pcLBW_BirthsF,Health_pc_Under18_no_Health_InsF,Income_pcUnder18_in_povF,Income_pcFam_below200pc_povF,Income_pcHH_HousingBurdenF,Birth_to_Moms_noHSF,Educ_pc_postsecF,Educ_pcAdults_no_HSF,Health_pcAdults_no_Health_InsF,Income_Unemployment_rateF
-Abbrev.,gradrate,ccrpi,grade3,grade8,lbw,childnohealth,childpoverty,povertyrate,housingburden,momsnohs,collegerate,adultsnoedu,adultnohealth,unemployment
+Abbrev.,gradrate,ccrpi,grade3,grade8,lbw,childnohealth,childpoverty,povertyrate,housingburden,momsnohs,collegerate,adultnoedu,adultsnohealth,unemployment
 Min,37.60854752,37.37701388,0,0,5.3,4.9,5.9,0,4.798530355,0,42.06143662,0,12.6,3.7
 Max,110.3940298,102.2361305,110.7274779,91.55844297,12.7,14.6,41,93.67152116,72.16193614,50.57695033,108.0549693,42.41675112,36.3,13.5
 Mean,76.97083248,70.67638458,47.05573221,32.682569,8.822164413,9.86521465,20.18908765,28.47120279,35.98333562,13.66541189,73.53394391,13.34574153,21.09052071,11.66727383
