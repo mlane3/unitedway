@@ -34,8 +34,8 @@ pop.Coef <- function(df0){
     -1*FamilyCoef(df0_sd["housingburden"]),
     -1*FamilyCoef(df0_sd["momsnohs"]),
     ComCoef(df0_sd["collegerate"]),
-    -1*ComCoef(df0_sd["adultnoedu"]),
-    -1*ComCoef(df0_sd["adultsnohealth"]),
+    -1*ComCoef(df0_sd["adultsnoedu"]),
+    -1*ComCoef(df0_sd["adultnohealth"]),
     -1*ComCoef(df0_sd["unemployment"]))
   B <- list(
     ChildB(df0_ave["gradrate"],df0_sd["gradrate"]),
