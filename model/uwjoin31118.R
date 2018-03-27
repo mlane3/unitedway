@@ -19,5 +19,5 @@ df_complete$county.y <- NULL
 df_complete$county.x <- NULL
 setnames(df_complete, "weave_ct2010", "TRACT")
 df_complete$TRACT <- as.character(df_complete$TRACT)
- <- merge(df_complete,UWcensuszip,by="TRACT")
+dfzipmapcomplete <- merge(df_complete,UWcensuszip,by="TRACT")
 rm(df_index_100,df_index)
