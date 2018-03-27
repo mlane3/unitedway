@@ -17,26 +17,26 @@ pop.Coef <- function(df0){
   df0_sd = sapply(df0[,c(-1,-2)],pop.sd) #the population deviation
   
   # Define the Coefficent and Intercept B for each variable
-  ChildCoef <- function(df0_sd){return(1/(3*7*df0_sd))} #Child Coefficents
-  FamilyCoef <- function(df0_sd){ return(1/(3*3*df0_sd)) } #Family Coefficents
-  ComCoef <- function(df0_sd){ return(1/(3*4*df0_sd)) } #Community Coefficents
+  ChildA <- function(df0_sd){return(1/(3*7*df0_sd))} #Child Coefficents
+  FamilyA <- function(df0_sd){ return(1/(3*3*df0_sd)) } #Family Coefficents
+  ComA <- function(df0_sd){ return(1/(3*4*df0_sd)) } #Community Coefficents
   
   ChildB <- function(df0_ave,df0_sd){ return(df0_ave/(3*7*df0_sd)) } #Child Intercepts
   FamilyB <- function(df0_ave,df0_sd){ return(df0_ave/(3*3*df0_sd)) } #Family Intercepts
   ComB <- function(df0_ave,df0_sd){ return(df0_ave/(3*4*df0_sd)) } #Community Intercepts
   
-  Coeff <- list(
-    ChildCoef(df0_sd["gradrate"]),ChildCoef(df0_sd["ccrpi"]),
-    ChildCoef(df0_sd["grade3"]),ChildCoef(df0_sd["grade8"]),
-    -1*ChildCoef(df0_sd["lbw"]),-1*ChildCoef(df0_sd["childnohealth"]),
-    -1*ChildCoef(df0_sd["childpoverty"]),
-    -1*FamilyCoef(df0_sd["povertyrate"]),
-    -1*FamilyCoef(df0_sd["housingburden"]),
-    -1*FamilyCoef(df0_sd["momsnohs"]),
-    ComCoef(df0_sd["collegerate"]),
-    -1*ComCoef(df0_sd["adultsnoedu"]),
-    -1*ComCoef(df0_sd["adultnohealth"]),
-    -1*ComCoef(df0_sd["unemployment"]))
+  A <- list(
+    ChildA(df0_sd["gradrate"]),ChildA(df0_sd["ccrpi"]),
+    ChildA(df0_sd["grade3"]),ChildA(df0_sd["grade8"]),
+    -1*ChildA(df0_sd["lbw"]),-1*ChildA(df0_sd["childnohealth"]),
+    -1*ChildA(df0_sd["childpoverty"]),
+    -1*FamilyA(df0_sd["povertyrate"]),
+    -1*FamilyA(df0_sd["housingburden"]),
+    -1*FamilyA(df0_sd["momsnohs"]),
+    ComA(df0_sd["collegerate"]),
+    -1*ComA(df0_sd["adultsnoedu"]),
+    -1*ComA(df0_sd["adultnohealth"]),
+    -1*ComA(df0_sd["unemployment"]))
   B <- list(
     ChildB(df0_ave["gradrate"],df0_sd["gradrate"]),
     ChildB(df0_ave["ccrpi"],df0_sd["ccrpi"]),
@@ -49,16 +49,16 @@ pop.Coef <- function(df0){
     -1*FamilyB(df0_ave["housingburden"],df0_sd["housingburden"]),
     -1*FamilyB(df0_ave["momsnohs"],df0_sd["momsnohs"]),
     ComB(df0_ave["collegerate"],df0_sd["collegerate"]),
-    -1*ComB(df0_ave["adultnoedu"],df0_sd["adultnoedu"]),
-    -1*ComB(df0_ave["adultsnohealth"],df0_sd["adultsnohealth"]),
+    -1*ComB(df0_ave["adultsnoedu"],df0_sd["adultsnoedu"]),
+    -1*ComB(df0_ave["adultnohealth"],df0_sd["adultnohealth"]),
     -1*ComB(df0_ave["unemployment"],df0_sd["unemployment"])
   )
-  rownames(Coeff)
-  df0_Coef <- data.frame(name = names(df0[,c(-1,-2)]),
-                         coefficients = as.numeric(Coeff),
+  rownames(A)
+  df0_coeff <- data.frame(name = names(df0[,c(-1,-2)]),
+                         A = as.numeric(A),
                          B = as.numeric(B))
-  rm(B,Coeff,ChildCoef,ChildB,FamilyCoef,FamilyB,ComCoef,ComB)
-  return(df0_Coef)
+  rm(B,A,ChildA,ChildB,FamilyA,FamilyB,ComA,ComB)
+  return(df0_coeff)
 }
 
 
@@ -69,14 +69,15 @@ pop.Coef <- function(df0){
 # maxCWB_Z = max(df_index$CWB_Z) #1.380706
 # df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 # #^***Sifeal df2 is what your taking in for this one and can use to modify the sliders
-# myCoef <- pop.Coef(df0) #use for the orginal data frame to get y = m*x - b coeff
-# CWBZ <- rowSums(myCoef$coefficients*df2["Mean",] - myCoef$B) #***We are optimizing this
+# myCoef <- pop.Coef(df0) #use for the orginal data frame to get y = m*x - b
+# here coefficent = A
+# CWBZ <- rowSums(myCoef$A*df2["Mean",] - myCoef$B) #***We are optimizing this
 # CWB_Index <- (CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z) 
 #which should equal 0.5895567 our test CWBI and .001 away from actual CWBI
 
 # # Test Code Case 1: For True Average or Average weighted by each track/row ----
 # # **And no I am not making a pivot table for original data again
-# CWB1 <- rowSums(myCoef$coefficients*df2["df0_ave",] - myCoef$B)
+# CWB1 <- rowSums(myCoef$A*df2["df0_ave",] - myCoef$B)
 # CWB2 <- (CWB1  - minCWB_Z)/(maxCWB_Z - minCWB_Z) 
 # CWB2 #is .5878474 which the same as CWBI we find from excel! and dfindex_100
 # # Case 2: for 0 ----
