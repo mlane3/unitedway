@@ -5,8 +5,17 @@ names(df0) <- c('county','TRACT','gradrate','ccrpi',
                 'childpoverty','povertyrate','housingburden','momsnohs',
                 'collegerate','adultsnoedu','adultnohealth','unemployment')
 
-
-UWcensuszip <- read_excel("data/ZIP_TRACT_122010.xlsx")
+UWcensuszip <- read_excel("data/ZIP_TRACT_122014.xlsx")
 
 # merge two data frames by ID
 dfzipmap <- merge(df0,UWcensuszip,by="TRACT")
+
+
+# To get do a join for the maps of dfcomplete or (all the data) -----------
+
+#This line secretly produces df_complete too
+df_index_100 <- pop.cwbcalc(df0[])
+  
+
+  
+rm(df_index_100,df_index)
