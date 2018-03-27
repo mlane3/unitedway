@@ -49,10 +49,10 @@ lptest <- function(df2,initial){
   set.bounds(model,
              lower=c(df2$gradrate[1], df2$ccrpi[1], df2$grade3[1], df2$grade8[1], df2$lbw[1],
                      df2$childnohealth[1], df2$childpoverty[1], df2$povertyrate[1], df2$housingburden[1],
-                     df2$momsnohs[1], df2$collegerate[1], df2$adultnoedu[1], df2$adultsnohealth[1], df2$unemployment[1],.90),
+                     df2$momsnohs[1], df2$collegerate[1], df2$adultsnoedu[1], df2$adultnohealth[1], df2$unemployment[1],.90),
              upper=c(df2$gradrate[2], df2$ccrpi[2], df2$grade3[2], df2$grade8[2], df2$lbw[2],
                      df2$childnohealth[2], df2$childpoverty[2], df2$povertyrate[2], df2$housingburden[2],
-                     df2$momsnohs[2], df2$collegerate[2], df2$adultnoedu[2], df2$adultsnohealth[2], df2$unemployment[2],1.0)) #***We are using for constraints
+                     df2$momsnohs[2], df2$collegerate[2], df2$adultsnoedu[2], df2$adultnohealth[2], df2$unemployment[2],1.0)) #***We are using for constraints
   # intialize model ----
   # add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
   #                             mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
@@ -79,19 +79,20 @@ lptest <- function(df2,initial){
   # print(model)
   # Add the constraints -sum(mycoef$B) ----
   # 1/n*coeff is how we will add it for multple contraints A*x = Y +B
-  add.constraint(model, -c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
+  add.constraint(model, (c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
-                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)), "<=", (0.00386-ValueZ)^2)
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
-  add.constraint(model, c(3*mycoef$A[1],3*mycoef$A[2],3*mycoef$A[3],3*mycoef$A[4],
-    3*mycoef$A[5],3*mycoef$A[6],3*mycoef$A[7], 0,
-    0, 0, 0, 0, 0, 0, -sum(mycoef$B[1:7])), ">=", .0012)
-  # add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
+                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", -(0.00386-ValueZ))
+  add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
+                          mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
+                          mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
+                          mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B))) 
+  # Where does 0.00386 come from?
+  # add.constraint(model, (c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
   #                          mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
   #                          mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
-  #                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)), ">=", 0.06) #0.00386
-  # add.constraint(model, c(1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1 , 1, 1, 1, 1), ">=", 0.3)
+  #                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "=", (0.00386))
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
   # Add New Constraints: Hypothesis Auxilary Regressions ----
   # Here are the equation written out from the power point slides
   # -6.408 >= 0.0474*childpoverty+0.562*povertyrate+0.577*momsnohs+0.311*adultnoedu - adultsnohealth 
@@ -105,37 +106,33 @@ lptest <- function(df2,initial){
   # Rest of the Model ----
   # add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$gradrate[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$ccrpi[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$grade3[4]) #average x1 = .518 Child
+  # add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$grade3[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", df2$grade8[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "<=", df2$lbw[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), "<=", df2$childnohealth[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0), "<=", df2$childpoverty[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0), "<=", df2$povertyrate[4]) # x2 = .500 Family
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0), "<=", df2$housingburden[4]) # x2 = .500 Family
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0), "<=", df2$momsnohs[4]) # x2 = .500 Family
+  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0), "<=", df2$povertyrate[4]) # x2 = .500 Family
+  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0), "<=", df2$housingburden[4]) # x2 = .500 Family
+  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0), "<=", df2$momsnohs[4]) # x2 = .500 Family
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0), ">=", df2$collegerate[4]) # x3 = .469 Community
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0), "<=", df2$adultnoedu[4]) # x3 = .469 Community
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0), "<=", df2$adultsnohealth[4]) # x3 = .469 Community
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0), "<=", df2$unemployment[4]) # x3 = .469 Community
-  # add.constraint(model, c(0, 0, 1), "<", 1) #average 
-  # add.constraint(model, c(0, 1, 0), "<", 1) #average x3 = .469 Community
-  
-  lp.control(model,sense='min') #verbose='normal'
+  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0), "<=", df2$adultnoedu[4]) # x3 = .469 Community
+  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0), "<=", df2$adultsnohealth[4]) # x3 = .469 Community
+  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0), "<=", df2$unemployment[4]) # x3 = .469 Community
+  # Compute the optimized model ----
+  lp.control(model,sense='min', verbose='normal') #
   model3 <<- model 
-  # Compute the optimized model
   print("start model: 0 done and 2 is infeasible, use verbose = 'normal' to get full output")
   # model0 <<- model
   solve(model)
   print(solve(model))
-  # model1 <<- model
   # Get the value of the optimized parameters
   print("final results")
   print(get.variables(model)) 
-  # print(get.bounds(model))
   # Get the value of the objective function
   print(get.objective(model))
   # Get the value of the constraint
   # print(get.constraints(model))
+  # print(get.bounds(model))
   return(get.variables(model))
 }
 #This is a script to show the output of lptest()
@@ -145,43 +142,3 @@ CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
 CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)
 print(paste0("CWB Index equals"," ",CWBI))
 print(final - df2["df0_ave",])
-
-# library(lpSolve)
-
-# This is the orignal lpsolve example ----
-# library(lpSolve)
-# library(lpSolveAPI)
-# test <- function(){
-#   # Set the number of vars
-#   model <- make.lp(0, 3)
-#   # Define the object function: for Minimize, use -ve
-#   set.objfn(model, c(7/(7*3), 3/(3*3), 4/(4*3))) #Replica of Child well being index but by sub-indexes
-#   # Add the constraints
-#   add.constraint(model, c(7/(7*3), 3/(3*3), 4/(4*3)), "<=", 0.003860932 - ValueZ)
-#   # add.constraint(model, c(1, 0, 0), "<", 1) #average x1 = .518 Child
-#   # add.constraint(model, c(0, 0, 1), "<", 1) #average x2 = .500 Family
-#   # add.constraint(model, c(0, 1, 0), "<", 1) #average x3 = .469 Community
-#   lp.control(model,sense='min')
-#   # Set the upper and lower bounds
-#   set.bounds(model, lower=c(0.0, 0.0, 0.0), upper=c(1.0, 1.0, 1.0)) #***We are using for constraints
-#   # Compute the optimized model
-#   print(solve(model))
-#   # Get the value of the optimized parameters
-#   print(get.variables(model))
-#   # Get the value of the objective function
-#   print(get.objective(model))
-#   # Get the value of the constraint
-#   print(get.constraints(model))
-#   model2 <<- model
-# }
-# test()
-
-
-
-# This is an lpsolve() example code I need to delete ----
-# costs <- matrix(c(9, 10, 11, 4, 5, 10, 1, 3, 5, 7, 5, 4), nrow=3)
-# nr <- nrow(costs)
-# nc <- ncol(costs)
-# columns <- t(sapply(1:nc, function(x) rep(c(0, 1, 0), c(nr*(x-1), nr, nr*(nc-x)))))
-# rows <- t(sapply(1:nr, function(x) rep(rep(c(0, 1, 0), c(x-1, 1, nr-x)), nc)))
-# mod <- lp("max", as.vector(costs), rbind(columns, rows), "<=", rep(1, nr+nc), binary.vec=rep(TRUE, nr*nc))

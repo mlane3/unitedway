@@ -14,8 +14,10 @@ dfzipmap <- merge(df0,UWcensuszip,by="TRACT")
 # To get do a join for the maps of dfcomplete or (all the data) -----------
 
 #This line secretly produces df_complete too
-df_index_100 <- pop.cwbcalc(df0[])
-  
-
-  
+df_index_100 <- pop.cwbcalc(dfNorm)
+df_complete$county.y <- NULL
+df_complete$county.x <- NULL
+setnames(df_complete, "weave_ct2010", "TRACT")
+df_complete$TRACT <- as.character(df_complete$TRACT)
+dfzipmapcomplete <- merge(df_complete,UWcensuszip,by="TRACT")
 rm(df_index_100,df_index)
