@@ -30,7 +30,7 @@ original = read_xlsx("2016 Original Data.xlsx")
 names(original) = c('county','weave_ct2010','gradrate','ccrpi',
                     'grade3','grade8','lbw','childnohealth',
                     'childpoverty','povertyrate','housingburden','momsnohs',
-                    'collegerate','adultnoedu','adultsnohealth','unemployment')
+                    'collegerate','adultsnoedu','adultnohealth','unemployment')
 
 
 # Overall Constraints
@@ -122,7 +122,7 @@ getCWBI <- eventReactive(input$metric,{
   # req(overall_constraints)
   req(original)
   final <- overall_constraints # this used to be test2 <- overall_constraints
-  myCoef <- pop.Coef(original) # prep step from coefficents.R
+  mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
   maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
   if(overall_constraints[3,input$variable] != input$metric[1] 
@@ -135,7 +135,7 @@ getCWBI <- eventReactive(input$metric,{
   
   #***We are optimizing this CWBZ
   final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
-  CWBZ <- sum(myCoef$coefficients*final2 - myCoef$B) #Calculate optimized value
+  CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
   # CWBI <- median(input$gradrate)*(1+input$final/100)
   CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
   # browser()
