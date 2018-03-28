@@ -5,7 +5,6 @@
 # It requires you to preload the other functions besides pop.cwbcalc()
 source('model/UW_R_Script_final.R')
 # df_index_100 <- as.data.frame(pop.cwbcalc(df0[,3:16])) #line to get CWBI
-
 # Getting Started EXample --
 # Run lines below 33 if you get an error.
 ########### ---- Create a Coefficent Table: Code ---- ###########

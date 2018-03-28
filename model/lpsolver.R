@@ -83,7 +83,7 @@ lptest <- function(df2,initial){
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
                           mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", -(0.00386-ValueZ))
-  add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
+  add.constraint(model, -c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
                           mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B))) 
@@ -122,7 +122,6 @@ lptest <- function(df2,initial){
   lp.control(model,sense='min', verbose='normal') #
   model3 <<- model 
   print("start model: 0 done and 2 is infeasible, use verbose = 'normal' to get full output")
-  # model0 <<- model
   solve(model)
   print(solve(model))
   # Get the value of the optimized parameters
