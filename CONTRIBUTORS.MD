@@ -1,5 +1,10 @@
+# CWBI-S Team Members: Software, Links, and Code Management Stuff
+for background and requirements, go to the [Link](README.MD)
+
 ##  New Team Members:  Tools, Links, Code Management!
-    1. The CWBI Project is using a github repository, quick guide:[link](https://guides.github.com/activities/hello-world/#what).  GitHub Desktop is a handy app that runs locally on your machine and provides the ability to interact with the Github server to add/remove/change files and perform other version control and code mgmt activities.
+    1. The CWBI Project is using a github repository
+    a quick guide:[link](https://guides.github.com/activities/hello-world/#what)
+    GitHub Desktop is a helper app that runs locally on your machine interacts with Github server
     2. The repository is at: [link](https://github.com/mlane3/unitedway")
     3. Contributors need the RStudio IDE, [link](https://www.rstudio.com/products/rstudio/download/")
     4. If you just need a quick brushup on R, check out [link](https://www.rstudio.com/resources/cheatsheets/">cheatsheets)

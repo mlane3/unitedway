@@ -15,7 +15,6 @@
 2016 Original Data.xlsx
 County Index computation checker version.xlsm
 County Index computation with Indicator PC change or Net Quantile input table V61.xlsm
-*.xlsx
 
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
@@ -28,7 +27,7 @@ df_complete.rattle
 #Junk Script Files and new files
 dontsave.R
 UW_R_Script corrections.R
-trash/
+junk/deleted/
 Complete index table.csv
 censusdata.csv
 Complete Z-score table.csv
@@ -42,3 +41,9 @@ junk/To ask questions/v33i01.pdf
 junk/To ask questions/asdfsdfs.R
 2016 Original Data.csv
 County Index computation with Indicator PC change or Net Quantile input table V62_2.xlsm
+
+junk/deleted/
+test.R
+data/New folder/
+junk/To ask questions/zipmapcomplete.csv
+junk/lpsolver2.R
