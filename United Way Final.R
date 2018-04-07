@@ -12,7 +12,7 @@ library(shinydashboard)
 # Plotting Dependencies
 library(ggplot2)
 library(plotly)
-library(flexdashboard)
+# library(flexdashboard)
 library(leaflet)
 library(rAmCharts)
 # Data Processing Dependencies
@@ -172,16 +172,16 @@ output$GaugeCWBI = renderAmCharts({
 output$sample = renderText({ input$metric })
 
 output$GaugePlot = renderAmCharts({
-    START = round(overall_constraints[1, input$variable],.1)
-    value = round(overall_constraints[3, input$variable],.1)
-    END = round(overall_constraints[2, input$variable],.1)
+    START = round(df2[1, input$variable],.1)
+    value = round(df2[3, input$variable],.1)
+    END = round(df2[2, input$variable],.1)
     # AM Angular Gauge
     # bands = data.frame(start = c(START,value), end = c(value, END), 
     #                    color = c("#00CC00", "#ea3838"),
     #                    stringsAsFactors = FALSE)
     
     #PURU_COMMENT_START
-    #Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
+    # Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
     #PURU_COMMENT_END
     if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate'))
     {
