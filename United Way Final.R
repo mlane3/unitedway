@@ -22,7 +22,7 @@ library(data.table)
 # Sourcing Prior Scripts
 source('model/UW_R_Script_final.R')
 source('model/coefficents.R')
-
+source('model/lpsolverunited.R')
 
 # DATA CLEANING BEFORE SHINY
 # Original dataset
@@ -132,13 +132,20 @@ getCWBI <- eventReactive(input$metric,{
     final["Mean",input$variable] <- median(as.vector(input$metric)) #This is just a placeholder line for sending intial guess
   } else {
     final["Mean",input$variable] <- overall_constraints[3,input$variable]}
-  
+  # browser()
   #***We are optimizing this CWBZ
-  final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
+  # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
+  final2 <- lptest(final,0) #lptest takes in original_constrants or df2
+  final2 <- final2[1:14]
+  CWBZ <- rowSums(mycoef$A*t(final2) - mycoef$B)
+  # CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z
   CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
   # CWBI <- median(input$gradrate)*(1+input$final/100)
+  CWBI <- abs(CWBI)
   CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
+  CWBI <- abs(CWBI)
   # browser()
+  return(CWBI)
   # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
 })
 
