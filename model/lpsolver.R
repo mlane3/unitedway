@@ -5,8 +5,8 @@
 df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 
 Value = .689
-maxCWB_Z <- max(df_index$CWB_Z) # Value is 1.380706
-minCWB_Z <- min(df_index$CWB_Z) # -1.969282
+maxCWB_Z <- 1.380706 # Value is max(df_index$CWB_Z) 
+minCWB_Z <- -1.969282 # Value is min(df_index$CWB_Z) 
 ValueZ = (Value*(maxCWB_Z - minCWB_Z)) + minCWB_Z #inverse formula for normalization
 print((.08 - minCWB_Z)/(maxCWB_Z-minCWB_Z))
 source("model/coefficents.R")

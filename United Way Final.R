@@ -125,17 +125,17 @@ getCWBI <- eventReactive(input$metric,{
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
   maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
+  final[1,input$variable] <- input$metric[1] # I wante to store metric changes to go to optimizer
+  final[2,input$variable] <- input$metric[2]  # I wante to store metric changes to go to optimizer
   if(overall_constraints[3,input$variable] != input$metric[1] 
      && final["Mean",input$variable] != median(as.vector(input$metric))){
-    final[1,input$variable] <- input$metric[1] # I wante to store metric changes to go to optimizer
-    final[2,input$variable] <- input$metric[2]  # I wante to store metric changes to go to optimizer
     final["Mean",input$variable] <- median(as.vector(input$metric)) #This is just a placeholder line for sending intial guess
   } else {
     final["Mean",input$variable] <- overall_constraints[3,input$variable]}
   # browser()
   #***We are optimizing this CWBZ
   # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
-  final2 <- lptest(final,0) #lptest takes in original_constrants or df2
+  final2 <- lptest(final) #lptest takes in original_constrants or df2
   final2 <- final2[1:14]
   CWBZ <- rowSums(mycoef$A*t(final2) - mycoef$B)
   # CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z

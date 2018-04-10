@@ -5,11 +5,11 @@
 # mydata <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1)) 
 
 Value = .689
-maxCWB_Z <- max(df_index$CWB_Z) # Value is 1.380706
-minCWB_Z <- min(df_index$CWB_Z) # -1.969282
+maxCWB_Z <- 1.380706 # max(df_index$CWB_Z)  
+minCWB_Z <- -1.969282 # min(df_index$CWB_Z) 
 ValueZ = (Value*(maxCWB_Z - minCWB_Z)) + minCWB_Z #inverse formula for normalization
-print((.08 - minCWB_Z)/(maxCWB_Z-minCWB_Z))
-# source("model/coefficents.R")
+# print((.08 - minCWB_Z)/(maxCWB_Z-minCWB_Z))
+source("model/coefficents.R")
 mycoef <- NULL
 mycoef <- as.data.table(pop.Coef(df0)) #To Mike fix pop.Coef later!!
 names(mycoef) <- c("names","A","B") #I rename this table to simplify
@@ -23,9 +23,10 @@ fx <- function(n){
   return(ans) }
 
 # Current lpSolve version - ---
-lptest <- function(mydata,initial){
+lptest <- function(mydata){
   # Fix data so minimums are not zero To Mike fix so not needed
   # mydata need to be replaced with better bounds!
+  print(mydata[1,1])
   for (i in 1:length(mydata)) {
     if(mydata[1,i] == 0){
       myname <- names(mydata[i])
@@ -82,8 +83,8 @@ lptest <- function(mydata,initial){
   add.constraint(model, (c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
-                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", -(0.00386-ValueZ))
-  add.constraint(model, -c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
+                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", (0.00386-ValueZ)^2) #0.00386
+  add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
                           mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B))) 
@@ -135,7 +136,7 @@ lptest <- function(mydata,initial){
   return(get.variables(model))
 }
 #This is a script to show the output of lptest()
-# final <- lptest(mydata) #lptest takes in original_constrants or mydata
+# final <- lptest(df2) #lptest takes in original_constrants or mydata
 # final <- final[1:14]
 # CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
 # CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)
