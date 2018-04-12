@@ -7,6 +7,7 @@ library(htmltools)
 library(mapview)
 library(htmlwidgets)
 library(readxl)
+library(shiny)
 
 
 #worldmap
@@ -125,3 +126,16 @@ m <- leaflet() %>%
               color = "white",
               fillOpacity = 0.8)
 m
+
+
+
+
+output$mymap <- renderLeaflet({
+  leaflet() %>%
+    addProviderTiles(providers$Stamen.TonerLite,
+                     options = providerTileOptions(noWrap = TRUE)
+    ) %>%
+    addMarkers(data = points())
+})
+
+
