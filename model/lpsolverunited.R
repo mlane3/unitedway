@@ -60,15 +60,15 @@ lptest <- function(mydata){
   #                             mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
   #                             mycoef$A[13],mycoef$A[14],-sum(mycoef$B)), "=", 1.04455e-10)
   # rowSums(mycoef$A*mydata["df0_ave",] - mycoef$B)
-  # add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$gradrate[4]) #average x1 = .518 Child
-  # add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$ccrpi[4]) #average x1 = .518 Child
-  # add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade3[4]) #average x1 = .518 Child
-  # add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade8[4]) #average x1 = .518 Child
+  add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$gradrate[4]) #average x1 = .518 Child
+  add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$ccrpi[4]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade3[4]) #average x1 = .518 Child
+  add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade8[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$lbw[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$childnohealth[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$childpoverty[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0), "=", mydata$povertyrate[4]) # x2 = .500 Family
-  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0), "=", mydata$housingburden[4]) # x2 = .500 Family
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0), "=", mydata$housingburden[4]) # x2 = .500 Family
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0), "=", mydata$momsnohs[4]) # x2 = .500 Family
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0), "=", mydata$collegerate[4]) # x3 = .469 Community
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0), "=", mydata$adultnoedu[4]) # x3 = .469 Community
@@ -87,7 +87,7 @@ lptest <- function(mydata){
   add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
-                          mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B))) 
+                          mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B)))
   # Where does 0.00386 come from?
   # add.constraint(model, (c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
   #                          mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],

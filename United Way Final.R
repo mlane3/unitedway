@@ -59,7 +59,6 @@ sidebar = dashboardSidebar(
                               selectInput(inputId = 'county',
                                           label = 'Select County:',
                                           choices = counties ))),
-      
       sidebarMenu( 
                     menuItem( text = "Variable Selection",
                               icon = icon('th'),
@@ -146,6 +145,7 @@ getCWBI <- eventReactive(input$metric,{
   CWBI <- abs(CWBI)
   # browser()
   return(CWBI)
+  
   # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
 })
 
@@ -178,7 +178,7 @@ output$GaugeCWBI = renderAmCharts({
 
 output$sample = renderText({ input$metric })
 
-output$GaugePlot = renderAmCharts({
+output$GaugePlot7 = output$GaugePlot6 = output$GaugePlot5 = output$GaugePlot4 = output$GaugePlot3 = output$GaugePlot2 = output$GaugePlot = renderAmCharts({
     START = round(df2[1, input$variable],.1)
     value = round(df2[3, input$variable],.1)
     END = round(df2[2, input$variable],.1)
@@ -220,7 +220,9 @@ output$MainGrid = renderUI({
         p("Welcome to United Way App", br,
           "Please Select a county to begin")
       } else {
-        tabsetPanel(tabPanel("Gauge Plots Here", amChartsOutput('GaugePlot')),
+        tabsetPanel(tabPanel("Gauge Plots Here", amChartsOutput('GaugePlot'),
+                             amChartsOutput('GaugePlot2'),
+                             amChartsOutput('GaugePlot3')),
                     tabPanel("Additional Content here", amChartsOutput('GaugeCWBI')))        
         # textOutput('sample')
         
