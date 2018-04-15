@@ -26,7 +26,8 @@ library(data.table)
 
 # DATA CLEANING BEFORE SHINY ----
 # Original dataset
-load("data to load in.RData", envir = parent.frame(), verbose = TRUE) #to load df2
+source({load("data to load in.RData", envir = parent.frame(), verbose = TRUE)}) #to load df2
+# df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 mynames = c('county','weave_ct2010','gradrate','ccrpi',
                     'grade3','grade8','lbw','childnohealth',
                     'childpoverty','povertyrate','housingburden','momsnohs',
@@ -115,15 +116,17 @@ sidebar = dashboardSidebar(
                                           choices = counties ))),
       
       sidebarMenu( 
-                    menuItem( text = "Variable Selection",
-                              icon = icon('th'),
-                              selectInput(inputId = 'variable',
-                                          label = 'Select a Variable:',
-                                          choices = variables )),
-                    menuItemOutput('metric_slider'))
+        menuItem( text = "Variable Selection",
+                  icon = icon('th'),
+                  selectInput(inputId = 'variable',
+                              label = 'Select a Variable:',
+                              choices = variables ),
+                  switchInput(inputId = "calculate", value = FALSE)),
+        menuItemOutput('metric_slider'))
       
-
+      
 )
+
 
 "*********************************************
                   BODY

@@ -4,11 +4,17 @@
                 Date: March 6th 2018
 
 *********************************************************"
-
 # NECESSARY PACKAGES
+#this simple script installs packages
+setwd("~/R/unitedway")
+packages = c("shiny","shinydashboard","ggplot2","plotly","leaflet",
+             "rAmCharts","dplyr","readxl","data.table","shinyWidgets")
+lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==FALSE){install.packages(x,dependencies = TRUE)}});
+rm(packages)
 # Shiny Dependencies
 library(shiny)
 library(shinydashboard)
+library(shinyWidgets)
 # Plotting Dependencies
 library(ggplot2)
 library(plotly)
@@ -64,7 +70,8 @@ sidebar = dashboardSidebar(
                               icon = icon('th'),
                               selectInput(inputId = 'variable',
                                           label = 'Select a Variable:',
-                                          choices = variables )),
+                                          choices = variables ),
+                              switchInput(inputId = "calculate", value = FALSE)),
                     menuItemOutput('metric_slider'))
       
 
@@ -178,18 +185,13 @@ output$GaugeCWBI = renderAmCharts({
 
 output$sample = renderText({ input$metric })
 
-output$GaugePlot7 = output$GaugePlot6 = output$GaugePlot5 = output$GaugePlot4 = output$GaugePlot3 = output$GaugePlot2 = output$GaugePlot = renderAmCharts({
+output$GaugePlot7 = output$GaugePlot6 = output$GaugePlot5 = output$GaugePlot4 = output$GaugePlot3 = output$GaugePlot = renderAmCharts({
     START = round(df2[1, input$variable],.1)
-    value = round(df2[3, input$variable],.1)
+    value = round(df2[4, input$variable],.1)
     END = round(df2[2, input$variable],.1)
+    DIAL = overall_constraints[3, input$variable]
     # AM Angular Gauge
-    # bands = data.frame(start = c(START,value), end = c(value, END), 
-    #                    color = c("#00CC00", "#ea3838"),
-    #                    stringsAsFactors = FALSE)
-    
-    #PURU_COMMENT_START
-    # Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
-    #PURU_COMMENT_END
+    #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
     if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate'))
     {
       bands <- data.frame(start = c(START,value), end = c(value, END), 
@@ -206,6 +208,29 @@ output$GaugePlot7 = output$GaugePlot6 = output$GaugePlot5 = output$GaugePlot4 = 
                    start = START, end = END,
                    main = input$variable, bands = bands)
     }) 
+output$GaugePlot2 = renderAmCharts({
+  START = round(df2[1, "gradrate"],.1)
+  value = round(df2[4, "gradrate"],.1)
+  END = round(df2[2, "gradrate"],.1)
+  DIAL = overall_constraints[3, "gradrate"]
+  # AM Angular Gauge
+  #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
+  if(('gradrate' == 'gradrate'))
+  {
+    bands <- data.frame(start = c(START,value), end = c(value, END), 
+                        color = c("#ea3838","#00CC00"),
+                        stringsAsFactors = FALSE)
+  }
+  else
+  {  
+    bands <- data.frame(start = c(START,value), end = c(value, END), 
+                        color = c("#00CC00", "#ea3838"),
+                        stringsAsFactors = FALSE)
+  }
+  amAngularGauge(x = DIAL, 
+                 start = START, end = END,
+                 main = input$variable, bands = bands)
+}) 
 
 # output$test = renderTable(append(input$metric))
 
@@ -235,9 +260,9 @@ output$MainGrid = renderUI({
 
 "*********************************************
                  RUNAPP
-*********************************************"
-# display.mode="showcase" #debug code
-# options(shiny.reactlog=TRUE) #debug code
+# *********************************************"
+# # display.mode="showcase" #debug code
+# # options(shiny.reactlog=TRUE) #debug code
 app <- shinyApp( ui = dashboardPage( skin = 'blue',
                               header = header,
                               sidebar = sidebar,
