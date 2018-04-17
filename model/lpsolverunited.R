@@ -47,11 +47,11 @@ lptest <- function(mydata){
                     # The actual Child well being index but linearized
                     # 0.003860932 is average Z-score of the orignal data
   # Set the upper and lower bounds ----
-  set.bounds(model,
+  set.bounds(model, #mydata$gradrate[1],
              lower=c(mydata$gradrate[1], mydata$ccrpi[1], mydata$grade3[1], mydata$grade8[1], mydata$lbw[1],
                      mydata$childnohealth[1], mydata$childpoverty[1], mydata$povertyrate[1], mydata$housingburden[1],
                      mydata$momsnohs[1], mydata$collegerate[1], mydata$adultsnoedu[1], mydata$adultnohealth[1], mydata$unemployment[1],.90),
-             upper=c(mydata$gradrate[2], mydata$ccrpi[2], mydata$grade3[2], mydata$grade8[2], mydata$lbw[2],
+             upper=c(mydata$gradrate[1], mydata$ccrpi[2], mydata$grade3[2], mydata$grade8[2], mydata$lbw[2],
                      mydata$childnohealth[2], mydata$childpoverty[2], mydata$povertyrate[2], mydata$housingburden[2],
                      mydata$momsnohs[2], mydata$collegerate[2], mydata$adultsnoedu[2], mydata$adultnohealth[2], mydata$unemployment[2],1.0)) #***We are using for constraints
   # intialize model ----
@@ -60,15 +60,15 @@ lptest <- function(mydata){
   #                             mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
   #                             mycoef$A[13],mycoef$A[14],-sum(mycoef$B)), "=", 1.04455e-10)
   # rowSums(mycoef$A*mydata["df0_ave",] - mycoef$B)
-  add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$gradrate[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$ccrpi[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade3[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade8[4]) #average x1 = .518 Child
+  # add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$gradrate[4]) #average x1 = .518 Child
+  # add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$ccrpi[4]) #average x1 = .518 Child
+  # add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade3[4]) #average x1 = .518 Child
+  # add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$grade8[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$lbw[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$childnohealth[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0), "=", mydata$childpoverty[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0), "=", mydata$povertyrate[4]) # x2 = .500 Family
-  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0), "=", mydata$housingburden[4]) # x2 = .500 Family
+  # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0), "=", mydata$housingburden[4]) # x2 = .500 Family
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0), "=", mydata$momsnohs[4]) # x2 = .500 Family
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0), "=", mydata$collegerate[4]) # x3 = .469 Community
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0), "=", mydata$adultnoedu[4]) # x3 = .469 Community
@@ -79,11 +79,12 @@ lptest <- function(mydata){
   # delete.constraint(model,1:length(get.constraints(model)))
   # print(model)
   # Add the constraints -sum(mycoef$B) ----
-  # 1/n*coeff is how we will add it for multple contraints A*x = Y +B
-  add.constraint(model, (c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
-                          mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
-                          mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
-                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", (0.00386-ValueZ)^2) #0.00386
+  # # 1/n*coeff is how we will add it for multple contraints A*x = Y +B
+  # add.constraint(model, (c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
+  #                         mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
+  #                         mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
+  #                         mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", (0.00386-ValueZ)^2) #0.00386
+  
   add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
@@ -105,10 +106,10 @@ lptest <- function(mydata){
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 0.087, -0.302, 0, -1, 0, 0, 0, 0, 0), "<=", 0.302) #momsnohs
   # add.constraint(model, c(0, 0, 0.005, 0, 0, 0, 0, 0.105, 0, 0.583, 0, -1, 0, 0, 0), ">=", -1.26) #adultnoedu
   # Rest of the Model ----
-  add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$gradrate[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$ccrpi[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$grade3[4]) #average x1 = .518 Child
-  add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$grade8[4]) #average x1 = .518 Child
+  # add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$gradrate[4]) #average x1 = .518 Child
+  # add.constraint(model, c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$ccrpi[4]) #average x1 = .518 Child
+  # add.constraint(model, c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$grade3[4]) #average x1 = .518 Child
+  # add.constraint(model, c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$grade8[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "<=", mydata$lbw[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), "<=", mydata$childnohealth[4]) #average x1 = .518 Child
   # add.constraint(model, c(0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0), "<=", mydata$childpoverty[4]) #average x1 = .518 Child

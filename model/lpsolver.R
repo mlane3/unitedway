@@ -27,6 +27,9 @@ lptest <- function(df2,initial){
   # Fix data so minimums are not zero To Mike fix so not needed
   # df2 need to be replaced with better bounds!
   for (i in 1:length(df2)) {
+    if(df2[2,i] >= 100){
+      df2[2,i] = 100
+    }
     if(df2[1,i] == 0){
       myname <- names(df2[i])
       df2[1,i] <- abs(min(df0[,i+2]))
@@ -83,7 +86,7 @@ lptest <- function(df2,initial){
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
                           mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", -(0.00386-ValueZ))
-  add.constraint(model, -c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
+  add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
                           mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B))) 
@@ -135,9 +138,11 @@ lptest <- function(df2,initial){
   return(get.variables(model))
 }
 #This is a script to show the output of lptest()
-final <- lptest(df2) #lptest takes in original_constrants or df2
-final <- final[1:14]
-CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
-CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)
-print(paste0("CWB Index equals"," ",CWBI))
-print(final - df2["df0_ave",])
+
+# final <- lptest(df2) #lptest takes in original_constrants or df2
+# final <- final[1:14]
+# CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
+# CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)
+# test <- as.data.frame(CWBI = CWBI, final = final)
+# print(paste0("CWB Index equals"," ",CWBI))
+# print(final - df2["df0_ave",])
