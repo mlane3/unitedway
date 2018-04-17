@@ -102,7 +102,7 @@ fx <- function(n){
   return(ans) }
 
 # Current lpSolve version - ---
-lptest <- function(df2,initial){
+lptest <- function(df2,initial = NULL){
   # Fix data so minimums are not zero To Mike fix so not needed
   # df2 need to be replaced with better bounds!
   # grangertest(formula, data = list(), ...)

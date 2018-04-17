@@ -26,7 +26,8 @@ library(data.table)
 
 # DATA CLEANING BEFORE SHINY ----
 # Original dataset
-source({load("data to load in.RData", envir = parent.frame(), verbose = TRUE)}) #to load df2
+source("lpsolver.R")
+load("data to load in.RData", envir = parent.frame(), verbose = TRUE)
 # df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 mynames = c('county','weave_ct2010','gradrate','ccrpi',
                     'grade3','grade8','lbw','childnohealth',
@@ -42,7 +43,7 @@ pop.Coef <- function(){
   #Calculate STDEV
   df0_sd = c(11.73959, 10.46115, 20.86766, 18.81275, 2.800196, 8.375753, 19.90409,
              20.26725, 10.86507, 11.83264, 10.64412, 9.722596, 13.92478, 6.665234)
-  names(df0_ave) = mynames[3:16]
+  names(df0_sd) = mynames[3:16]
   # Define the Coefficent and Intercept B for each variable
   ChildA <- function(df0_sd){return(1/(3*7*df0_sd))} #Child Coefficents
   FamilyA <- function(df0_sd){ return(1/(3*3*df0_sd)) } #Family Coefficents
@@ -81,7 +82,7 @@ pop.Coef <- function(){
     -1*ComB(df0_ave["unemployment"],df0_sd["unemployment"])
   )
   rownames(A)
-  df0_coeff <- data.frame(name = mynames,
+  df0_coeff <- data.frame(name = mynames[3:16],
                           A = as.numeric(A),
                           B = as.numeric(B))
   rm(B,A,ChildA,ChildB,FamilyA,FamilyB,ComA,ComB)
@@ -188,11 +189,11 @@ getCWBI <- eventReactive(input$metric,{
     final["Mean",input$variable] <- median(as.vector(input$metric)) #This is just a placeholder line for sending intial guess
   } else {
     final["Mean",input$variable] <- overall_constraints[3,input$variable]}
-  
   #***We are optimizing this CWBZ
   final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
   CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
   # CWBI <- median(input$gradrate)*(1+input$final/100)
+  browser()
   CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
   # browser()
   # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
@@ -209,9 +210,11 @@ output$GaugeCWBI = renderAmCharts({
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
                      color = c("#ea3838", "#00CC00"),
                      stringsAsFactors = FALSE)
+  # browser()
   amAngularGauge(x = getCWBI(),
                  start = 0, end = 100,
                  main = "CWBI", bands = bands)}) 
+
 
 output$sample = renderText({ input$metric })
 
