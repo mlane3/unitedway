@@ -157,7 +157,9 @@ output$metric_slider = renderMenu( variable_reactive() )
 
 # PLOTTING THE GAUGE
 # output$gauge = renderGauge({
-#   #str(input$attribs)
+#   #str(in4
+
+  put$attribs)
 #   #str(input$lbw)
 #   #typeof(input$lbw
 #   gauge(CWBI, min = 0, max = 100,
@@ -229,10 +231,6 @@ output$GaugePlot = renderAmCharts({
                 smoothFactor = 0.5,
                 color = "white",
                 fillOpacity = 0.8)
-  
-  
-  
-  
 
 })
 
