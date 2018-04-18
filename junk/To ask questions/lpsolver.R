@@ -102,10 +102,10 @@ fx <- function(n){
   return(ans) }
 
 # Current lpSolve version - ---
-lptest <- function(df2,initial){
+lptest <- function(df2,initial = NULL){
   # Fix data so minimums are not zero To Mike fix so not needed
   # df2 need to be replaced with better bounds!
-
+  # grangertest(formula, data = list(), ...)
   model <- make.lp(0, 15)
   # Define the object function: for Minimize, use -ve or lp.control ----
   set.objfn(model, c(mycoef$A[1],mycoef$A[2],mycoef$A[3],mycoef$A[4],
@@ -138,6 +138,7 @@ lptest <- function(df2,initial){
   #                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "=", (0.00386))
   add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
   # Add New Constraints: Hypothesis Auxilary Regressions ----
+  
   # Compute the optimized model ----
   lp.control(model,sense='min', verbose='normal') #
   model3 <<- model 
