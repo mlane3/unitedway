@@ -218,9 +218,15 @@ output$GaugePlot = renderAmCharts({
                         color = c("#00CC00", "#ea3838"),
                         stringsAsFactors = FALSE)
   }
-  amAngularGauge(x = median(as.vector(input$metric)), 
-                 start = START, end = END,
-                 main = input$variable, bands = bands)
+  if(is.null(input$metric) == TRUE){
+    amAngularGauge(x = START, 
+                   start = START, end = END,
+                   main = input$variable, bands = bands) 
+  } else{
+    amAngularGauge(x = median(as.vector(input$metric)), 
+                   start = START, end = END,
+                   main = input$variable, bands = bands) 
+  }
 })
 output$GaugePlot1 = renderAmCharts({
   final = getCWBI() #(Load child well being)

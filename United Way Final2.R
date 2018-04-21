@@ -4,7 +4,7 @@
                 Date: March 6th 2018
 
 *********************************************************"
-setwd("~/GitHub/unitedway")
+
 # NECESSARY PACKAGES
 # Shiny Dependencies
 library(shiny)
@@ -22,7 +22,7 @@ library(data.table)
 # Sourcing Prior Scripts
 source('model/UW_R_Script_final.R')
 source('model/coefficents.R')
-source('model/lpsolver.R')
+source('model/lpsolverunited.R')
 
 # DATA CLEANING BEFORE SHINY
 # Original dataset
@@ -49,7 +49,7 @@ header = dashboardHeader(title = 'United Way App')
 *********************************************"
 counties = unique(c("overall", original$county))
 
-variables = names(overall_constraints)
+variables = c(cwbi,names(overall_constraints))
 
 sidebar = dashboardSidebar(
   
@@ -83,7 +83,7 @@ body = dashboardBody(uiOutput("MainGrid"))
 server = function(input, output){
   
 # COUNTRY REACTIVE
-variable_reactive = eventReactive(input$variable, 
+variable_reactive = eventReactive(input$variable,
 {
   min_value = df2[1, input$variable]
   max_value = df2[2, input$variable]
@@ -157,9 +157,7 @@ output$metric_slider = renderMenu( variable_reactive() )
 
 # PLOTTING THE GAUGE
 # output$gauge = renderGauge({
-#   #str(in4
-
-  put$attribs)
+#   #str(input$attribs)
 #   #str(input$lbw)
 #   #typeof(input$lbw
 #   gauge(CWBI, min = 0, max = 100,
@@ -209,10 +207,30 @@ output$GaugePlot = renderAmCharts({
                    main = input$variable, bands = bands)
     
 }) 
-
-
-  output$uwmap <- renderLeaflet({df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
-  mycolor <- as.numeric(df0$gradrate)
+output$mymap <- renderLeaflet({
+  library(raster)
+  counties <- shapefile("data/United Way Tracts (TIGER 2010).shp")
+  uwmapdata<<-read_excel("Complete index table w trunct tract.xlsx")
+  df0$trunctract <- uwmapdata$Tract
+  browser()
+  #line up the states between our data and the shapefile
+  is.element(df0$trunctract, counties$TRACTCE10)
+  #now check that all shapefile states are in df0 data
+  for(i in 1:length(counties$TRACTCE10)){
+    if(is.element(counties$TRACTCE10[i], df0$trunctract[i]) == FALSE)
+      print(paste0(c(i,counties$TRACTCE10[i],df0$trunctract[i])))
+    else{}
+  }
+  # df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
+  
+  #now order the crime stats so that its the same order as the shapefile states
+  #1) make the leaftlet interactive like to example(and if you have to make our own shiny do so)
+  
+  # 2) select the column based on variable name: names(country) == variable
+  # write an if or call statement that takes the input of a string
+  
+  df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
+  mycolor <- as.numeric(unlist(df0[,input$variable]))
   bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
             .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
   # bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
@@ -222,7 +240,7 @@ output$GaugePlot = renderAmCharts({
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(pastedf0$trunctract)
   
-  m <- leaflet() %>%
+  leaflet() %>%
     setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
     addProviderTiles(providers$Stamen.Toner) %>%
     addPolygons(data = counties,
