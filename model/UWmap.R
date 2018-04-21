@@ -130,12 +130,6 @@ m
 
 
 
-output$mymap <- renderLeaflet({
-  leaflet() %>%
-    addProviderTiles(providers$Stamen.TonerLite,
-                     options = providerTileOptions(noWrap = TRUE)
-    ) %>%
-    addMarkers(data = points())
-})
+
 
 
