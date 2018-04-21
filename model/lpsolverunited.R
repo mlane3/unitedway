@@ -95,6 +95,8 @@ lptest <- function(mydata){
   #                          mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
   #                          mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "=", (0.00386))
   add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
+  # add.constraint(model, c(0.46602304, -1, 0.01449261, 0.23347020, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26.95612297), "=", 0)
+         
   # Add New Constraints: Hypothesis Auxilary Regressions ----
   # Here are the equation written out from the power point slides
   # -6.408 >= 0.0474*childpoverty+0.562*povertyrate+0.577*momsnohs+0.311*adultnoedu - adultsnohealth 
