@@ -106,7 +106,9 @@ variablename <- readline("What is the variable?")
 # write an if or call statement that takes the input of a string
 
 df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
+df0$trunctract<-uwmapdata$Tract
 mycolor <- as.numeric(df0$gradrate)
+
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
           .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
 # bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
