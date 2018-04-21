@@ -6,9 +6,9 @@
 *********************************************************"
 # NECESSARY PACKAGES
 #this simple script installs packages
-setwd("~/R/unitedway")
+#setwd("~/Documents/GitHub/unitedway")
 packages = c("shiny","shinydashboard","ggplot2","plotly","leaflet",
-             "rAmCharts","dplyr","readxl","data.table","shinyWidgets")
+             "rAmCharts","dplyr","readxl","data.table","shinyWidgets","ggmap","rgdal","mapview")
 lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==FALSE){install.packages(x,dependencies = TRUE)}});
 rm(packages)
 # Shiny Dependencies
@@ -34,7 +34,7 @@ library(htmlwidgets)
 library(readxl)
 
 # Sourcing Prior Scripts
-source('model/UW_R_Script_final.R')
+source('model/UWCWBI_final.R')
 source('model/coefficents.R')
 source('model/lpsolverunited.R')
 
