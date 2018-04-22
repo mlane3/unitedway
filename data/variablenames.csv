@@ -1,20 +1,20 @@
-"","variable","number","title"
-"1","gradrate",1,"Graduation Rate"
-"2","ccrpi",2,"College and Career Readiness Score"
+"","variable","number","title","plotbutton"
+"1","gradrate",1,"Graduation Rate",1
+"2","ccrpi",2,"College and Career Readiness Score",0
 "3","grade3",3,"%
-childern exceed 3rd grade reading standard"
+childern exceed 3rd grade reading standard",0
 "4","grade8",4,"% childern exceed 8th grade math
-standard"
-"5","lbw",5,"Low Weight Births"
-"6","childnohealth",6,"% children wo health insurance"
+standard",0
+"5","lbw",5,"Low Weight Births",0
+"6","childnohealth",6,"% children wo health insurance",0
 "7","childpoverty",7,"% childern
-in poverty"
-"8","povertyrate",8,"% families not financially stable"
+in poverty",0
+"8","povertyrate",8,"% families not financially stable",0
 "9","housingburden",9,"% with housing cost
-burden"
-"10","momsnohs",10,"% of Moms with no high school"
+burden",0
+"10","momsnohs",10,"% of Moms with no high school",0
 "11","collegerate",11,"% Adults in Post-Secondary
-Education"
-"12","adultsnoedu",12,"% Adults with no high school"
-"13","adultnohealth",13,"% adults wo health insurance"
-"14","unemployment",14,"Unemployment Rate"
+Education",0
+"12","adultsnoedu",12,"% Adults with no high school",0
+"13","adultnohealth",13,"% adults wo health insurance",0
+"14","unemployment",14,"Unemployment Rate",0
