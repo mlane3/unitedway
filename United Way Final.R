@@ -7,7 +7,7 @@
 # NECESSARY PACKAGES
 #this simple script installs packages
 #setwd("~/Documents/GitHub/unitedway")
-packages = c("shiny","shinydashboard","ggplot2","plotly","leaflet",
+packages = c("shiny","lpSolve","lpSolveAPI","shinydashboard","ggplot2","plotly","leaflet",
              "rAmCharts","dplyr","readxl","data.table","shinyWidgets","ggmap","rgdal","mapview")
 lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==FALSE){install.packages(x,dependencies = TRUE)}});
 rm(packages)
