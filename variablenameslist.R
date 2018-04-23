@@ -10,5 +10,6 @@ standard", "Low Weight Births", "% children wo health insurance", "% childern
 in poverty", "% families not financially stable", "% with housing cost
 burden", "% of Moms with no high school", "% Adults in Post-Secondary
 Education", "% Adults with no high school", "% adults wo health insurance",
-"Unemployment Rate"))
+"Unemployment Rate"),
+plotbutton = c(1,rep(0,13)))
 write.csv(variablenamelist,"data/variablenames.csv")
