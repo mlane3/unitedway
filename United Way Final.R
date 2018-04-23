@@ -132,6 +132,7 @@ variable_reactive = eventReactive(input$variable,
                               
         )
       )
+    # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
   
 })
 
