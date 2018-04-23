@@ -4,9 +4,12 @@
                 Date: March 6th 2018
 
 *********************************************************"
-# NECESSARY PACKAGES
+# Authors: Eva, Betty Toyin, and Michael.
+# Eva below I have done this # followed by "----" notation.  These should help you go
+# through the file quickly.  It is separeted like it is with Sifael's stuff
+
+# NECESSARY PACKAGES ----
 #this simple script installs packages
-#setwd("~/Documents/GitHub/unitedway")
 packages = c("shiny","lpSolve","lpSolveAPI","shinydashboard","ggplot2","plotly","leaflet",
              "rAmCharts","dplyr","readxl","data.table","shinyWidgets","ggmap","rgdal","mapview")
 lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==FALSE){install.packages(x,dependencies = TRUE)}});
@@ -56,6 +59,7 @@ overall_constraints[1:3,] = df2[1:3,] = round(overall_constraints[1:3,],.01)
 "*********************************************
                   HEADER
 *********************************************"
+# Header ----
 header = dashboardHeader(title = 'United Way App')
 
 "*********************************************
@@ -65,6 +69,7 @@ counties = unique(c("overall", original$county))
 
 variables = names(overall_constraints)
 
+#Side Bar ----
 sidebar = dashboardSidebar(
       sidebarMenu(  menuItem( text = "Multiple Plots",
                             tabName = "all_plots" )),
@@ -89,12 +94,14 @@ sidebar = dashboardSidebar(
 "*********************************************
                   BODY
 *********************************************"
+
 body = dashboardBody(uiOutput("MainGrid"))
 
 
 "*********************************************
                  SERVER
 *********************************************"
+# Server ----
 server = function(input, output){
   
 # COUNTY REACTIVE
