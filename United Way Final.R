@@ -14,6 +14,7 @@ packages = c("shiny","lpSolve","lpSolveAPI","shinydashboard","ggplot2","plotly",
              "rAmCharts","dplyr","readxl","data.table","shinyWidgets","ggmap","rgdal","mapview")
 lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==FALSE){install.packages(x,dependencies = TRUE)}});
 rm(packages)
+
 # Shiny Dependencies
 library(shiny)
 library(shinydashboard)
@@ -38,10 +39,9 @@ library(readxl)
 
 # Sourcing Prior Scripts
 source('model/UWCWBI_final.R')
-source('model/coefficents.R')
 source('model/lpsolverunited.R')
 
-# DATA CLEANING BEFORE SHINY
+# DATA CLEANING BEFORE SHINY ----
 # # Original dataset
 original = read_xlsx("2016 Original Data.xlsx")
 names(original) = c('county','weave_ct2010','gradrate','ccrpi',
@@ -104,7 +104,7 @@ body = dashboardBody(uiOutput("MainGrid"))
 # Server ----
 server = function(input, output){
   
-# COUNTY REACTIVE
+# Select County  ----
 variable_reactive = eventReactive(input$variable, 
 {
   min_value = df2[1, input$variable]
@@ -148,7 +148,7 @@ myupdate <- eventReactive(input$metric,{
   update <- overall_constraints
   return(update)
 })
-# Calc CWBI ----
+# LPSolver Calc CWBI ----
 getCWBI <- eventReactive(input$metric,{
   req(overall_constraints)
   req(original)
@@ -187,7 +187,7 @@ getCWBI <- eventReactive(input$metric,{
   
 })
 
-# Rest of Server -----
+# The Body Plotting -----
 
 # RENDER MENU
 output$metric_slider = renderMenu( variable_reactive() )
@@ -677,6 +677,7 @@ output$MainGrid = renderUI({
 "*********************************************
                  RUNAPP
 # *********************************************"
+# Runapp ----
 # # display.mode="showcase" #debug code
 # # options(shiny.reactlog=TRUE) #debug code
 app <- shinyApp( ui = dashboardPage( skin = 'blue',
