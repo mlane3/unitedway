@@ -21,6 +21,7 @@ library(lpSolve)
 library(lpSolveAPI)
 
 
+
 # Current lpSolve OPtimizer ----
 lptest <- function(mydata){
   # You can ignore this loop
@@ -95,11 +96,11 @@ lptest <- function(mydata){
   add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
-                          mycoef$A[13],mycoef$A[14],0), ">=", -(ValueZ+sum(mycoef$B)))
+                          mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B)))
   add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
   # add.constraint(model, c(0.46602304, -1, 0.01449261, 0.23347020, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26.95612297), "=", 0)
          
-  # Add Auxilary Regressions ----
+  # Add New Constraints: Hypothesis Auxilary Regressions ----
   # Here are the equation written out from the power point slides
   # -6.408 >= 0.0474*childpoverty+0.562*povertyrate+0.577*momsnohs+0.311*adultnoedu - adultsnohealth 
   # -1.26 >= 0.005*grade3+0.105*povertyrate+0.583*momsnohs+residualC - adultnoedu
@@ -126,9 +127,13 @@ lptest <- function(mydata){
   # print(get.bounds(model))
   return(get.variables(model))
 }
-
 # Test the Model ----
 #Uncomment list to show the output of lptest() .  Then hit source(lpsolver.R)
+
+fx <- function(n){
+  #This is function just to show you how CWB Z-score is caculated
+  ans <- mycoef$A[n]*mydata["df0_ave",n] - mycoef$B[n]
+  return(ans) }
 
 final <- lptest(df2) #lptest takes in original_constrants or mydata
 final <- final[1:14]
