@@ -98,7 +98,7 @@ for(i in 1:length(counties$TRACTCE10)){
 # df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
 
 
-#now order the crime stats so that its the same order as the shapefile states
+
 #1) make the leaftlet interactive like to example(and if you have to make our own shiny do so)
 
 variablename <- readline("What is the variable?")
@@ -106,7 +106,7 @@ variablename <- readline("What is the variable?")
 # write an if or call statement that takes the input of a string
 
 df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
-df0$trunctract<-uwmapdata$Tract
+df0$trunctract<-uwmapdata$trunctract
 mycolor <- as.numeric(df0$gradrate)
 
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
@@ -122,15 +122,30 @@ m <- leaflet() %>%
   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
   addProviderTiles(providers$Stamen.Toner) %>%
   addPolygons(data = counties,
+                          fillColor = pal(mycolor),
+                          weight = 1, 
+                          smoothFactor = 0.5,
+                          color = "white",
+                          fillOpacity = 0.8)
+m
+
+labels<-paste("<p>",df0$county,"<p>",
+              "<p>", "gradrate:", round(df0$grade3, digits = 3),"<p>",
+              sep="")
+
+m <- leaflet() %>%
+  setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
+  addProviderTiles(providers$Stamen.Toner) %>%
+  addPolygons(data = counties,
               fillColor = pal(mycolor),
               weight = 1, 
               smoothFactor = 0.5,
               color = "white",
-              fillOpacity = 0.8)
+              fillOpacity =0.8,
+              highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
+                                           fillOpacity = .7, bringToFront = TRUE ),
+              label = lapply(labels, HTML))
 m
-
-
-
 
 
 
