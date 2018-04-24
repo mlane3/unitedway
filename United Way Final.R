@@ -78,13 +78,13 @@ sidebar = dashboardSidebar(
                               icon = icon('th'),
                               selectInput(inputId = 'county',
                                           label = 'Select County:',
-                                          choices = counties ))),
+                                          choices = counties, selected = counties[1]))),
       sidebarMenu( 
                     menuItem( text = "Variable Selection",
                               icon = icon('th'),
                               selectInput(inputId = 'variable',
                                           label = 'Select a Variable:',
-                                          choices = variables ),
+                                          choices = variables, selected = variables[1]),
                               switchInput(inputId = "calculate", value = FALSE)),
                     menuItemOutput('metric_slider'))
       
@@ -132,7 +132,7 @@ variable_reactive = eventReactive(input$variable,
                               
         )
       )
-    # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
+    
   
 })
 
@@ -142,7 +142,7 @@ variable_reactive = eventReactive(input$variable,
 #   return(overall_constraints)
 #   # overall_constraints[2, input$variable] <<- input$metric[2]
 # })
-myupdate <- eventReactive(input$metric,{
+myupdate <- observeEvent(input$metric,{
   # overall_constraints[3, input$variable] <<- input$metric[1]
   overall_constraints[1, input$variable] <<- input$metric[1]
   overall_constraints[2, input$variable] <<- input$metric[2]
@@ -153,9 +153,8 @@ myupdate <- eventReactive(input$metric,{
 getCWBI <- eventReactive(input$metric,{
   req(overall_constraints)
   req(original)
-  # updated <- update()
-  update <- myupdate()
-  final <- update # this used to be test2 <- overall_constraints
+  # update <- myupdate()
+  final <- overall_constraints # update # this used to be final <- overall_constraints
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
   maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
@@ -196,7 +195,8 @@ output$metric_slider = renderMenu( variable_reactive() )
 
 # PLOTTING THE GAUGE
 output$GaugeCWBI = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final <- getCWBI() #(Load child well being)
+  # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
   value = unname(unlist(final[1]))
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
