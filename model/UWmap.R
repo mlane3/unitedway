@@ -86,13 +86,13 @@ uwmapdata<-read_excel("Complete index table w trunct tract.xlsx")
 
 
 #line up the states between our data and the shapefile
-is.element(df0$trunctract, counties$TRACTCE10)
+is.element(df0$TRACT, counties$TRACTCE10)
 
 
 #now check that all shapefile states are in df0 data
 for(i in 1:length(counties$TRACTCE10)){
-  if(is.element(counties$TRACTCE10[i], df0$trunctract[i]) == FALSE)
-    print(paste0(c(i,counties$TRACTCE10[i],df0$trunctract[i])))
+  if(is.element(counties$TRACTCE10[i], df0$TRACT[i]) == FALSE)
+    print(paste0(c(i,counties$TRACTCE10[i],df0$TRACT[i])))
   else{}
 }
 # df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
@@ -105,8 +105,8 @@ variablename <- readline("What is the variable?")
 # 2) select the column based on variable name: names(country) == variablename
 # write an if or call statement that takes the input of a string
 
-df0 <- df0[order(match(df0$trunctract, counties$TRACTCE10)),]
-df0$trunctract<-uwmapdata$trunctract
+df0 <- df0[order(match(df0$TRACT, counties$TRACTCE10)),]
+df0$TRACT<-uwmapdata$tract
 mycolor <- as.numeric(df0$gradrate)
 
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
@@ -114,9 +114,7 @@ bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor),
 # bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
 pal <- colorBin("RdYlBu", domain = mycolor, bins = bins)
 
-#add our color pallete to our map
-# mycolor <- dff0$trunctract
-# mycolor <- as.numeric(pastedf0$trunctract)
+#add our color pallet
 
 m <- leaflet() %>%
   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
@@ -129,8 +127,8 @@ m <- leaflet() %>%
                           fillOpacity = 0.8)
 m
 
-labels<-paste("<p>",df0$county,"<p>",
-              "<p>", "gradrate:", round(df0$grade3, digits = 3),"<p>",
+labels<-paste("<p>",uwmapdata$county,"<p>",
+              "<p>", "CWB", round(uwmapdata$CWB_Index, digits = 5),"<p>",
               sep="")
 
 m <- leaflet() %>%
@@ -140,8 +138,8 @@ m <- leaflet() %>%
               fillColor = pal(mycolor),
               weight = 1, 
               smoothFactor = 0.5,
-              color = "white",
-              fillOpacity =0.8,
+              color = "orange",
+              fillOpacity =0.5,
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
               label = lapply(labels, HTML))
