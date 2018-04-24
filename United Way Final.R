@@ -4,13 +4,17 @@
                 Date: March 6th 2018
 
 *********************************************************"
-# NECESSARY PACKAGES
+# Authors: Eva, Betty Toyin, and Michael.
+# Eva below I have done this # followed by "----" notation.  These should help you go
+# through the file quickly.  It is separeted like it is with Sifael's stuff
+
+# NECESSARY PACKAGES ----
 #this simple script installs packages
-#setwd("~/Documents/GitHub/unitedway")
 packages = c("shiny","lpSolve","lpSolveAPI","shinydashboard","ggplot2","plotly","leaflet",
              "rAmCharts","dplyr","readxl","data.table","shinyWidgets","ggmap","rgdal","mapview")
 lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==FALSE){install.packages(x,dependencies = TRUE)}});
 rm(packages)
+
 # Shiny Dependencies
 library(shiny)
 library(shinydashboard)
@@ -35,10 +39,9 @@ library(readxl)
 
 # Sourcing Prior Scripts
 source('model/UWCWBI_final.R')
-source('model/coefficents.R')
 source('model/lpsolverunited.R')
 
-# DATA CLEANING BEFORE SHINY
+# DATA CLEANING BEFORE SHINY ----
 # # Original dataset
 original = read_xlsx("2016 Original Data.xlsx")
 names(original) = c('county','weave_ct2010','gradrate','ccrpi',
@@ -56,6 +59,7 @@ overall_constraints[1:3,] = df2[1:3,] = round(overall_constraints[1:3,],.01)
 "*********************************************
                   HEADER
 *********************************************"
+# Header ----
 header = dashboardHeader(title = 'United Way App')
 
 "*********************************************
@@ -65,6 +69,7 @@ counties = unique(c("overall", original$county))
 
 variables = names(overall_constraints)
 
+#Side Bar ----
 sidebar = dashboardSidebar(
       sidebarMenu(  menuItem( text = "Multiple Plots",
                             tabName = "all_plots" )),
@@ -73,13 +78,13 @@ sidebar = dashboardSidebar(
                               icon = icon('th'),
                               selectInput(inputId = 'county',
                                           label = 'Select County:',
-                                          choices = counties ))),
+                                          choices = counties, selected = counties[1]))),
       sidebarMenu( 
                     menuItem( text = "Variable Selection",
                               icon = icon('th'),
                               selectInput(inputId = 'variable',
                                           label = 'Select a Variable:',
-                                          choices = variables ),
+                                          choices = variables, selected = variables[1]),
                               switchInput(inputId = "calculate", value = FALSE)),
                     menuItemOutput('metric_slider'))
       
@@ -89,15 +94,17 @@ sidebar = dashboardSidebar(
 "*********************************************
                   BODY
 *********************************************"
+
 body = dashboardBody(uiOutput("MainGrid"))
 
 
 "*********************************************
                  SERVER
 *********************************************"
+# Server ----
 server = function(input, output){
   
-# COUNTY REACTIVE
+# Select County  ----
 variable_reactive = eventReactive(input$variable, 
 {
   min_value = df2[1, input$variable]
@@ -125,6 +132,7 @@ variable_reactive = eventReactive(input$variable,
                               
         )
       )
+    
   
 })
 
@@ -134,20 +142,19 @@ variable_reactive = eventReactive(input$variable,
 #   return(overall_constraints)
 #   # overall_constraints[2, input$variable] <<- input$metric[2]
 # })
-myupdate <- eventReactive(input$metric,{
+myupdate <- observeEvent(input$metric,{
   # overall_constraints[3, input$variable] <<- input$metric[1]
   overall_constraints[1, input$variable] <<- input$metric[1]
   overall_constraints[2, input$variable] <<- input$metric[2]
   update <- overall_constraints
   return(update)
 })
-# Calc CWBI ----
+# LPSolver Calc CWBI ----
 getCWBI <- eventReactive(input$metric,{
   req(overall_constraints)
   req(original)
-  # updated <- update()
-  update <- myupdate()
-  final <- update # this used to be test2 <- overall_constraints
+  # update <- myupdate()
+  final <- overall_constraints # update # this used to be final <- overall_constraints
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
   maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
@@ -180,7 +187,7 @@ getCWBI <- eventReactive(input$metric,{
   
 })
 
-# Rest of Server -----
+# Plotting -----
 
 # RENDER MENU
 output$metric_slider = renderMenu( variable_reactive() )
@@ -188,7 +195,8 @@ output$metric_slider = renderMenu( variable_reactive() )
 
 # PLOTTING THE GAUGE
 output$GaugeCWBI = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final <- getCWBI() #(Load child well being)
+  # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
   value = unname(unlist(final[1]))
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
@@ -568,7 +576,6 @@ output$GaugePlot14 = renderAmCharts({
                  main = "Unemployment", bands = bands)
 })
 output$mymap = renderLeaflet({
-  require(original)
   counties <- shapefile("data/United Way Tracts (TIGER 2010).shp")
   UWcensuszip <- read_excel("data/TRACT_ZIP_122014.xlsx")
   uwmapdata<-read_excel("Complete index table w trunct tract.xlsx")
@@ -609,6 +616,7 @@ output$mymap = renderLeaflet({
 "*******************************
           MAIN GRID
 *******************************"
+# The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       
       # Evaluating the Overall Page
@@ -620,35 +628,35 @@ output$MainGrid = renderUI({
         tabsetPanel(tabPanel(
             "all_plots",
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot"))),
+                             box(width=12, amChartsOutput("GaugePlot",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot1"))),
+                             box(width=12, amChartsOutput("GaugePlot1",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot2")))),
+                             box(width=12, amChartsOutput("GaugePlot2",height="200")))),
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot3"))),
+                             box(width=12, amChartsOutput("GaugePlot3",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot4"))),
+                             box(width=12, amChartsOutput("GaugePlot4",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot5")))),
+                             box(width=12, amChartsOutput("GaugePlot5",height="200")))),
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot6"))),
+                             box(width=12, amChartsOutput("GaugePlot6",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot7"))),
+                             box(width=12, amChartsOutput("GaugePlot7",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot8")))),
+                             box(width=12, amChartsOutput("GaugePlot8",height="200")))),
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot9"))),
+                             box(width=12, amChartsOutput("GaugePlot9",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot10"))),
+                             box(width=12, amChartsOutput("GaugePlot10",height="200"))),
                       column(4,
-                             box(width=12, amChartsOutput("GaugePlot11")))),
+                             box(width=12, amChartsOutput("GaugePlot11",height="200")))),
             fluidRow( column(4,
-                           box(width=12, amChartsOutput("GaugePlot12"))),
+                           box(width=12, amChartsOutput("GaugePlot12",height="200"))),
                     column(4,
-                           box(width=12, amChartsOutput("GaugePlot13"))),
+                           box(width=12, amChartsOutput("GaugePlot13",height="200"))),
                     column(4,
-                           box(width=12, amChartsOutput("GaugePlot14"))))#,
+                           box(width=12, amChartsOutput("GaugePlot14",height="200"))))#,
           ),
                     tabPanel("Additional Content here", amChartsOutput('GaugeCWBI')),
                     tabPanel("Gauge Plots Here", amChartsOutput('GaugePlot'),
@@ -670,6 +678,7 @@ output$MainGrid = renderUI({
 "*********************************************
                  RUNAPP
 # *********************************************"
+# Runapp ----
 # # display.mode="showcase" #debug code
 # # options(shiny.reactlog=TRUE) #debug code
 app <- shinyApp( ui = dashboardPage( skin = 'blue',
