@@ -86,8 +86,11 @@ sidebar = dashboardSidebar(
                                           label = 'Select a Variable:',
                                           choices = variables, selected = variables[1]),
                               switchInput(inputId = "calculate", value = FALSE)),
-                    menuItemOutput('metric_slider'))
+                    menuItemOutput('metric_slider')),
       
+#Eve -- Side Bar Menu ----
+  sidebarMenu( 
+    menuItem(text = "Fixed Constraints" ))
 
 )
 
@@ -103,6 +106,33 @@ body = dashboardBody(uiOutput("MainGrid"))
 *********************************************"
 # Server ----
 server = function(input, output){
+  # Eve Added  --------------------------------------------------------------
+  user_text = eventReactive(input$execute, {
+    variablenamelist <- data.table(
+      variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
+                    "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
+                    "adultsnoedu", "adultnohealth", "unemployment" ),
+      number = 1:14,
+      title = c( "Graduation Rate", "College and Career Readiness Score", "%
+childern exceed 3rd grade reading standard", "% childern exceed 8th grade math
+standard", "Low Weight Births", "% children wo health insurance", "% childern
+in poverty", "% families not financially stable", "% with housing cost
+burden", "% of Moms with no high school", "% Adults in Post-Secondary
+Education", "% Adults with no high school", "% adults wo health insurance",
+                 "Unemployment Rate"),
+      plotbutton = c(1,rep(0,13)))
+
+
+
+    
+    
+  # variablenamelist$plotbutton[1]<-input$plotbutton1
+    variablenamelist$plotbutton[1]<- 10
+   # ....
+   # variablenamelist$plotbutton[14]<-input$plotbutton14
+    
+    return (variablenamelist)
+  })
   
 # Select County  ----
 variable_reactive = eventReactive(input$variable, 
@@ -168,7 +198,10 @@ getCWBI <- eventReactive(input$metric,{
   #   final["Mean",input$variable] <- overall_constraints[3,input$variable]}
   #***We are optimizing this CWBZ
   # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
-  final2 <- lptest(final) #lptest takes in original_constrants or df2
+ #EVE add code
+  x <- usertext()
+  
+   final2 <- lptest(final) #lptest takes in original_constrants or df2
   final2 <- final2[1:14]
   names(final2) = variables
   CWBZ <- rowSums(mycoef$A*t(final2) - mycoef$B)
