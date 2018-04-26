@@ -1,3 +1,4 @@
+
 # library(data.table)
 # 
 # # 1)  Z-normalize all attributes over correct domain per region. ----  
