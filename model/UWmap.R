@@ -105,6 +105,7 @@ variablename <- readline("What is the variable?")
 # 2) select the column based on variable name: names(country) == variablename
 # write an if or call statement that takes the input of a string
 
+
 df0 <- df0[order(match(df0$TRACT, counties$TRACTCE10)),]
 df0$TRACT<-uwmapdata$tract
 mycolor <- as.numeric(df0$gradrate)
