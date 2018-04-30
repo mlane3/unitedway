@@ -4,6 +4,7 @@
                 Date: March 6th 2018
 
 *********************************************************"
+
 # Authors: Eva, Betty Toyin, and Michael.
 # Eva below I have done this # followed by "----" notation.  These should help you go
 # through the file quickly.  It is separeted like it is with Sifael's stuff
@@ -38,8 +39,6 @@ library(htmlwidgets)
 library(readxl)
 
 # Sourcing Prior Scripts
-source('model/UWCWBI_final.R')
-source('model/lpsolverunited.R')
 
 # DATA CLEANING BEFORE SHINY ----
 # # Original dataset
@@ -105,6 +104,7 @@ body = dashboardBody(uiOutput("MainGrid"))
 server = function(input, output){
   
 # Select County  ----
+
 variable_reactive = eventReactive(input$variable, 
 {
   min_value = df2[1, input$variable]
@@ -142,6 +142,7 @@ variable_reactive = eventReactive(input$variable,
 #   return(overall_constraints)
 #   # overall_constraints[2, input$variable] <<- input$metric[2]
 # })
+
 myupdate <- observeEvent(input$metric,{
   # overall_constraints[3, input$variable] <<- input$metric[1]
   overall_constraints[1, input$variable] <<- input$metric[1]
@@ -153,6 +154,7 @@ myupdate <- observeEvent(input$metric,{
 getCWBI <- eventReactive(input$metric,{
   req(overall_constraints)
   req(original)
+
   # update <- myupdate()
   final <- overall_constraints # update # this used to be final <- overall_constraints
   mycoef <- pop.Coef(original) # prep step from coefficents.R
@@ -195,6 +197,7 @@ output$metric_slider = renderMenu( variable_reactive() )
 
 # PLOTTING THE GAUGE
 output$GaugeCWBI = renderAmCharts({
+
   final <- getCWBI() #(Load child well being)
   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
   value = unname(unlist(final[1]))
@@ -226,6 +229,7 @@ output$GaugePlot = renderAmCharts({
                         color = c("#00CC00", "#ea3838"),
                         stringsAsFactors = FALSE)
   }
+
   if(is.null(input$metric) == TRUE){
     amAngularGauge(x = START, 
                    start = START, end = END,

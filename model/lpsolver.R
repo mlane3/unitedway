@@ -21,7 +21,6 @@ library(lpSolve)
 library(lpSolveAPI)
 
 
-
 # Current lpSolve OPtimizer ----
 lptest <- function(mydata){
   # You can ignore this loop
@@ -92,7 +91,7 @@ lptest <- function(mydata){
   #                         mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
   #                         mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
   #                         mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))^2, "<=", (0.00386-ValueZ)^2) #0.00386
-  
+
   add.constraint(model, c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
@@ -127,17 +126,12 @@ lptest <- function(mydata){
   # print(get.bounds(model))
   return(get.variables(model))
 }
-# Test the Model ----
-#Uncomment list to show the output of lptest() .  Then hit source(lpsolver.R)
+#This is a script to show the output of lptest()
 
-fx <- function(n){
-  #This is function just to show you how CWB Z-score is caculated
-  ans <- mycoef$A[n]*mydata["df0_ave",n] - mycoef$B[n]
-  return(ans) }
-
-final <- lptest(df2) #lptest takes in original_constrants or mydata
-final <- final[1:14]
-CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
-CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)
-print(paste0("CWB Index equals"," ",CWBI))
-print(final - mydata["df0_ave",])
+# final <- lptest(df2) #lptest takes in original_constrants or df2
+# final <- final[1:14]
+# CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
+# CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)
+# test <- as.data.frame(CWBI = CWBI, final = final)
+# print(paste0("CWB Index equals"," ",CWBI))
+# print(final - df2["df0_ave",])

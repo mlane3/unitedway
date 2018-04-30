@@ -15,6 +15,7 @@
 v_run_init <- as.logical(T)
 v_debug <- as.logical(T)
 
+
 # initialization and set platform-dependent constants ----
 if(v_run_init) {
    options(readr.default_locale=readr::locale(tz="America/New_York"))
@@ -30,6 +31,7 @@ library(dplyr)
 library(tibble)
 library(stats)
 library(data.table)
+
 pop.sd <- function(x) {
   #Caclulated the population standard deviation or uncorrected sd()
   # It is kept as a reference
@@ -44,6 +46,7 @@ if(v_debug) {
    library(pkgconfig)
    default_locale()
    installed.packages()
+
    # readline("press return to resume script execution")
 }
 
@@ -61,10 +64,12 @@ if(v_debug) {
    is.numeric(df0[,3])
    is.ordered(df0)
    storage.mode(df0)
+
    # identical(df0,df1)
    getRversion()
 }
 # setup ----
+
 v_colnames <- as.vector(names(df0))
 v_measures <- v_colnames[-1]
 v_m <- as.integer(length(v_measures))
@@ -73,6 +78,7 @@ tbl_bycounty <- as.tibble(df0)
 tbl_bycounty <- group_by(tbl_bycounty, county)
 tbl_county_measures <- distinct(tbl_bycounty, county, count=as.integer(n()))
 v_counties <- select(tbl_county_measures, county)
+
 
 log_mean_fx = function(county_ave,county_sd){
   log_mean <- exp(county_ave + (county_sd)^2/2)
@@ -90,8 +96,6 @@ max_fx <- function(county_ave,county_sd){
 }
 # transpose so counties are columns in tbl_COUNTY ----
 
-
-
 v_counties <- as.vector(t(v_counties), mode = "character")
 v_c <- as.integer(length(v_counties))
 
@@ -102,10 +106,12 @@ tbl_COUNTY_min <- data.frame(matrix(NA, nrow = v_m, ncol = v_c))
 tbl_COUNTY_mean <- data.frame(matrix(NA, nrow = v_m, ncol = v_c))
 tbl_COUNTY_stdev <- data.frame(matrix(NA, nrow = v_m, ncol = v_c))
 
+
 names(tbl_COUNTY_mean) <- c(v_counties)
 names(tbl_COUNTY_min) <- names(tbl_COUNTY_max) <- names(tbl_COUNTY_stdev) <- names(tbl_COUNTY_mean)
 row.names(tbl_COUNTY_mean) <- c(v_measures)
 row.names(tbl_COUNTY_min) <- row.names(tbl_COUNTY_max) <- row.names(tbl_COUNTY_stdev) <- row.names(tbl_COUNTY_mean)
+
 # creatin data structure with NA ensures numeric storage allocation
 # this_calc <- matrix(data=NA, nrow=1, ncol = v_m)
 this_mean <- numeric(length = v_m)
