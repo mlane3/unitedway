@@ -41,7 +41,8 @@ m <- leaflet() %>%
   addProviderTiles(providers$Stamen.Toner) %>%
   addPolygons(data = counties,
               weight = 1, 
-              smoothFactor = 0.5)
+              smoothFactor = 0.5,
+              fillColor= pal(df0$gradrate))
 m
 
 
@@ -94,4 +95,25 @@ m <- leaflet() %>%
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
               label = lapply(labels, HTML))
+
+m
+
+
+"************************************************************"
+        #rying possible ways to add legend
+"************************************************************"
+pal <- colorNumeric(
+  palette = "YlGnBu",
+  domain =df0$gradrate
+)
+m %>%
+  addPolygons(data = counties,smoothFactor = 0.2, fillOpacity = 1,
+              color = ~pal(df0$gradrate)
+              
+  ) %>%
+  addLegend("bottomright", pal = pal, values = ~df0$gradrate,
+            title = "CWB Index",
+            labFormat = labelFormat(prefix = "$"),
+            opacity = 1
+  )
 m
