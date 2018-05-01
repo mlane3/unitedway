@@ -11,5 +11,5 @@ in poverty", "% families not financially stable", "% Familes With Housing Cost
 burden", "% of Moms with no high school", "% Adults in Post-Secondary
 Education", "% Adults with no high school", "% Adults without health insurance",
 "Unemployment Rate"),
-plotbutton = c(1,rep(0,13)))
+plotbutton = c(0,69.8,rep(0,12)))
 write.csv(variablenamelist,"data/variablenames.csv")
