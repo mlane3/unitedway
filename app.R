@@ -22,6 +22,14 @@ library(shinyWidgets)
 # Plotting Dependencies
 library(ggplot2)
 library(plotly)
+library(ggmap)
+library(rgdal)
+library(htmltools)
+library(mapview)
+library(htmlwidgets)
+library(RColorBrewer)
+library(sp)
+library(raster)
 # library(flexdashboard)
 library(leaflet)
 library(rAmCharts)
@@ -29,18 +37,12 @@ library(rAmCharts)
 library(dplyr)
 library(readxl)
 library(data.table)
-library(raster)
-library(ggmap)
-library(rgdal)
-library(htmltools)
-library(mapview)
-library(htmlwidgets)
 library(readxl)
 
 # Sourcing Prior Scripts
 source('model/UWCWBI_final.R')
 source('model/lpsolverunited.R')
-
+source("variablenameslist.R")
 # DATA CLEANING BEFORE SHINY ----
 # # Original dataset
 original = read_xlsx("2016 Original Data.xlsx")
@@ -48,8 +50,7 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
                     'grade3','grade8','lbw','childnohealth',
                     'childpoverty','povertyrate','housingburden','momsnohs',
                     'collegerate','adultsnoedu','adultnohealth','unemployment')
-
-
+rm(df_index,df_index_100)
 # Overall Constraints
 overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 # county_constraints <- df1 = as.data.frame(read.csv("data/county constrants.csv"))
@@ -66,11 +67,16 @@ header = dashboardHeader(title = 'United Way App')
                  SIDEBAR
 *********************************************"
 counties = unique(c("overall", original$county))
-
 variables = names(overall_constraints)
+colors <- c("Quantile","viridis", "magma", "inferno", "plasma", "RdBu", "RdGy",
+"RdYlBu", "RdYlGn", "Spectral", "Accent", "Dark2", "Paired", "Pastel1", 
+"Pastel2", "Set1", "Set2", "Set3", "Blues", "BuGn", "BuPu", "GnBu", "Greens",
+"Greys", "Oranges", "OrRd", "PuBu", "PuBuGn", "PuRd", "Purples",  "RdPu",
+"Reds")
 
 #Side Bar ----
 sidebar = dashboardSidebar(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       sidebarMenu(  menuItem( text = "Multiple Plots",
                             tabName = "all_plots" )),
       sidebarMenu( 
@@ -78,14 +84,23 @@ sidebar = dashboardSidebar(
                               icon = icon('th'),
                               selectInput(inputId = 'county',
                                           label = 'Select County:',
-                                          choices = counties ))),
+                                          choices = counties, selected = counties[1]))),
       sidebarMenu( 
                     menuItem( text = "Variable Selection",
                               icon = icon('th'),
                               selectInput(inputId = 'variable',
                                           label = 'Select a Variable:',
-                                          choices = variables ),
-                              switchInput(inputId = "calculate", value = FALSE)),
+                                          choices = variables, selected = variables[1]),
+                              p("Selected:"),
+                              tags$div(class="header", checked=NA,
+                                       tags$p(textOutput(outputId = "sample2"))
+                              ),
+                              switchInput(label = 'Start Optimization?',inputId = "calculate", value = FALSE),
+                              p("Map Controls:"),
+                              switchInput(label = 'Display CWBI',inputId = "mapcwbi",value = FALSE),
+                              selectInput(inputId="mapcolor",label="Pick a map Color",
+                                          choices = colors, selected = "RdYlBu" )
+                              ),
                     menuItemOutput('metric_slider'))
       
 
@@ -95,7 +110,12 @@ sidebar = dashboardSidebar(
                   BODY
 *********************************************"
 
-body = dashboardBody(uiOutput("MainGrid"))
+body = dashboardBody(
+  
+  # tags$head(
+  #   tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")),
+  
+  uiOutput("MainGrid"))
 
 
 "*********************************************
@@ -105,6 +125,10 @@ body = dashboardBody(uiOutput("MainGrid"))
 server = function(input, output){
   
 # Select County  ----
+variablenamelist <- as.data.frame(variablenamelist)
+row.names(variablenamelist) <- unlist(variablenamelist[,1])
+output$sample2 = output$sample = renderText({variablenamelist[input$variable,3]})
+
 variable_reactive = eventReactive(input$variable, 
 {
   min_value = df2[1, input$variable]
@@ -117,11 +141,31 @@ variable_reactive = eventReactive(input$variable,
     # max_value = overall_constraints[2, input$variable]
     values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
   }
+  # if(df2[3,input$variable] == overall_constraints[3,input$variable]||
+  #    overall_constraints[3,input$variable]==median(input$metric)){
+  #   #I am trying to intalize values here.
+  #   # values <- c(min_value, df2[3, input$variable])
+  #   if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate')){
+  #     values <- c(df2[4, input$variable], max_value) #not sure about this change
+  #   }else{values <- c(min_value, df2[4, input$variable])}
+  # } else {
+  #   # min_value = overall_constraints[1, input$variable]
+  #   # max_value = overall_constraints[2, input$variable]
+  #   if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate')){
+  #     values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
+  #   }else{values <- c(min_value, overall_constraints[3, input$variable])}
+  #   # values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
+  # }
   # browser() #debug code
     
   if (length(input$variable == 1) )
       sidebarMenu( menuItem( text = "Metric Slider",
                               icon = icon('th'),
+                              tags$div(class="header", checked=NA,
+                                      tags$head("Adjust the boundary conditions of:"),
+                                      tags$p(textOutput(outputId = "sample"))
+                              ),
+                              
                               sliderInput( inputId = "metric",
                                            label = input$variable,
                                            min = min_value,
@@ -132,7 +176,6 @@ variable_reactive = eventReactive(input$variable,
                               
         )
       )
-  
 })
 
 # Update Slider ----
@@ -143,25 +186,54 @@ variable_reactive = eventReactive(input$variable,
 # })
 myupdate <- eventReactive(input$metric,{
   # overall_constraints[3, input$variable] <<- input$metric[1]
+  req(overall_constraints)
+  req(original)
   overall_constraints[1, input$variable] <<- input$metric[1]
   overall_constraints[2, input$variable] <<- input$metric[2]
-  update <- overall_constraints
-  return(update)
+  updated <<- overall_constraints <<- overall_constraints
+  return(overall_constraints)
 })
 # LPSolver Calc CWBI ----
+getoriginalvalues <- eventReactive(input$metric,{
+  req(overall_constraints)
+  req(original)
+  updated <- myupdate()
+  overall_constraints <<- updated
+  final <- overall_constraints# updated
+  mycoef <- pop.Coef(original) # prep step from coefficents.R
+  minCWB_Z <- -1.969282 #prep step from coefficents.R
+  maxCWB_Z <- 1.380706 #prep step from coefficents.R
+  if(is.null(input$metric)==FALSE){
+    if(overall_constraints[4,input$variable] != input$metric[1] 
+       && final["df0_ave",input$variable] != median(as.vector(input$metric))){
+      final[1,input$variable] <- input$metric[1]
+      final[2,input$variable] <- input$metric[2]
+      final["df0_ave  ",input$variable] <- median(as.vector(input$metric))
+    } else {
+      final["df0_ave",input$variable] <- overall_constraints[4,input$variable]}
+  }
+
+  final2 <- final["df0_ave",] 
+  CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
+  # CWBI <- median(input$gradrate)*(1+input$final/100)
+  CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
+  final2 <- colMeans(final[1:2,])
+  final3 <- c(CWBI,final2,use.names=TRUE)
+  return(final3)
+},ignoreNULL = FALSE)
 getCWBI <- eventReactive(input$metric,{
   req(overall_constraints)
   req(original)
-  # updated <- update()
-  update <- myupdate()
-  final <- update # this used to be test2 <- overall_constraints
+  if(is.null(input$metric)==TRUE){final <- overall_constraints
+  }else{ update <- myupdate()
+  final <- update # this used to be final <- overall_constraints
+  }
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
   maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
-  # final[1,input$variable] <- final$metric[1] # I wante to store metric changes to go to optimizer
-  # final[2,input$variable] <- input$metric[2]  # I wante to store metric changes to go to optimizer
   
   # if(overall_constraints[3,input$variable] != input$metric[1] 
+  
   #    && final["Mean",input$variable] != median(as.vector(input$metric))){
   #   final["Mean",input$variable] <- median(as.vector(input$metric)) #This is just a placeholder line for sending intial guess
   # } else {
@@ -179,23 +251,34 @@ getCWBI <- eventReactive(input$metric,{
   CWBI <- abs(CWBI)
   names(CWBI) = "CWBI"
 
-  final3 <- final3 <- c(CWBI,final2,use.names=TRUE)
-  # browser()
+  final3 <- c(CWBI,final2,use.names=TRUE)
   return(final3)
   print("done")
   # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
   
-})
+},ignoreNULL = FALSE)
 
 # Plotting -----
 
 # RENDER MENU
 output$metric_slider = renderMenu( variable_reactive() )
+# THE SWITCH
 
+#Google if there is a better way
+switch <- eventReactive(input$calculate,{
+  overall_constraints <<- myupdate()
+  #req(updated)
+  req(overall_constraints)
+  if(input$calculate==TRUE){
+    value<-getCWBI()
+  }else{value<-getoriginalvalues()}
+  return(value)
+},ignoreNULL = FALSE,ignoreInit = FALSE)
 
-# PLOTTING THE GAUGE
+# PLOTTING THE GAUGES ----
 output$GaugeCWBI = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final <- switch() #(Load child well being)
+  # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
   value = unname(unlist(final[1]))
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
@@ -205,7 +288,7 @@ output$GaugeCWBI = renderAmCharts({
                  start = 0, end = 100,
                  main = "CWBI", bands = bands)}) 
 
-output$sample = renderText({ input$metric })
+# output$sample = renderText({ input$metric })
 output$GaugePlot = renderAmCharts({
   START = round(df2[1, input$variable],.1)
   value = round(df2[4, input$variable],.1)
@@ -230,13 +313,13 @@ output$GaugePlot = renderAmCharts({
                    start = START, end = END,
                    main = input$variable, bands = bands) 
   } else{
-    amAngularGauge(x = median(as.vector(input$metric)), 
+    amAngularGauge(x = round(median(as.vector(input$metric)),.1), 
                    start = START, end = END,
                    main = input$variable, bands = bands) 
   }
 })
 output$GaugePlot1 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "gradrate"],.1)
   value = round(df2[4, "gradrate"],.1)
   END = round(df2[2, "gradrate"],.1)
@@ -262,7 +345,7 @@ output$GaugePlot1 = renderAmCharts({
                  main = "Grad Rate", bands = bands)
 })
 output$GaugePlot2 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "ccrpi"],.1)
   value = round(df2[4, "ccrpi"],.1)
   END = round(df2[2, "ccrpi"],.1)
@@ -286,7 +369,7 @@ output$GaugePlot2 = renderAmCharts({
                  main = "CCRPI", bands = bands)
 }) 
 output$GaugePlot3 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "grade3"],.1)
   value = round(df2[4, "grade3"],.1)
   END = round(df2[2, "grade3"],.1)
@@ -310,7 +393,7 @@ output$GaugePlot3 = renderAmCharts({
                  main = "Grade 3 Test Scores", bands = bands)
 })
 output$GaugePlot4 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "grade8"],.1)
   value = round(df2[4, "grade8"],.1)
   END = round(df2[2, "grade8"],.1)
@@ -334,7 +417,7 @@ output$GaugePlot4 = renderAmCharts({
                  main = "grade8", bands = bands)
 }) 
 output$GaugePlot5 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "lbw"],.1)
   value = round(df2[4, "lbw"],.1)
   END = round(df2[2, "lbw"],.1)
@@ -359,7 +442,7 @@ output$GaugePlot5 = renderAmCharts({
                  main = "Low Birth Weight", bands = bands)
 })
 output$GaugePlot6 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "childnohealth"],.1)
   value = round(df2[4, "childnohealth"],.1)
   END = round(df2[2, "childnohealth"],.1)
@@ -383,7 +466,7 @@ output$GaugePlot6 = renderAmCharts({
                  main = "Childern No Health Ins", bands = bands)
 })
 output$GaugePlot7 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "childpoverty"],.1)
   value = round(df2[4, "childpoverty"],.1)
   END = round(df2[2, "childpoverty"],.1)
@@ -407,7 +490,7 @@ output$GaugePlot7 = renderAmCharts({
                  main = "Child Poverty", bands = bands)
 })
 output$GaugePlot8 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "povertyrate"],.1)
   value = round(df2[4, "povertyrate"],.1)
   END = round(df2[2, "povertyrate"],.1)
@@ -431,7 +514,7 @@ output$GaugePlot8 = renderAmCharts({
                  main = "Family Poverty", bands = bands)
 })
 output$GaugePlot9 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "housingburden"],.1)
   value = round(df2[4, "housingburden"],.1)
   END = round(df2[2, "housingburden"],.1)
@@ -455,7 +538,7 @@ output$GaugePlot9 = renderAmCharts({
                  main = "Housing Burden", bands = bands)
 })
 output$GaugePlot10 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "momsnohs"],.1)
   value = round(df2[4, "momsnohs"],.1)
   END = round(df2[2, "momsnohs"],.1)
@@ -479,7 +562,7 @@ output$GaugePlot10 = renderAmCharts({
                  main = "Moms No High School", bands = bands)
 })
 output$GaugePlot11 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "collegerate"],.1)
   value = round(df2[4, "collegerate"],.1)
   END = round(df2[2, "collegerate"],.1)
@@ -503,7 +586,7 @@ output$GaugePlot11 = renderAmCharts({
                  main = "College Rate", bands = bands)
 })
 output$GaugePlot12 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "adultsnoedu"],.1)
   value = round(df2[4, "adultsnoedu"],.1)
   END = round(df2[2, "adultsnoedu"],.1)
@@ -527,7 +610,7 @@ output$GaugePlot12 = renderAmCharts({
                  main = "Adults No HS", bands = bands)
 })
 output$GaugePlot13 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "adultnohealth"],.1)
   value = round(df2[4, "adultnohealth"],.1)
   END = round(df2[2, "adultnohealth"],.1)
@@ -551,7 +634,7 @@ output$GaugePlot13 = renderAmCharts({
                  main = "Adults no Health", bands = bands)
 })
 output$GaugePlot14 = renderAmCharts({
-  final = getCWBI() #(Load child well being)
+  final = switch() #(Load child well being)
   START = round(df2[1, "unemployment"],.1)
   value = round(df2[4, "unemployment"],.1)
   END = round(df2[2, "unemployment"],.1)
@@ -574,11 +657,12 @@ output$GaugePlot14 = renderAmCharts({
                  start = START, end = END,
                  main = "Unemployment", bands = bands)
 })
+# Plotting the Map ----
 output$mymap = renderLeaflet({
   counties <- shapefile("data/United Way Tracts (TIGER 2010).shp")
-  UWcensuszip <- read_excel("data/TRACT_ZIP_122014.xlsx")
+  #UWcensuszip <- read_excel("data/TRACT_ZIP_122014.xlsx")
   uwmapdata<-read_excel("Complete index table w trunct tract.xlsx")
-  names(df0) <- c('county','TRACT','gradrate','ccrpi',
+  names(original) <- c('county','TRACT','gradrate','ccrpi',
                   'grade3','grade8','lbw','childnohealth',
                   'childpoverty','povertyrate','housingburden','momsnohs',
                   'collegerate','adultsnoedu','adultnohealth','unemployment')
@@ -586,17 +670,33 @@ output$mymap = renderLeaflet({
   # merge two data frames by ID
   # dfzipmap <- merge(original,UWcensuszip,by="TRACT")
   original$trunctract<-uwmapdata$Tract
-  
   original <- original[order(match(original$trunctract, counties$TRACTCE10)),]
   mycolor <- as.numeric(unlist(original[, input$variable]))
+  if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE){
+    df_complete <- df_complete[order(match(df_complete$weave_ct2010,original$TRACT))]
+    mycolor<- as.numeric(df_complete$CWB_Index)
+  }}
+  #If value positively impacts CWBI then don't reverse else reverse the color scale.
+  # if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate')){
+  #   reverse = FALSE}else{reverse=TRUE}
+  reverse = FALSE
+  #Add our color pallete to our map
   bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
             .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
-  # bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
-  pal <- colorBin("RdYlBu", domain = mycolor, bins = bins)
-  #add our color pallete to our map
+  
+  if(input$mapcolor == "Quantile"){pal <- colorQuantile("RdYlGn", domain = mycolor, n=5)
+  }else{
+    pal <- colorBin(input$mapcolor, domain = mycolor, bins = bins,reverse = reverse)}
+  
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(paste(original$trunctract))
-  
+  if(input$calculate == TRUE){value = getCWBI() #allows the switch to control map
+  mycolor <- as.numeric(value[input$variable])}
+  if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE && input$calculate == TRUE){value = getCWBI()
+  mycolor <- as.numeric(68.9)
+  }}
+  #browser()
+  #Plot the map
   leaflet() %>%
     setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
     addProviderTiles(providers$Stamen.Toner) %>%
@@ -625,7 +725,9 @@ output$MainGrid = renderUI({
           "Please Select a county to begin")
       } else {
         tabsetPanel(tabPanel(
-            "all_plots",
+            "all_plots",p("KNOWN BUG: To Show the other gauges, select and change the variable to grade3, then you have to turn Optimize ON THEN OFF.  We are fixing it."),
+            p("This is the first version we could show to figure out how Variabes affect child well being index. Before you make a selection the other besides the first on show what the child well being was."),
+            p("TO START: Select and Change the variable to begin.  Then you can change the metric slider range.  The left most gauge shows what you have currently changed.  The optimization is based on the (slider) boundaries you set with the Metric Slider for each variable"),
             fluidRow( column(4,
                              box(width=12, amChartsOutput("GaugePlot",height="200"))),
                       column(4,
@@ -657,13 +759,12 @@ output$MainGrid = renderUI({
                     column(4,
                            box(width=12, amChartsOutput("GaugePlot14",height="200"))))#,
           ),
-                    tabPanel("Additional Content here", amChartsOutput('GaugeCWBI')),
-                    tabPanel("Gauge Plots Here", amChartsOutput('GaugePlot'),
+                    tabPanel("CWBI Gauge", p("For the first version and a few of the other versions, the gauge CWBI is in a seperate tab.  We could put them in the same tab but it might be too much info."),
+                                             amChartsOutput('GaugeCWBI')),
+                    tabPanel("Additional Content here", amChartsOutput('GaugePlot'),
                              amChartsOutput('GaugePlot2'),
-                             amChartsOutput('GaugePlot3')
-                             ),
-          tabPanel("I'm A MAP!",leafletOutput("mymap"))
-          
+                             amChartsOutput('GaugePlot3')),
+          tabPanel("the map is here",fluidPage(leafletOutput("mymap")))
           )        
         # textOutput('sample')
         
@@ -673,7 +774,7 @@ output$MainGrid = renderUI({
 
 
 }
-
+options(shiny.sanitize.errors = FALSE)
 "*********************************************
                  RUNAPP
 # *********************************************"
