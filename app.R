@@ -258,34 +258,23 @@ myupdate <- observeEvent(c(input$gradrate,input$ccrpi),{
   overall_constraints <<- overall_constraints
   saveRDS(overall_constraints,"Atemporaryfile.Rds")
   rv$run3 <- rv$run3 + 1
-  browser()
 })
 
 # LPSolver Calc CWBI ----
 final <- reactiveValues()
 getoriginalvalues <- eventReactive(rv$run3,{
-  # browser()
-  print(rv$run3)
   req(overall_constraints,original)
-  #updated <- overall_constraints
-  #overall_constraints <- updated
-  browser()
   final <- overall_constraints # updated
   final <- readRDS("Atemporaryfile.Rds")
   ## Mike FIX THIS ----
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- -1.969282 #prep step from coefficents.R
   maxCWB_Z <- 1.380706 #prep step from coefficents.R
-  if(is.null(input$metric)==FALSE){
-    if(overall_constraints[4,input$variable] != input$metric[1] 
-       && final["df0_ave",input$variable] != median(as.vector(input$metric))){
-      final[1,input$variable] <- input$metric[1]
-      final[2,input$variable] <- input$metric[2]
-      final["df0_ave  ",input$variable] <- median(as.vector(input$metric))
-    } else {
-      final["df0_ave",input$variable] <- overall_constraints[4,input$variable]}
-  }
-  # final["df0_ave  ",input$variable] <- median(as.vector(input$metric))
+  if(rv$run3 <= 1){
+    final["df0_ave  ",input$variable] <- median(as.vector(final[1:2,input$variable]))
+  } else {
+    final["df0_ave",input$variable] <- overall_constraints[4,input$variable]}
+  # 
   final2 <- final["df0_ave",] 
   CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
   # CWBI <- median(input$gradrate)*(1+input$final/100)
@@ -297,20 +286,20 @@ getoriginalvalues <- eventReactive(rv$run3,{
 getCWBI <- eventReactive(input$metric,{
   req(overall_constraints)
   req(original)
-  if(is.null(input$metric)==TRUE){final <- overall_constraints
-  }else{ updated = overall_constraints
-  final = updated # this used to be final <- overall_constraints
-  }
+  # if(is.null(input$metric)==TRUE){final <- overall_constraints
+  # }else{ updated = overall_constraints
+  # final = updated # this used to be final <- overall_constraints
+  # }
+  # if(rv$run3 <= 1){
+  #   final["df0_ave  ",input$variable] <- median(as.vector(final[1:2,input$variable]))
+  # } else {
+  #   final["df0_ave",input$variable] <- overall_constraints[4,input$variable]}
+  final <- overall_constraints # updated
+  if(exists("Atemporaryfile.Rds")){final <- readRDS("Atemporaryfile.Rds")}
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
   maxCWB_Z <- max(df_index$CWB_Z) # 1.380706 #prep step from coefficents.R
-  
-  # if(overall_constraints[3,input$variable] != input$metric[1] 
-  
-  #    && final["Mean",input$variable] != median(as.vector(input$metric))){
-  #   final["Mean",input$variable] <- median(as.vector(input$metric)) #This is just a placeholder line for sending intial guess
-  # } else {
-  #   final["Mean",input$variable] <- overall_constraints[3,input$variable]}
+
   #***We are optimizing this CWBZ
   # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
   final2 <- lptest(final) #lptest takes in overall_constraints or df2
@@ -344,6 +333,7 @@ output$metric_slider = renderMenu( variable_reactive() )
 #Google if there is a better way
 #final <- reactive
 switch <- eventReactive(c(rv$run3,input$calculate,input$gradrate),{
+  
   #if(rv$run2 != 0)
   req(overall_constraints,rv$run2 != 0)
   updated <- overall_constraints
@@ -404,8 +394,8 @@ output$GaugePlot1 = renderAmCharts({
   DIAL = round(unname(unlist(final["gradrate"]))) # overall_constraints[3, "gradrate"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
-  browser()
-
+  #browser()
+  print(rv$run3)
   if(('gradrate' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
