@@ -42,32 +42,7 @@ library(readxl)
 # Sourcing Prior Scripts
 source('model/UWCWBI_final.R')
 source('model/lpsolverunited.R')
-variablenamelist <- as.data.frame(data.table(
-  variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
-                "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
-                "adultsnoedu", "adultnohealth", "unemployment" ),
-  number = 1:14,
-  title = c( 'S: HS Graduation Rate', 'S: HS College&Career Readiness', 'S: %
-             Exceed 3rd Gr Reading Std', 'S: % Exceed 8th Gr Math Std', 'S: % Low Weight
-             Births', 'S: % Children w/o Health Ins', 'S: % Children in Poverty', 'S: %
-             Families Not Finan Stable', 'S: % Families w/Housing Burden', 'S: % Moms w/o
-             HS Diploma', 'S: % Enrolled Post-Second Educ', 'S: % Adults w/o HS Diploma',
-             'S: % Adults w/o Health Ins', 'S: Unemployment Rate'),
-  plotbutton = c(0,0,rep(0,12)),
-  starttitle = c( 'S: HS Graduation Rate', 'S: HS College&Career Readiness', 'S: %
-                  Exceed 3rd Gr Reading Std', 'S: % Exceed 8th Gr Math Std', 'S: % Low Weight
-                  Births', 'S: % Children w/o Health Ins', 'S: % Children in Poverty', 'S: %
-                  Families Not Finan Stable', 'S: % Families w/Housing Burden', 'S: % Moms w/o
-                  HS Diploma', 'S: % Enrolled Post-Second Educ', 'S: % Adults w/o HS Diploma',
-                  'S: % Adults w/o Health Ins', 'S: Unemployment Rate'),
-  resulttitle = c( 'R: HS  Graduation Rate', 'R: HSCollege&Career Readiness',
-                   'R: % Exceed 3rd Gr Reading Std', 'R: % Exceed 8th Gr Math Std', 'R:  % Low
-                   Weight Births', 'R: % Children w/o Health Ins', 'R: % Children in Poverty',
-                   'R: % Families Not Finan Stable', 'R: % Families w/Housing Burden', 'R: % Moms
-                   w/o HS Diploma', 'R: % Enrolled Post-Second Educ', 'R: % Adults w/o HS
-                   Diploma', 'R: % Adults w/o Health Ins', 'R: Unemployment Rate'))
-  )
-row.names(variablenamelist) <- unlist(variablenamelist[,1])
+
 
 
 # DATA CLEANING BEFORE SHINY ----
@@ -103,12 +78,12 @@ sidebar = dashboardSidebar(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       sidebarMenu(  menuItem( text = "Multiple Plots",
                             tabName = "all_plots" )),
-      # sidebarMenu( 
-      #               menuItem( text = "County Selection",
-      #                         icon = icon('th'),
-      #                         selectInput(inputId = 'county',
-      #                                     label = 'Select County:',
-      #                                     choices = counties, selected = counties[1]))),
+      sidebarMenu( 
+                    menuItem( text = "County Selection",
+                              icon = icon('th'),
+                              selectInput(inputId = 'county',
+                                          label = 'Select County:',
+                                          choices = counties, selected = counties[1]))),
       sidebarMenu( 
                     menuItem( text = "Variable Selection",
                               icon = icon('th'),
@@ -124,47 +99,46 @@ sidebar = dashboardSidebar(
                               switchInput(label = 'Display CWBI',inputId = "mapcwbi",value = FALSE),
                               selectInput(inputId="mapcolor",label="Pick a map Color",
                                           choices = colors, selected = "RdYlBu" )
-                              )),
+                              ),
+                    menuItemOutput('metric_slider')),
       # Eve Side Bar Menu ----
       sidebarMenu(
         menuItem(text = "Fixed Constraints",
                  title = "Example Button",
-                 icon = icon("th"),
-                 p("Enter in the the values for the indicator that you want to fix"),
-                 actionButton( inputId = "execute" ,
-                               label = "Submit"),
                  textInput( inputId = "plotbutton1",
-                            label = paste0("Enter ",variablenamelist$starttitle[1],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton2",
-                            label = paste0("Enter ",variablenamelist$starttitle[2],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton3",
-                            label = paste0("Enter ",variablenamelist$starttitle[3],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton4",
-                            label = paste0("Enter ",variablenamelist$starttitle[4],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton5",
-                            label = paste0("Enter ",variablenamelist$starttitle[5],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton6",
-                            label = paste0("Enter ",variablenamelist$starttitle[6],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton7",
-                            label = paste0("Enter ",variablenamelist$starttitle[7],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton8",
-                            label = paste0("Enter ",variablenamelist$starttitle[8],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton9",
-                            label = paste0("Enter ",variablenamelist$starttitle[9],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton10",
-                            label = paste0("Enter ",variablenamelist$starttitle[10],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton11",
-                            label = paste0("Enter ",variablenamelist$starttitle[11],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton12",
-                            label = paste0("Enter ",variablenamelist$starttitle[12],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton13",
-                            label = paste0("Enter ",variablenamelist$starttitle[13],":")),
+                            label = "Enter Some Text: "),
                  textInput( inputId = "plotbutton14",
-                            label = paste0("Enter ",variablenamelist$starttitle[14],":"))
+                            label = "Enter Some Text: "),
                  #.... Add more ....
+                 actionButton( inputId = "execute" ,
+                               label = "Submit")
         )
-      ),
-      sidebarMenu(menuItemOutput('metric_slider'))
+      )
+      
 
 )
 
@@ -182,6 +156,32 @@ body = dashboardBody(
 # Server ----
 server = function(input, output){
   #variablenamelist<-reactiveValues()
+  variablenamelist <- as.data.frame(data.table(
+    variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
+                  "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
+                  "adultsnoedu", "adultnohealth", "unemployment" ),
+    number = 1:14,
+    title = c( 'S: HS Graduation Rate', 'S: HS College&Career Readiness', 'S: %
+               Exceed 3rd Gr Reading Std', 'S: % Exceed 8th Gr Math Std', 'S: % Low Weight
+               Births', 'S: % Children w/o Health Ins', 'S: % Children in Poverty', 'S: %
+               Families Not Finan Stable', 'S: % Families w/Housing Burden', 'S: % Moms w/o
+               HS Diploma', 'S: % Enrolled Post-Second Educ', 'S: % Adults w/o HS Diploma',
+               'S: % Adults w/o Health Ins', 'S: Unemployment Rate'),
+    plotbutton = c(0,0,rep(0,12)),
+    starttitle = c( 'S: HS Graduation Rate', 'S: HS College&Career Readiness', 'S: %
+               Exceed 3rd Gr Reading Std', 'S: % Exceed 8th Gr Math Std', 'S: % Low Weight
+               Births', 'S: % Children w/o Health Ins', 'S: % Children in Poverty', 'S: %
+               Families Not Finan Stable', 'S: % Families w/Housing Burden', 'S: % Moms w/o
+               HS Diploma', 'S: % Enrolled Post-Second Educ', 'S: % Adults w/o HS Diploma',
+               'S: % Adults w/o Health Ins', 'S: Unemployment Rate'),
+    resulttitle = c( 'R: HS  Graduation Rate', 'R: HSCollege&Career Readiness',
+                     'R: % Exceed 3rd Gr Reading Std', 'R: % Exceed 8th Gr Math Std', 'R:  % Low
+                     Weight Births', 'R: % Children w/o Health Ins', 'R: % Children in Poverty',
+                     'R: % Families Not Finan Stable', 'R: % Families w/Housing Burden', 'R: % Moms
+                     w/o HS Diploma', 'R: % Enrolled Post-Second Educ', 'R: % Adults w/o HS
+                     Diploma', 'R: % Adults w/o Health Ins', 'R: Unemployment Rate'))
+    )
+    row.names(variablenamelist) <- unlist(variablenamelist[,1])
     #mike to fix variablenamelist vs. rv$variablenamelist might be confusing
     rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist)
   # Eve Added  --------------------------------------------------------------
@@ -252,13 +252,13 @@ variable_reactive = eventReactive(input$variable,
                                       tags$p(textOutput(outputId = "sample"))
                               ),
                               
-                              # sliderInput( inputId = "metric",
-                              #              label = input$variable,
-                              #              min = min_value,
-                              #              max = max_value,
-                              #              value = values,
-                              #              sep ="",
-                              #              step = .1),
+                              sliderInput( inputId = "metric",
+                                           label = input$variable,
+                                           min = min_value,
+                                           max = max_value,
+                                           value = values,
+                                           sep ="",
+                                           step = .1),
                              sliderInput("gradrate",paste(rv$variablenamelist[1,3]),
                                          min = df2$gradrate[1],max = df2$gradrate[2],
                                          value = c(df2$gradrate[1],df2$gradrate[2]), #for the upper range
@@ -448,70 +448,51 @@ switch <- eventReactive(c(rv$run1,rv$run3,input$calculate,input$gradrate,input$c
 #
 observe(switch())
 # PLOTTING THE GAUGES ----
-# output$GaugePlot = output$GaugeCWBI = renderAmCharts({
-#   final <- switch() #(Load child well being)
-#   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
-#   value = unname(unlist(final[1]))
-#   # AM Angular Gauge
-#   # bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
-#   #                    color = c("#ea3838", "#00CC00"),
-#   #                    stringsAsFactors = FALSE)
-#   amSolidGauge(x = 59, color = c("#ea3838", "#00CC00"),type="semi")
-#   amSolidGauge(x = 100, color = c("#ea3838", "#00CC00"),type="semi")
-#   amSolidGauge(x = value,
-#                  min = 0, max = 100,
-#                  main = "CWBI", type = "semi",type="semi")
-#   })
-  
-output$GaugePlot = renderAmCharts({
-  #output$GaugeCWBI
+output$GaugeCWBI = renderAmCharts({
   final <- switch() #(Load child well being)
   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
-  value = round(unname(unlist(final[1])),0.01)
+  value = unname(unlist(final[1]))
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
                      color = c("#ea3838", "#00CC00"),
                      stringsAsFactors = FALSE)
-  #mainColor = "#FFFFFF"
-  amAngularGauge(x = value, textsize = 15,
-                 start = 0, end = 100,main = "CWBI",step = 25,
-                 bands = bands,theme="dark",mainColor = "#FFFFFF")
-  })
-
-# output$GaugePlot = renderAmCharts({
-#   START = 0
-#   value = round(df2[4, input$variable],.1)
-#   END = 100
-#   DIAL = overall_constraints[3, input$variable]
-#   # AM Angular Gauge
-#   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
-#   if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate'))
-#   {
-#     bands <- data.frame(start = c(START,value), end = c(value, END),
-#                         color = c("#ea3838","#00CC00"),
-#                         stringsAsFactors = FALSE)
-#   }
-#   else
-#   {
-#     bands <- data.frame(start = c(START,value), end = c(value, END),
-#                         color = c("#00CC00", "#ea3838"),
-#                         stringsAsFactors = FALSE)
-#   }
-#   if(is.null(input$metric) == TRUE){
-#     amAngularGauge(x = START,
-#                    start = START, end = END,
-#                    main = input$variable, bands = bands)
-#   } else{
-#     amAngularGauge(x = round(median(as.vector(input$metric)),.1),
-#                    start = START, end = END,
-#                    main = input$variable, bands = bands)
-#   }
-# })
+  amAngularGauge(x = value,
+                 start = 0, end = 100,
+                 main = "CWBI", bands = bands)})
+output$GaugePlot = renderAmCharts({
+  START = 0
+  value = round(df2[4, input$variable],.1)
+  END = 100
+  DIAL = overall_constraints[3, input$variable]
+  # AM Angular Gauge
+  #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
+  if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate'))
+  {
+    bands <- data.frame(start = c(START,value), end = c(value, END),
+                        color = c("#ea3838","#00CC00"),
+                        stringsAsFactors = FALSE)
+  }
+  else
+  {
+    bands <- data.frame(start = c(START,value), end = c(value, END),
+                        color = c("#00CC00", "#ea3838"),
+                        stringsAsFactors = FALSE)
+  }
+  if(is.null(input$metric) == TRUE){
+    amAngularGauge(x = START,
+                   start = START, end = END,
+                   main = input$variable, bands = bands)
+  } else{
+    amAngularGauge(x = round(median(as.vector(input$metric)),.1),
+                   start = START, end = END,
+                   main = input$variable, bands = bands)
+  }
+})
 output$GaugePlot1 = renderAmCharts({
   final = switch() #(Load child well being)
-  START = 61
-  value = round(df2[4, "gradrate"],.1) 
-  END = 91
+  START = 0
+  value = round(df2[4, "gradrate"],.1)
+  END = 100
   DIAL = round(unname(unlist(final["gradrate"]))) # overall_constraints[3, "gradrate"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
@@ -531,11 +512,11 @@ output$GaugePlot1 = renderAmCharts({
   }
   amAngularGauge(x = DIAL,
                  start = START, end = END,
-                 main = rv$variablenamelist$title[1], bands = bands,step=(END-START)/5)
+                 main = rv$variablenamelist$title[1], bands = bands)
 })
 output$GaugePlot2 = renderAmCharts({
   final = switch() #(Load child well being)
-  START = 40
+  START = 0
   value = round(df2[4, "ccrpi"],.1)
   END = 100
   DIAL = round(unname(unlist(final["ccrpi"]))) # overall_constraints[3, "ccrpi"]
@@ -555,7 +536,7 @@ output$GaugePlot2 = renderAmCharts({
   }
   amAngularGauge(x = DIAL,
                  start = START, end = END,
-                 main = rv$variablenamelist$title[2], bands = bands,step=(END-START)/5)
+                 main = rv$variablenamelist$title[2], bands = bands)
 })
 output$GaugePlot3 = renderAmCharts({
   final = switch() #(Load child well being)
@@ -906,15 +887,16 @@ output$mymap = renderLeaflet({
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
-      if (is.null(input$gradrate)==TRUE)
+      if (is.null(input$metric)==TRUE)
       {
         p("Welcome to United Way App", br(),
           "Please Select a variable to begin.  Any variable will do")
       } else {
         #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
+         tabPanel("Additional Content here",p("These is the debug page to show raw output for us"),verbatimTextOutput('sample3')),
          tabPanel(
-            "all_plots",p("Welcome to the Child Well Being Optimizer"),
+            "all_plots",p("KNOWN BUG: To Show the other gauges, select and change the variable to grade3, then you have to turn Optimize ON THEN OFF.  We are fixing it."),
             p("This is the first version we could show to figure out how Variabes affect child well being index. Before you make a selection the other besides the first on show what the child well being was."),
             p("TO START: Select and Change the variable to begin.  Then you can change the metric slider range.  The left most gauge shows what you have currently changed.  The optimization is based on the (slider) boundaries you set with the Metric Slider for each variable"),
             fluidRow( column(4,
@@ -948,10 +930,9 @@ output$MainGrid = renderUI({
                     column(4,
                            box(width=12, amChartsOutput("GaugePlot14",height="200"))))#,
           ),
-                    # tabPanel("CWBI Gauge", p("For the first version and a few of the other versions, the gauge CWBI is in a seperate tab.  We could put them in the same tab but it might be too much info."),
-                    #                          amChartsOutput('GaugeCWBI')),
-        tabPanel("the map is here",fluidPage(leafletOutput("mymap"))),
-        tabPanel("Additional Content here",p("These is the debug page to show raw output for us"),verbatimTextOutput('sample3'))
+                    tabPanel("CWBI Gauge", p("For the first version and a few of the other versions, the gauge CWBI is in a seperate tab.  We could put them in the same tab but it might be too much info."),
+                                             amChartsOutput('GaugeCWBI')),
+        tabPanel("the map is here",fluidPage(leafletOutput("mymap")))
         )
 
       }
