@@ -87,12 +87,49 @@ sidebar = dashboardSidebar(
                                           choices = variables, selected = variables[1]),
                               switchInput(inputId = "calculate", value = FALSE)),
                     menuItemOutput('metric_slider')),
-      
-#Eve -- Side Bar Menu ----
-  sidebarMenu( 
-    menuItem(text = "Fixed Constraints" ))
 
+      # Eve Side Bar Menu ----
+      sidebarMenu(
+        menuItem(text = "Fixed Constraints",
+                 title = "Example Button",
+                 textInput( inputId = "plotbutton1",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton2",
+                            label = "Enter Some Text: "),
+                 
+                 #Eve Added Wednesday night
+                 textInput( inputId = "plotbutton3",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton4",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton5",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton6",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton7",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton8",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton9",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton10",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton11",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton12",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton13",
+                            label = "Enter Some Text: "),
+                 textInput( inputId = "plotbutton14",
+                            label = "Enter Some Text: "),
+                 #.... Add more ....
+                 actionButton( inputId = "execute" ,
+                               label = "Submit")
+        )
+      )
 )
+
+
 
 "*********************************************
                   BODY
@@ -104,10 +141,11 @@ body = dashboardBody(uiOutput("MainGrid"))
 "*********************************************
                  SERVER
 *********************************************"
-# Server ----
-server = function(input, output){
+server = function(input, output)
+{
+  variablenamelist<-reactiveValues()
   # Eve Added  --------------------------------------------------------------
-  user_text = eventReactive(input$execute, {
+  user_text = observeEvent(input$execute,{
     variablenamelist <- data.table(
       variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
                     "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
@@ -121,15 +159,25 @@ burden", "% of Moms with no high school", "% Adults in Post-Secondary
 Education", "% Adults with no high school", "% adults wo health insurance",
                  "Unemployment Rate"),
       plotbutton = c(1,rep(0,13)))
+    ##brower()
 
-
-
+    #Eve Added on Saturday
+    variablenamelist$plotbutton[1]<-input$plotbutton1
+    variablenamelist$plotbutton[2]<-input$plotbutton2
+    variablenamelist$plotbutton[3]<-input$plotbutton3
+    variablenamelist$plotbutton[4]<-input$plotbutton4
+    variablenamelist$plotbutton[5]<-input$plotbutton5
+    variablenamelist$plotbutton[6]<-input$plotbutton6
+    variablenamelist$plotbutton[7]<-input$plotbutton7
+    variablenamelist$plotbutton[8]<-input$plotbutton8
+    variablenamelist$plotbutton[9]<-input$plotbutton9
+    variablenamelist$plotbutton[10]<-input$plotbutton10
+    variablenamelist$plotbutton[11]<-input$plotbutton11
+    variablenamelist$plotbutton[12]<-input$plotbutton12
+    variablenamelist$plotbutton[13]<-input$plotbutton13
+    variablenamelist$plotbutton[14]<-input$plotbutton14
     
-    
-  # variablenamelist$plotbutton[1]<-input$plotbutton1
-    variablenamelist$plotbutton[1]<- 10
-   # ....
-   # variablenamelist$plotbutton[14]<-input$plotbutton14
+    actionButton(inputId = "execute", label = "Submit")
     
     return (variablenamelist)
   })
@@ -147,7 +195,7 @@ variable_reactive = eventReactive(input$variable,
     # max_value = overall_constraints[2, input$variable]
     values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
   }
-  # browser() #debug code
+  #  #debug code
     
   if (length(input$variable == 1) )
       sidebarMenu( menuItem( text = "Metric Slider",
@@ -213,7 +261,7 @@ getCWBI <- eventReactive(input$metric,{
   names(CWBI) = "CWBI"
 
   final3 <- final3 <- c(CWBI,final2,use.names=TRUE)
-  # browser()
+  # #brower()
   return(final3)
   print("done")
   # if(is.null(CWBI)){CWBI <- as.vector(58.9)} # useful for debugging
@@ -277,7 +325,7 @@ output$GaugePlot1 = renderAmCharts({
   DIAL = round(unname(unlist(final["gradrate"]))) # overall_constraints[3, "gradrate"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
-  # browser()
+  # #brower()
   
   if(('gradrate' == 'gradrate'))
   {
@@ -373,7 +421,7 @@ output$GaugePlot5 = renderAmCharts({
   value = round(df2[4, "lbw"],.1)
   END = round(df2[2, "lbw"],.1)
   DIAL = round(unname(unlist(final["lbw"]),.01)) # overall_constraints[3, "lbw"]
-  # browser()
+  # #brower()
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('lbw' == 'gradrate'))
