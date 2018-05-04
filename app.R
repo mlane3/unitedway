@@ -41,7 +41,7 @@ library(readxl)
 
 # Sourcing Prior Scripts
 source('model/UWCWBI_final.R')
-source('model/lpsolverunited.R')
+source('model/lpsolver.R')
 variablenamelist <- as.data.frame(data.table(
   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
                 "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
@@ -965,7 +965,7 @@ output$MainGrid = renderUI({
                  RUNAPP
 # *********************************************"
 # Runapp ----
-#options(shiny.error = recover)
+options(shiny.error = recover)
 options(shiny.error = NULL)
 #options(shiny.reactlog=TRUE) 
 options(shiny.sanitize.errors = FALSE)
