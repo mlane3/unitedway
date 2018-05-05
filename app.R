@@ -183,7 +183,7 @@ body = dashboardBody(
 server = function(input, output){
   #variablenamelist<-reactiveValues()
     #mike to fix variablenamelist vs. rv$variablenamelist might be confusing
-    rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist)
+    rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist,rv$updated = overall_constraints)
   # Eve Added  --------------------------------------------------------------
   user_text = observeEvent(input$execute,{
     rv$run1
@@ -319,37 +319,37 @@ myupdate <- observeEvent(c(input$gradrate,input$ccrpi),{
   req(overall_constraints,input$gradrate)
   #overall_constraints[1, input$variable] <<- input$metric[1]
   #overall_constraints[2, input$variable] <<- input$metric[2]
-  overall_constraints[1, "gradrate"] <- input$gradrate[1]
-  overall_constraints[1, "ccrpi"] <- input$ccrpi[1]
-  overall_constraints[1, "grade3"] <- input$grade3[1]
-  overall_constraints[1, "grade8" ] <- input$grade8[1]
-  overall_constraints[1, "lbw"] <- input$lbw[1]
-  overall_constraints[1, "childnohealth"] <- input$childnohealth[1]
-  overall_constraints[1, "childpoverty"] <- input$childpoverty[1]
-  overall_constraints[1, "povertyrate"] <- input$povertyrate[1]
-  overall_constraints[1, "housingburden"] <- input$housingburden[1]
-  overall_constraints[1, "momsnohs" ] <- input$momsnohs[1]
-  overall_constraints[1,  "collegerate" ] <- input$collegerate[1]
-  overall_constraints[1, "adultsnoedu"]  <- input$adultsnoedu[1]
-  overall_constraints[1, "adultnohealth"] <- input$adultnohealth[1]
-  overall_constraints[1,  "unemployment"] <- input$unemployment[1]
-  overall_constraints[2, "gradrate"] <- input$gradrate[2]
-  overall_constraints[2, "ccrpi"] <- input$ccrpi[2]
-  overall_constraints[2, "grade3"] <- input$grade3[2]
-  overall_constraints[2, "grade8" ] <- input$grade8[2]
-  overall_constraints[2, "lbw"] <- input$lbw[2]
-  overall_constraints[2, "childnohealth"] <- input$childnohealth[2]
-  overall_constraints[2, "childpoverty"] <- input$childpoverty[2]
-  overall_constraints[2, "povertyrate"] <- input$povertyrate[2]
-  overall_constraints[2, "housingburden"] <- input$housingburden[2]
-  overall_constraints[2, "momsnohs" ] <- input$momsnohs[2]
-  overall_constraints[2,  "collegerate" ] <- input$collegerate[2]
-  overall_constraints[2, "adultsnoedu"]  <- input$adultsnoedu[2]
-  overall_constraints[2, "adultnohealth"] <- input$adultnohealth[2]
-  overall_constraints[2,  "unemployment"] <- input$unemployment[2]
-  # assign("overall_constraints", overall_constraints, envir=globalenv())
-  overall_constraints <<- overall_constraints
-  saveRDS(overall_constraints,"Atemporaryfile.Rds")
+  rv$updated[1, "gradrate"] <- input$gradrate[1]
+  rv$updated[1, "ccrpi"] <- input$ccrpi[1]
+  rv$updated[1, "grade3"] <- input$grade3[1]
+  rv$updated[1, "grade8" ] <- input$grade8[1]
+  rv$updated[1, "lbw"] <- input$lbw[1]
+  rv$updated[1, "childnohealth"] <- input$childnohealth[1]
+  rv$updated[1, "childpoverty"] <- input$childpoverty[1]
+  rv$updated[1, "povertyrate"] <- input$povertyrate[1]
+  rv$updated[1, "housingburden"] <- input$housingburden[1]
+  rv$updated[1, "momsnohs" ] <- input$momsnohs[1]
+  rv$updated[1,  "collegerate" ] <- input$collegerate[1]
+  rv$updated[1, "adultsnoedu"]  <- input$adultsnoedu[1]
+  rv$updated[1, "adultnohealth"] <- input$adultnohealth[1]
+  rv$updated[1,  "unemployment"] <- input$unemployment[1]
+  rv$updated[2, "gradrate"] <- input$gradrate[2]
+  rv$updated[2, "ccrpi"] <- input$ccrpi[2]
+  rv$updated[2, "grade3"] <- input$grade3[2]
+  rv$updated[2, "grade8" ] <- input$grade8[2]
+  rv$updated[2, "lbw"] <- input$lbw[2]
+  rv$updated[2, "childnohealth"] <- input$childnohealth[2]
+  rv$updated[2, "childpoverty"] <- input$childpoverty[2]
+  rv$updated[2, "povertyrate"] <- input$povertyrate[2]
+  rv$updated[2, "housingburden"] <- input$housingburden[2]
+  rv$updated[2, "momsnohs" ] <- input$momsnohs[2]
+  rv$updated[2,  "collegerate" ] <- input$collegerate[2]
+  rv$updated[2, "adultsnoedu"]  <- input$adultsnoedu[2]
+  rv$updated[2, "adultnohealth"] <- input$adultnohealth[2]
+  rv$updated[2,  "unemployment"] <- input$unemployment[2]
+  # assign("rv$updated", rv$updated, envir=globalenv())
+  rv$updated <<- rv$updated
+  saveRDS(rv$updated,"Atemporaryfile.Rds")
   rv$run3 <- rv$run3 + 1
 })
 
@@ -357,7 +357,7 @@ myupdate <- observeEvent(c(input$gradrate,input$ccrpi),{
 final <- reactiveValues()
 getoriginalvalues <- eventReactive(rv$run3,{
   req(overall_constraints,original)
-  final <- overall_constraints # updated
+  final <- overall_constraints # rv$updated
   final <- readRDS("Atemporaryfile.Rds")
   ## Mike FIX THIS ----
   mycoef <- pop.Coef(original) # prep step from coefficents.R
@@ -380,17 +380,17 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
   #browser
   req(overall_constraints,original)
   # if(is.null(input$metric)==TRUE){final <- overall_constraints
-  # }else{ updated = overall_constraints
-  # final = updated # this used to be final <- overall_constraints
+  # }else{ rv$updated = overall_constraints
+  # final = rv$updated # this used to be final <- overall_constraints
   # }
   # if(rv$run3 <= 1){
   #   final["df0_ave  ",input$variable] <- median(as.vector(final[1:2,input$variable]))
   # } else {
   #   final["df0_ave",input$variable] <- overall_constraints[4,input$variable]}
-  final <- overall_constraints # updated
+  final <- rv$updated
   variablenamelist2 <-rv$variablenamelist
   if(exists("Anothertempfile.RDS")){variablenamelist2 <- readRDS("Anothertempfile.RDS")}
-  #if(exists("Atemporaryfile.Rds")){final <- readRDS("Atemporaryfile.Rds")}
+  if(exists("Atemporaryfile.Rds")){final <- readRDS("Atemporaryfile.Rds")}
 
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
@@ -398,6 +398,7 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
 
   #***We are optimizing this CWBZ
   # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
+  browser()
   final2 <- lptest(final,variablenamelist2) #lptest takes in overall_constraints or df2
   final2 <- final2[1:14]
   names(final2) = variables
@@ -434,8 +435,8 @@ switch <- eventReactive(c(rv$run1,rv$run3,input$calculate,input$gradrate,input$c
 {
   req(overall_constraints,rv$run2 != 0)
 
-  updated <- overall_constraints #Mike: IS this still used?
-  updated <- readRDS("Atemporaryfile.Rds") #Is this still used?
+  #rv$updated <- overall_constraints #Mike: IS this still used?
+  rv$updated <- readRDS("Atemporaryfile.Rds") #Is this still used?
 
   if(input$calculate==TRUE){
     value<-getCWBI()
@@ -966,7 +967,7 @@ output$MainGrid = renderUI({
 # *********************************************"
 # Runapp ----
 options(shiny.error = recover)
-options(shiny.error = NULL)
+# options(shiny.error = NULL)
 #options(shiny.reactlog=TRUE) 
 options(shiny.sanitize.errors = FALSE)
 # display.mode="showcase" #debug code

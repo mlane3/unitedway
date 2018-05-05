@@ -53,6 +53,7 @@ lptest <- function(mydata,variablenamelist){
                      mydata$childnohealth[2], mydata$childpoverty[2], mydata$povertyrate[2], mydata$housingburden[2],
                      mydata$momsnohs[2], mydata$collegerate[2], mydata$adultsnoedu[2], mydata$adultnohealth[2], mydata$unemployment[2],1.0)) #***We are using for constraints
   # FOR TOYIN Add Fixed/Not fixed constraints ----
+  
   I = diag(15)
   for(i in 1:14){
     if(variablenamelist$plotbutton[i] !=0){
@@ -95,6 +96,7 @@ lptest <- function(mydata,variablenamelist){
   lp.control(model,sense='min', verbose='normal') #
   model3 <<- model 
   print("start model: 0 done and 2 is infeasible, use verbose = 'normal' to get full output")
+  browser()
   solve(model)
   print(solve(model))
   # Get the value of the optimized parameters
