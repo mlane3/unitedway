@@ -93,10 +93,10 @@ lptest <- function(mydata,variablenamelist){
   # add.constraint(model, c(0, 0, 0.005, 0, 0, 0, 0, 0.105, 0, 0.583, 0, -1, 0, 0, 0), ">=", -1.26) #adultnoedu
 
   # Compute the optimized model ----
-  lp.control(model,sense='min', verbose='normal') #
+  lp.control(model,sense='min', verbose='full',reset=TRUE) #
   model3 <<- model 
   print("start model: 0 done and 2 is infeasible, use verbose = 'normal' to get full output")
-  browser()
+  #browser()
   solve(model)
   print(solve(model))
   # Get the value of the optimized parameters

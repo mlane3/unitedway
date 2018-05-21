@@ -145,7 +145,7 @@ sidebar = dashboardSidebar(
                             label = paste0("Enter ",variablenamelist$starttitle[5],":")),
                  textInput( inputId = "plotbutton6",
                             label = paste0("Enter ",variablenamelist$starttitle[6],":")),
-                 textInput( inputId = "plotbutton7",
+                 textInput( inputId = "plotbutton7",j
                             label = paste0("Enter ",variablenamelist$starttitle[7],":")),
                  textInput( inputId = "plotbutton8",
                             label = paste0("Enter ",variablenamelist$starttitle[8],":")),
@@ -183,7 +183,7 @@ body = dashboardBody(
 server = function(input, output){
   #variablenamelist<-reactiveValues()
     #mike to fix variablenamelist vs. rv$variablenamelist might be confusing
-    rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist,rv$updated = overall_constraints)
+    rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist,updated = overall_constraints)
   # Eve Added  --------------------------------------------------------------
   user_text = observeEvent(input$execute,{
     rv$run1
@@ -359,7 +359,7 @@ getoriginalvalues <- eventReactive(rv$run3,{
   req(overall_constraints,original)
   final <- overall_constraints # rv$updated
   final <- readRDS("Atemporaryfile.Rds")
-  ## Mike FIX THIS ----
+  ## Mike's FIX
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- -1.969282 #prep step from coefficents.R
   maxCWB_Z <- 1.380706 #prep step from coefficents.R
@@ -398,7 +398,7 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
 
   #***We are optimizing this CWBZ
   # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
-  browser()
+  #browser()
   final2 <- lptest(final,variablenamelist2) #lptest takes in overall_constraints or df2
   final2 <- final2[1:14]
   names(final2) = variables
@@ -963,10 +963,11 @@ output$MainGrid = renderUI({
 }
 
 "*********************************************
+
                  RUNAPP
 # *********************************************"
 # Runapp ----
-options(shiny.error = recover)
+options(shiny.error = NULL)
 # options(shiny.error = NULL)
 #options(shiny.reactlog=TRUE) 
 options(shiny.sanitize.errors = FALSE)
