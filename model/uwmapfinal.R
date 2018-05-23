@@ -41,8 +41,7 @@ m <- leaflet() %>%
   addProviderTiles(providers$Stamen.Toner) %>%
   addPolygons(data = counties,
               weight = 1, 
-              smoothFactor = 0.5,
-              fillColor= pal(df0$gradrate))
+              smoothFactor = 0.5)
 m
 
 
@@ -80,8 +79,8 @@ m <- leaflet() %>%
               fillOpacity = 0.8)
 m
 
-labels<-paste("<p>",dfUW$county,"<p>",
-              "<p>", "CWB", round(dfUW$CWB_unemployment, digits = 5),"<p>",
+labels<-paste("<p>",df0$county,"<p>",
+              "<p>", "CWB", round(uwmapdata$CWB_Index, digits = 5),"<p>",
               sep="")
 m <- leaflet() %>%
   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
@@ -90,35 +89,9 @@ m <- leaflet() %>%
               fillColor = pal(mycolor),
               weight = 1, 
               smoothFactor = 0.5,
-              color = "green",
+              color = "orange",
               fillOpacity =0.5,
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
               label = lapply(labels, HTML))
-   addLegend("bottomright", pal = pal, values = ~df0$gradrate,
-          title = "CWB Index",
-          labFormat = labelFormat(prefix = "$"),
-          opacity = 1
-)
-m
-
-
-"************************************************************"
-        #rying possible ways to add legend
-"************************************************************"
-pal <- colorNumeric(
-  palette = "YlGnBu",
-  domain =df0$gradrate
-)
-m <- leaflet() %>%
-  setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
-  addPolygons(data = counties,smoothFactor = 0.2, fillOpacity = 1,
-              color = ~pal(df0$gradrate)
-              
-  ) %>%
-  addLegend("bottomright", pal = mycolor, values = ~df0$gradrate,
-            title = "CWB Index",
-            labFormat = labelFormat(prefix = "$"),
-            opacity = 1
-  )
 m
