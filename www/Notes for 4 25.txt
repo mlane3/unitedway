@@ -1,0 +1,62 @@
+
+
+#Google if there is a better way
+switch <- eventReactive(input$calculate,{
+  overall_constraints <<- updated #myupdate()
+  if(input$calculate==TRUE){
+    value<-getCWBI()
+  }else{value<-getoriginalvalues()}
+  return(value)
+  browser()
+},ignoreNULL = FALSE,ignoreInit = FALSE)
+
+
+Can A user select a number instead of a range
+Is there a way to set preference in the optimizer of weither low weight births goes down or ___ goes up?
+
+Equaation Indicators >= 0 Regression
+LWB <= Maximum (boundary intial value)(unless) there is no solution
+	
+	What is the loss of the leftmost gauge?
+		Might be harder for me to debug.
+		Telling the direction.
+	
+	1) Thirten Sliders instead of just one (recode the old part)
+	Thirteen test gauges?
+	2) Two Tabs of 13 guages (but)
+	3) Instead of 13 gauses we have 13 sliders but inside there own 		tab, 
+	4) If we combine to two changes we need to then change the title 		of 	the gauge from test to regular
+		Have S for Setup or R for Result
+
+	5) Different Themes for intinal and final guages
+	6) CWBI in the game tab as the others by remove Left most Guage
+		Solid Gauge (semi)
+	Walk through we have and discuss options
+Map, Ginneh. 
+	She' got a CWBI map already. An census track map.
+	The resulting color 
+
+What else need to be done
+	Fixed Values as a number (allows you to enter values insted of using a slider) (Toyin and Eva)
+	Put Zero or leave blank the values you don't want to fix.
+	It uses the sliders for the other values.
+	Think about how to explain the loss of the left gauge as something we comapre to ginna
+
+	Have a prefered direction for the slider
+	LeGEND
+	Map Labels and Map highlighting the value you that you hover over
+	Use the color Ginna want us to use.
+	
+	Sally: Correlations to help the user figure out what variables to 	fix or not?
+	Make the map fill the screen
+	Legend and Range
+	
+	
+
+
+
+
+
+
+
+

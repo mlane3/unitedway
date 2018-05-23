@@ -12,23 +12,16 @@ library(shinydashboard)
 # Plotting Dependencies
 library(ggplot2)
 library(rAmCharts)
-# library(plotly)
-# library(flexdashboard)
 
 # Data Processing Dependencies
 library(dplyr)
 library(data.table)
-
-# Sourcing Prior Scripts
-# source('model/UW_R_Script_final.R')
-# source('model/coefficents.R')
 
 
 # DATA CLEANING BEFORE SHINY ----
 # Original dataset
 source("lpsolver.R")
 load("data to load in.RData", envir = parent.frame(), verbose = TRUE)
-# df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 mynames = c('county','weave_ct2010','gradrate','ccrpi',
                     'grade3','grade8','lbw','childnohealth',
                     'childpoverty','povertyrate','housingburden','momsnohs',
@@ -38,12 +31,12 @@ pop.Coef <- function(){
   #Calculate df0_average
   df0_ave = c(74.00129, 69.80657, 46.03773, 33.23892, 9.273624, 10.904, 24.06609,
               30.84306, 38.48023, 13.89575, 75.0582, 12.2767, 23.39984, 12.2241)
-  names(df0_ave) = mynames[3:16]
+  names(df0_ave) = mynames[1:14]
   #the df0_average (weighted by track/row/county)
   #Calculate STDEV
   df0_sd = c(11.73959, 10.46115, 20.86766, 18.81275, 2.800196, 8.375753, 19.90409,
              20.26725, 10.86507, 11.83264, 10.64412, 9.722596, 13.92478, 6.665234)
-  names(df0_sd) = mynames[3:16]
+  names(df0_sd) = mynames[1:14]
   # Define the Coefficent and Intercept B for each variable
   ChildA <- function(df0_sd){return(1/(3*7*df0_sd))} #Child Coefficents
   FamilyA <- function(df0_sd){ return(1/(3*3*df0_sd)) } #Family Coefficents
@@ -91,16 +84,11 @@ pop.Coef <- function(){
 
 # Overall Constraints
 overall_constraints <- df2
-overall_constraints[1:3,] = df2[1:3,] = round(overall_constraints[1:3,],.01)
 
-"*********************************************
-                  HEADER
-*********************************************"
+# Header ----
 header = dashboardHeader(title = 'United Way App')
 
-"*********************************************
-                 SIDEBAR
-*********************************************"
+# Sidebar ----
 counties = unique(c("overall", "Butts", "Cherokee", "Clayton", "Cobb",
 "Coweta", "DeKalb", "Douglas", "Fayette", "Fulton", "Gwinnett", "Henry",
 "Paulding", "Rockdale"))
@@ -128,16 +116,11 @@ sidebar = dashboardSidebar(
       
 )
 
-
-"*********************************************
-                  BODY
-*********************************************"
+# Body ----
 body = dashboardBody(uiOutput("MainGrid"))
 
 
-"*********************************************
-                 SERVER
-*********************************************"
+# Server ----
 server = function(input, output){
   
 # COUNTRY REACTIVE
@@ -204,7 +187,6 @@ getCWBI <- eventReactive(input$metric,{
 # RENDER MENU
 output$metric_slider = renderMenu( variable_reactive() )
 
-
 # PLOTTING THE GAUGE
 output$GaugeCWBI = renderAmCharts({
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100), 
@@ -260,8 +242,6 @@ output$MainGrid = renderUI({
       }
         
 })
-
-
 }
 
 "*********************************************

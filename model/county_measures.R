@@ -15,6 +15,7 @@
 v_run_init <- as.logical(T)
 v_debug <- as.logical(T)
 
+
 # initialization and set platform-dependent constants ----
 if(v_run_init) {
    options(readr.default_locale=readr::locale(tz="America/New_York"))
@@ -30,6 +31,7 @@ library(dplyr)
 library(tibble)
 library(stats)
 library(data.table)
+
 pop.sd <- function(x) {
   #Caclulated the population standard deviation or uncorrected sd()
   # It is kept as a reference
@@ -44,6 +46,7 @@ if(v_debug) {
    library(pkgconfig)
    default_locale()
    installed.packages()
+
    # readline("press return to resume script execution")
 }
 
@@ -61,10 +64,12 @@ if(v_debug) {
    is.numeric(df0[,3])
    is.ordered(df0)
    storage.mode(df0)
+
    # identical(df0,df1)
    getRversion()
 }
 # setup ----
+
 v_colnames <- as.vector(names(df0))
 v_measures <- v_colnames[-1]
 v_m <- as.integer(length(v_measures))
@@ -73,6 +78,7 @@ tbl_bycounty <- as.tibble(df0)
 tbl_bycounty <- group_by(tbl_bycounty, county)
 tbl_county_measures <- distinct(tbl_bycounty, county, count=as.integer(n()))
 v_counties <- select(tbl_county_measures, county)
+
 
 log_mean_fx = function(county_ave,county_sd){
   log_mean <- exp(county_ave + (county_sd)^2/2)
@@ -90,8 +96,6 @@ max_fx <- function(county_ave,county_sd){
 }
 # transpose so counties are columns in tbl_COUNTY ----
 
-
-
 v_counties <- as.vector(t(v_counties), mode = "character")
 v_c <- as.integer(length(v_counties))
 
@@ -102,10 +106,12 @@ tbl_COUNTY_min <- data.frame(matrix(NA, nrow = v_m, ncol = v_c))
 tbl_COUNTY_mean <- data.frame(matrix(NA, nrow = v_m, ncol = v_c))
 tbl_COUNTY_stdev <- data.frame(matrix(NA, nrow = v_m, ncol = v_c))
 
+
 names(tbl_COUNTY_mean) <- c(v_counties)
 names(tbl_COUNTY_min) <- names(tbl_COUNTY_max) <- names(tbl_COUNTY_stdev) <- names(tbl_COUNTY_mean)
 row.names(tbl_COUNTY_mean) <- c(v_measures)
 row.names(tbl_COUNTY_min) <- row.names(tbl_COUNTY_max) <- row.names(tbl_COUNTY_stdev) <- row.names(tbl_COUNTY_mean)
+
 # creatin data structure with NA ensures numeric storage allocation
 # this_calc <- matrix(data=NA, nrow=1, ncol = v_m)
 this_mean <- numeric(length = v_m)
@@ -137,15 +143,26 @@ for(j in 1:v_c)  {
     v_mean  <- tbl_COUNTY_mean[,j]/100; v_sd <- tbl_COUNTY_stdev[,j]/100
     log_max <- max_fx(v_mean,v_sd)
     log_min <- min_fx(v_mean,v_sd)
-    data.matrix
-    tbl_COUNTY_max[,j] <- if(log_max > 1){return(log_max)}else{v_max}
-    tbl_COUNTY_min[,j] <- if(log_min < 0){return(log_min)}else{v_min}
+    for(i in 1:14){
+      if(log_max[i] < 1){tbl_COUNTY_max[i,j] <- 100*log_max[i]
+      }else{
+        tbl_COUNTY_max[i,j] <- v_max[i]}
+      if(log_min[i] < v_min[i]/100 && log_min[i] > 0){tbl_COUNTY_min[i,j] <- 100*log_min[i]
+      }else{
+        tbl_COUNTY_min[i,j] <- v_min[i]}
+    }
 }
+#Fix of tbl_COUNTY_min ----
+# Both child poverty and momsnohs have negative values which is odd.  Could these be typos?
+tbl_COUNTY_min <- abs(tbl_COUNTY_min)
+
+#browser()
 # Write as one big dataframe ----
 
 #From https://stackoverflow.com/questions/17499013/how-do-i-make-a-list-of-data-frames
 # Alternatives method: big_data = dplyr::bind_col(df_list)
 # Get them all in a list
+
 df_list <- mget(c("tbl_COUNTY_min","tbl_COUNTY_max","tbl_COUNTY_mean","tbl_COUNTY_stdev"))
 # Merge them into a dataframe
 tbl_COUNTY <- do.call(what = cbind, args = df_list)
@@ -164,3 +181,4 @@ if(v_debug) {
   rm(list=setdiff(ls(), keep))
  # put cleanup code here
 }
+write.csv(tbl_COUNTY,"data/county constrants.csv")
