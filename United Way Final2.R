@@ -240,10 +240,6 @@ output$mymap <- renderLeaflet({
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(pastedf0$trunctract)
   
-  labels<-paste("<p>",dfUW$county,"<p>",
-                "<p>", "CWB", round(dfUW$CWB_unemployment, digits = 5),"<p>",
-                sep="")
-  
   leaflet() %>%
     setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
     addProviderTiles(providers$Stamen.Toner) %>%
@@ -252,10 +248,7 @@ output$mymap <- renderLeaflet({
                 weight = 1, 
                 smoothFactor = 0.5,
                 color = "white",
-                fillOpacity = 0.8,
-                highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
-                                             fillOpacity = .7, bringToFront = TRUE ),
-                label = lapply(labels, HTML))
+                fillOpacity = 0.8)
 
 })
 
