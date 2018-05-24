@@ -28,7 +28,6 @@ lp_solver <- function(mydata,variablenamelist){
   n <- grep("final",printmodel) - 1 #look at the row just before the word "final"
   printmodel <- as.numeric(gsub("[1] ","",printmodel[n],fixed =TRUE))
   if(printmodel == 2){
-    browser()
     final <- lptest2(mydata,variablenamelist)
   }else{
     final <- lptest(mydata,variablenamelist)
@@ -77,6 +76,7 @@ lptest <- function(mydata,variablenamelist){
       validate(need(variablenamelist$plotbutton[i] > mydata["Min",i],message))
       validate(need(variablenamelist$plotbutton[i] < mydata["Max",i],message))
       # Add constraint to fix indicator
+      browser()
       add.constraint(model, I[i,], "=", variablenamelist$plotbutton[i])
     }
     else{

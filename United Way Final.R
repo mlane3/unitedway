@@ -53,7 +53,7 @@ variablenamelist <- as.data.frame(data.table(
              Families Not Finan Stable', 'S: % Families w/Housing Burden', 'S: % Moms w/o
              HS Diploma', 'S: % Enrolled Post-Second Educ', 'S: % Adults w/o HS Diploma',
              'S: % Adults w/o Health Ins', 'S: Unemployment Rate'),
-  plotbutton = c(0,0,rep(0,12)),
+  plotbutton = c(0,rep(0,13)),
   starttitle = c( 'S: HS Graduation Rate', 'S: HS College&Career Readiness', 'S: %
                   Exceed 3rd Gr Reading Std', 'S: % Exceed 8th Gr Math Std', 'S: % Low Weight
                   Births', 'S: % Children w/o Health Ins', 'S: % Children in Poverty', 'S: %
@@ -187,7 +187,6 @@ server = function(input, output){
     rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist,updated = overall_constraints)
   # Eve Added  --------------------------------------------------------------
   user_text = observeEvent(input$execute,{
-    rv$run1
     # variablenamelist <- as.data.frame(data.table(
     #   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
     #                 "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
@@ -363,6 +362,8 @@ getoriginalvalues <- eventReactive(rv$run3,{
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- -1.969282 #prep step from coefficents.R
   maxCWB_Z <- 1.380706 #prep step from coefficents.R
+  
+  #FIx THIS LINE ----
   if(rv$run3 <= 1){
     final["df0_ave  ",input$variable] <- median(as.vector(final[1:2,input$variable]))
   } else {
@@ -377,7 +378,7 @@ getoriginalvalues <- eventReactive(rv$run3,{
   return(final3)
 },ignoreNULL = FALSE)
 # LPSolver Calc CWBI ----
-getCWBI <- eventReactive(c(rv$run3,rv$run1),{
+getCWBI <- eventReactive(c(input$variable,rv$run1),{
   #browser
   req(overall_constraints,original)
   # if(is.null(input$metric)==TRUE){final <- overall_constraints
@@ -423,19 +424,15 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
 #output$metric_slider = renderMenu( variable_reactive() )
 #output$sample <- renderText({input$gradrate})
 #myexample = observeEvent(input$gradrate,{
-  output$sample3 = renderText({paste(rv$run3)})
+  output$sample3 = renderText({paste0(rv$run1,rv$run3)})
 #})
 
 
 # THE SWITCH ----z
 #Google if there is a better way
-switch <- eventReactive(c(rv$run1,rv$run3,input$calculate,input$gradrate,input$ccrpi,
-                          input$adultnohealth,input$adultsnoedu,input$childnohealth,
-                          input$childpoverty,input$collegerate,input$grade3,input$grade8,
-                          input$housingburden,input$lbw,input$momsnohs,input$povertyrate,
-                          input$unemployment),
+switch <- eventReactive(c(rv$run1,input$variable,input$calculate),
 {
-  req(overall_constraints,rv$run2 != 0)
+  req(overall_constraints,input$variable != "")
 
   #rv$updated <- overall_constraints #Mike: IS this still used?
   rv$updated <- readRDS("Atemporaryfile.Rds") #Is this still used?
@@ -519,7 +516,6 @@ output$GaugePlot1 = renderAmCharts({
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   #browser()
-  print(rv$run3)
   if(('gradrate' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
@@ -909,11 +905,11 @@ output$mymap = renderLeaflet({
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
-      if (is.null(input$gradrate)==TRUE)
-      {
-        p("Welcome to United Way App", br(),
-          "Please Select a variable to begin.  Any variable will do")
-      } else {
+      # if (is.null(input$gradrate)==TRUE||is.null(input$variable)==TRUE)
+      # {
+      #   p("Welcome to United Way App", br(),
+      #     "Please Select a variable to begin.  Any variable will do")
+      # } else {
         #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
          tabPanel(
@@ -957,7 +953,7 @@ output$MainGrid = renderUI({
         tabPanel("Additional Content here",p("These is the debug page to show raw output for us"),verbatimTextOutput('sample3'))
         )
 
-      }
+      #}
         
 })
 
