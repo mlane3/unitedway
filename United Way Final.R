@@ -109,22 +109,6 @@ sidebar = dashboardSidebar(
       #                         selectInput(inputId = 'county',
       #                                     label = 'Select County:',
       #                                     choices = counties, selected = counties[1]))),
-      sidebarMenu( 
-                    menuItem( text = "Variable Selection",
-                              icon = icon('th'),
-                              selectInput(inputId = 'variable',
-                                          label = 'Select a Variable:',
-                                          choices = variables, selected = variables[1]),
-                              p("Selected:"),
-                              tags$div(class="header", checked=NA,
-                                       tags$p(textOutput(outputId = "sample2"))
-                              ),
-                              switchInput(label = 'Start Optimization?',inputId = "calculate", value = FALSE),
-                              p("Map Controls:"),
-                              switchInput(label = 'Display CWBI',inputId = "mapcwbi",value = FALSE),
-                              selectInput(inputId="mapcolor",label="Pick a map Color",
-                                          choices = colors, selected = "RdYlBu" )
-                              )),
       # Eve Side Bar Menu ----
       sidebarMenu(
         menuItem(text = "Fixed Constraints",
@@ -164,6 +148,23 @@ sidebar = dashboardSidebar(
                  #.... Add more ....
         )
       ),
+      sidebarMenu( 
+                    menuItem( text = "Variable Selection",
+                              icon = icon('th'),
+                              selectInput(inputId = 'variable',
+                                          label = 'Select a Variable:',
+                                          choices = variables, selected = variables[1]),
+                              p("Selected:"),
+                              tags$div(class="header", checked=NA,
+                                       tags$p(textOutput(outputId = "sample2"))
+                              ),
+                              switchInput(label = 'Start Optimization?',inputId = "calculate", value = FALSE),
+                              p("Map Controls:"),
+                              switchInput(label = 'Display CWBI',inputId = "mapcwbi",value = FALSE),
+                              selectInput(inputId="mapcolor",label="Pick a map Color",
+                                          choices = colors, selected = "RdYlBu" )
+                              )),
+
       sidebarMenu(menuItemOutput('metric_slider'))
 
 )
@@ -230,27 +231,27 @@ output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,
 
 # Reactive Input: Sliders ----
 
-variable_reactive = eventReactive(input$variable, 
-{
-  rv$run2 <- rv$run2 + 1
-  min_value = df2[1, input$variable]
-  max_value = df2[2, input$variable]
-  if(df2[3,input$variable] == overall_constraints[3,input$variable]){ #I am trying to intalize values here.
+#variable_reactive = eventReactive(input$variable, 
+#{
+#  rv$run2 <- rv$run2 + 1
+#  min_value = df2[1, input$variable]
+#  max_value = df2[2, input$variable]
+ # if(df2[3,input$variable] == overall_constraints[3,input$variable]){ #I am trying to intalize values here.
     # values <- c(min_value, df2[3, input$variable])
-    values <- c(df2[4, input$variable], max_value) #not sure about this change
-  } else {
+#    values <- c(df2[4, input$variable], max_value) #not sure about this change
+ # } else {
     # min_value = overall_constraints[1, input$variable]
     # max_value = overall_constraints[2, input$variable]
-    values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
-  }
+  #  values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
+#  }
     
-  if (length(input$variable == 1) )
-      sidebarMenu( menuItem( text = "Metric Slider",
-                              icon = icon('th'),
-                              tags$div(class="header", checked=NA,
-                                      tags$head("Adjust the boundary conditions of:"),
-                                      tags$p(textOutput(outputId = "sample"))
-                              ),
+ # if (length(input$variable == 1) )
+#      sidebarMenu( menuItem( text = "Metric Slider",
+#                              icon = icon('th'),
+#                              tags$div(class="header", checked=NA,
+#                                      tags$head("Adjust the boundary conditions of:"),
+#                                      tags$p(textOutput(outputId = "sample"))
+ #                             ),
                               
                               # sliderInput( inputId = "metric",
                               #              label = input$variable,
@@ -259,53 +260,52 @@ variable_reactive = eventReactive(input$variable,
                               #              value = values,
                               #              sep ="",
                               #              step = .1),
-                             sliderInput("gradrate",paste(rv$variablenamelist[1,3]),
-                                         min = df2$gradrate[1],max = df2$gradrate[2],
-                                         value = c(df2$gradrate[1],df2$gradrate[2]), #for the upper range
-                                         sep ="",step = .01, ticks = FALSE),
-                             sliderInput("ccrpi",paste(rv$variablenamelist[2,3]),
-                                         min = df2$ccrpi[1],max = df2$ccrpi[2],
-                                         value = c(df2$ccrpi[1],df2$ccrpi[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("grade3",paste(rv$variablenamelist[3,3]),
-                                         min = df2$grade3[1],max = df2$grade3[2],
-                                         value = c(df2$grade3[1],df2$grade3[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("grade8",paste(rv$variablenamelist[4,3]),
-                                         min = df2$grade8[1],max = df2$grade8[2],
-                                         value = c(df2$grade8[1],df2$grade8[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("lbw",paste(rv$variablenamelist[5,3]),
-                                         min = df2$lbw[1],max = df2$lbw[2],
-                                         value = c(df2$lbw[1],df2$lbw[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("childnohealth",paste(rv$variablenamelist[6,3]),
-                                         min = df2$childnohealth[1],max = df2$childnohealth[2],
-                                         value = c(df2$childnohealth[1],df2$childnohealth[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("childpoverty",paste(rv$variablenamelist[7,3]),
-                                         min = df2$childpoverty[1],max = df2$childpoverty[2],
-                                         value = c(df2$childpoverty[1],df2$childpoverty[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("povertyrate",paste(rv$variablenamelist[8,3]),
-                                         min = df2$povertyrate[1],max = df2$povertyrate[2],
-                                         value = c(df2$povertyrate[1],df2$povertyrate[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("housingburden",paste(rv$variablenamelist[9,3]),
-                                         min = df2$housingburden[1],max = df2$housingburden[2],
-                                         value = c(df2$housingburden[1],df2$housingburden[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("momsnohs",paste(rv$variablenamelist[10,3]),
-                                         min = df2$momsnohs[1],max = df2$momsnohs[2],
-                                         value = c(df2$momsnohs[1],df2$momsnohs[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("collegerate",paste(rv$variablenamelist[11,3]),
-                                         min = df2$collegerate[1],max = df2$collegerate[2],
-                                         value = c(df2$collegerate[1],df2$collegerate[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("adultsnoedu",paste(rv$variablenamelist[12,3]),
-                                         min = df2$adultsnoedu[1],max = df2$adultsnoedu[2],
-                                         value = c(df2$adultsnoedu[1],df2$adultsnoedu[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("adultnohealth",paste(rv$variablenamelist[13,3]),
-                                         min = df2$adultnohealth[1],max = df2$adultnohealth[2],
-                                         value = c(df2$adultnohealth[1],df2$adultnohealth[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("unemployment",paste(rv$variablenamelist[14,3]),
-                                         min = df2$unemployment[1],max = df2$unemployment[2],
-                                         value = c(df2$unemployment[1],df2$unemployment[3]), sep ="",step = .01, ticks = FALSE)
-                              
-        )
-      )
-})
+#                             sliderInput("gradrate",paste(rv$variablenamelist[1,3]),
+#                                         min = df2$gradrate[1],max = df2$gradrate[2],
+#                                         value = c(df2$gradrate[1],df2$gradrate[2]), #for the upper range
+#                                         sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("ccrpi",paste(rv$variablenamelist[2,3]),
+#                                         min = df2$ccrpi[1],max = df2$ccrpi[2],
+#                                         value = c(df2$ccrpi[1],df2$ccrpi[2]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("grade3",paste(rv$variablenamelist[3,3]),
+#                                         min = df2$grade3[1],max = df2$grade3[2],
+#                                         value = c(df2$grade3[1],df2$grade3[2]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("grade8",paste(rv$variablenamelist[4,3]),
+#                                         min = df2$grade8[1],max = df2$grade8[2],
+#                                         value = c(df2$grade8[1],df2$grade8[2]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("lbw",paste(rv$variablenamelist[5,3]),
+#                                         min = df2$lbw[1],max = df2$lbw[2],
+#                                         value = c(df2$lbw[1],df2$lbw[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("childnohealth",paste(rv$variablenamelist[6,3]),
+#                                         min = df2$childnohealth[1],max = df2$childnohealth[2],
+ #                                        value = c(df2$childnohealth[1],df2$childnohealth[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("childpoverty",paste(rv$variablenamelist[7,3]),
+ #                                        min = df2$childpoverty[1],max = df2$childpoverty[2],
+ #                                        value = c(df2$childpoverty[1],df2$childpoverty[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("povertyrate",paste(rv$variablenamelist[8,3]),
+ #                                        min = df2$povertyrate[1],max = df2$povertyrate[2],
+ #                                        value = c(df2$povertyrate[1],df2$povertyrate[3]), sep ="",step = .01, ticks = FALSE),
+  #                           sliderInput("housingburden",paste(rv$variablenamelist[9,3]),
+  #                                       min = df2$housingburden[1],max = df2$housingburden[2],
+#                             sliderInput("momsnohs",paste(rv$variablenamelist[10,3]),
+ #                                        min = df2$momsnohs[1],max = df2$momsnohs[2],
+#                                         value = c(df2$momsnohs[1],df2$momsnohs[3]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("collegerate",paste(rv$variablenamelist[11,3]),
+#                                         min = df2$collegerate[1],max = df2$collegerate[2],
+#                                         value = c(df2$collegerate[1],df2$collegerate[2]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("adultsnoedu",paste(rv$variablenamelist[12,3]),
+  #                                       min = df2$adultsnoedu[1],max = df2$adultsnoedu[2],
+   #                                      value = c(df2$adultsnoedu[1],df2$adultsnoedu[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("adultnohealth",paste(rv$variablenamelist[13,3]),
+#                                         min = df2$adultnohealth[1],max = df2$adultnohealth[2],
+#                                         value = c(df2$adultnohealth[1],df2$adultnohealth[3]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("unemployment",paste(rv$variablenamelist[14,3]),
+#                                         min = df2$unemployment[1],max = df2$unemployment[2],
+#                                         value = c(df2$unemployment[1],df2$unemployment[3]), sep ="",step = .01, ticks = FALSE)
+ #                             
+#        )
+#      )
+#})
 
 # Update Slider ----
 # update <- eventReactive(input$metric,{
@@ -419,7 +419,7 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
 
 # Plotting -----
 # RENDER MENU
-output$metric_slider = renderMenu( variable_reactive() )
+#output$metric_slider = renderMenu( variable_reactive() )
 #output$sample <- renderText({input$gradrate})
 #myexample = observeEvent(input$gradrate,{
   output$sample3 = renderText({paste(rv$run3)})
