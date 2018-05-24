@@ -22,18 +22,32 @@ library(lpSolveAPI)
 
 
 # Current lpSolve OPtimizer ----
-lptest <- function(mydata,variablenamelist){
-  # You can ignore this loop
-  print(mydata[1,1])
-  for (i in 1:length(mydata)) {
-    if(mydata[1,i] == 0){
-      myname <- names(mydata[i])
-      mydata[1,i] <- abs(min(df0[,i+2]))
-      min(df0[,i+2])
-      if (min(df0[,i+2]) == 0)
-        mydata[1,i] <- 1
+lp_solver <- function(mydata,variablenamelist){
+  final <- lptest(mydata,variablenamelist) #lptest takes in original_constrants or df2
+  printmodel <- capture.output(lptest(mydata,variablenamelist))
+  n <- grep("final",printmodel) - 1 #look at the row just before the word "final"
+  printmodel <- as.numeric(gsub("[1] ","",printmodel[n],fixed =TRUE))
+  if(printmodel == 2){
+    browser()
+    final <- lptest2(mydata,variablenamelist)
+  }else{
+    final <- lptest(mydata,variablenamelist)
     }
-  }
+  
+}
+lptest <- function(mydata,variablenamelist){
+
+  # You can ignore this loop
+  # print(mydata[1,1])
+  # for (i in 1:length(mydata)) {
+  #   if(mydata[1,i] == 0){
+  #     myname <- names(mydata[i])
+  #     mydata[1,i] <- abs(min(df0[,i+2]))
+  #     min(df0[,i+2])
+  #     if (min(df0[,i+2]) == 0)
+  #       mydata[1,i] <- 1
+  #   }
+  # }
   
   # Set the number of variables ----
   model <- make.lp(0, 15)
@@ -52,23 +66,35 @@ lptest <- function(mydata,variablenamelist){
              upper=c(mydata$gradrate[2], mydata$ccrpi[2], mydata$grade3[2], mydata$grade8[2], mydata$lbw[2],
                      mydata$childnohealth[2], mydata$childpoverty[2], mydata$povertyrate[2], mydata$housingburden[2],
                      mydata$momsnohs[2], mydata$collegerate[2], mydata$adultsnoedu[2], mydata$adultnohealth[2], mydata$unemployment[2],1.0)) #***We are using for constraints
-  # FOR TOYIN Add Fixed/Not fixed constraints ----
+  #Toyin part: Add Fixed/Not fixed constraints ----
   
   I = diag(15)
   for(i in 1:14){
     if(variablenamelist$plotbutton[i] !=0){
-      print(I[i,])
+      # Throw Error if user enters below minimum or above the maximum boundary
+      message = paste("Error",variablenamelist$starttitle[i],"must be between",
+        mydata["Min",i],"&",mydata["Max",i],"OR zero (not a fixed constraint)")
+      validate(need(variablenamelist$plotbutton[i] > mydata["Min",i],message))
+      validate(need(variablenamelist$plotbutton[i] < mydata["Max",i],message))
+      # Add constraint to fix indicator
       add.constraint(model, I[i,], "=", variablenamelist$plotbutton[i])
     }
     else{
-      #add.constraint(model, I[i,], ">", mydata[unlist(variablenamelist[i,1]),1])
+      if((variablenamelist$variable[i] == 'gradrate') || (variablenamelist$variable[i]== 'ccrpi')
+         || (variablenamelist$variable[i] == 'grade3') || (variablenamelist$variable[i] == 'grade8')
+         || (variablenamelist$variable[i] == 'collegerate')){
+        #add.constraint(model, I[i,], ">", mydata["df0_ave",i])
+      }
+      else{
+        add.constraint(model, I[i,], "<", mydata["df0_ave",i])
+      }
     }
   }
-
-  # FOR TOYIN The other fixed constraints ----
-  # add.constraint(model, c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ">=", mydata$gradrate[4]) #average x1 = .518 Child
-  
+  # Test for errors ----
+  #browser()
+ 
   # Rest of the Model ----  
+  
   # # 1/n*coeff is how we will add it for multple contraints A*x = Y +B
   # add.constraint(model, (c(mycoef$A[1],mycoef$A[2], mycoef$A[3],mycoef$A[4],
   #                         mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
@@ -79,7 +105,7 @@ lptest <- function(mydata,variablenamelist){
                           mycoef$A[5],mycoef$A[6], mycoef$A[7], mycoef$A[8],
                           mycoef$A[9], mycoef$A[10],mycoef$A[11],mycoef$A[12],
                           mycoef$A[13],mycoef$A[14],0), ">=", (ValueZ+sum(mycoef$B)))
-  #add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
   # add.constraint(model, c(0.46602304, -1, 0.01449261, 0.23347020, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26.95612297), "=", 0)
   # Add New Constraints: Hypothesis Auxilary Regressions ----
   # Here are the equation written out from the power point slides
@@ -93,25 +119,69 @@ lptest <- function(mydata,variablenamelist){
   # add.constraint(model, c(0, 0, 0.005, 0, 0, 0, 0, 0.105, 0, 0.583, 0, -1, 0, 0, 0), ">=", -1.26) #adultnoedu
 
   # Compute the optimized model ----
-  lp.control(model,sense='min', verbose='full',reset=TRUE) #
+  lp.control(model,sense='min', verbose='normal',reset=TRUE) #
   model3 <<- model 
   print("start model: 0 done and 2 is infeasible, use verbose = 'normal' to get full output")
   #browser()
   solve(model)
   print(solve(model))
   # Get the value of the optimized parameters
-  print("final results")
+  print("the final results")
   print(get.variables(model)) 
   # Get the value of the objective function
   print(get.objective(model))
   # Get the value of the constraint
   # print(get.constraints(model))
   # print(get.bounds(model))
+  #browser()
   return(get.variables(model))
 }
-#This is a script to show the output of lptest()
+lptest2 <- function(mydata,variablenamelist){
+  # You can ignore this loop
+  # Set the number of variables ----
+  model <- make.lp(0, 15)
+  # Define the object function: for Minimize, use -ve or lp.control ----
+  set.objfn(model, c(mycoef$A[1],mycoef$A[2],mycoef$A[3],mycoef$A[4],
+                     mycoef$A[5],mycoef$A[6],mycoef$A[7],mycoef$A[8],  
+                     mycoef$A[9],mycoef$A[10],mycoef$A[11],mycoef$A[12],
+                     mycoef$A[13],mycoef$A[14],-sum(mycoef$B)))
+  set.bounds(model, #mydata$gradrate[1],
+             lower=c(mydata$gradrate[1], mydata$ccrpi[1], mydata$grade3[1], mydata$grade8[1], mydata$lbw[1],
+                     mydata$childnohealth[1], mydata$childpoverty[1], mydata$povertyrate[1], mydata$housingburden[1],
+                     mydata$momsnohs[1], mydata$collegerate[1], mydata$adultsnoedu[1], mydata$adultnohealth[1], mydata$unemployment[1],.90),
+             upper=c(mydata$gradrate[2], mydata$ccrpi[2], mydata$grade3[2], mydata$grade8[2], mydata$lbw[2],
+                     mydata$childnohealth[2], mydata$childpoverty[2], mydata$povertyrate[2], mydata$housingburden[2],
+                     mydata$momsnohs[2], mydata$collegerate[2], mydata$adultsnoedu[2], mydata$adultnohealth[2], mydata$unemployment[2],1.0)) #***We are using for constraints
+  # FOR TOYIN Add Fixed/Not fixed constraints ----
+  
+  I = diag(15)
+  for(i in 1:14){
+    if(variablenamelist$plotbutton[i] !=0){
+      print(I[i,])
+      add.constraint(model, I[i,], "=", variablenamelist$plotbutton[i])
+    }}
+  add.constraint(model, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), "=", 1)
+  # Compute the optimized model ----
+  lp.control(model,sense='max',reset=TRUE) #
+  model3 <<- model 
+  print("start model: 0 done and 2 is infeasible, use verbose = 'normal' to get full output")
+  solve(model)
+  print("Opps there was an error getting the final results")
+  return(get.variables(model))
+}
+#This is a script to show the output of lptest() with its error functions
 
-# final <- lptest(df2) #lptest takes in original_constrants or df2
+
+
+# final <- lptest(df2,variablenamelist) #lptest takes in original_constrants or df2
+
+# printmodel <- capture.output(lptest(df2,variablenamelist))
+# n <- grep("final",printmodel)
+# printmodel <- as.numeric(gsub("[1] ","",printmodel[n-1],fixed =TRUE))
+# if(printmodel == 2){final <- lptest2(df2,variablenamelist)}else{
+#   final <- lptest(df2,variablenamelist)
+# }
+
 # final <- final[1:14]
 # CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
 # CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)

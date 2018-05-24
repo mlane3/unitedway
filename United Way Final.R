@@ -400,7 +400,8 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
   #***We are optimizing this CWBZ
   # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
   #browser()
-  final2 <- lptest(final,variablenamelist2) #lptest takes in overall_constraints or df2
+  final2 <- lp_solver(final,variablenamelist2) #lptest takes in overall_constraints or df2
+  
   final2 <- final2[1:14]
   names(final2) = variables
   CWBZ <- rowSums(mycoef$A*t(final2) - mycoef$B)
@@ -969,7 +970,7 @@ output$MainGrid = renderUI({
 # *********************************************"
 # Runapp ----
 options(shiny.error = NULL)
-# options(shiny.error = NULL)
+# options(shiny.error = recover)
 #options(shiny.reactlog=TRUE) 
 options(shiny.sanitize.errors = FALSE)
 # display.mode="showcase" #debug code
