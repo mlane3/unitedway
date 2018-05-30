@@ -1,3 +1,5 @@
+#This mapping script is by bglover and includes commits from Pull Rshiny 44.
+
 #Final Map Draft
 library(leaflet)
 library(dplyr)

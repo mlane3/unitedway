@@ -889,6 +889,11 @@ output$mymap = renderLeaflet({
   
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(paste(original$trunctract))
+  browser()
+  labels<-paste("<p>",dfUW$county,"<p>",
+                "<p>", "CWB", round(dfUW$CWB_unemployment, digits = 5),"<p>",
+                sep="")
+  
   if(input$calculate == TRUE){value = getCWBI() #allows the switch to control map
   mycolor <- as.numeric(value[input$variable])}
   if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE && input$calculate == TRUE){value = getCWBI()
@@ -904,7 +909,10 @@ output$mymap = renderLeaflet({
                 weight = 1, 
                 smoothFactor = 0.5,
                 color = "white",
-                fillOpacity = 0.8)
+                fillOpacity = 0.8,
+                highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
+                                             fillOpacity = .7, bringToFront = TRUE ),
+                label = lapply(labels, HTML))
 })
 
 
@@ -917,11 +925,11 @@ output$mymap = renderLeaflet({
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
-      if (is.null(input$gradrate)==TRUE)
-      {
-        p("Welcome to United Way App", br(),
-          "Please Select a variable to begin.  Any variable will do")
-      } else {
+      # if (is.null(input$gradrate)==TRUE||is.null(input$variable)==TRUE)
+      # {
+      #   p("Welcome to United Way App", br(),
+      #     "Please Select a variable to begin.  Any variable will do")
+      # } else {
         #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
          tabPanel(

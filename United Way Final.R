@@ -850,9 +850,9 @@ output$mymap = renderLeaflet({
   #UWcensuszip <- read_excel("data/TRACT_ZIP_122014.xlsx")
   uwmapdata<-read_excel("Complete index table w trunct tract.xlsx")
   names(original) <- c('county','TRACT','gradrate','ccrpi',
-                  'grade3','grade8','lbw','childnohealth',
-                  'childpoverty','povertyrate','housingburden','momsnohs',
-                  'collegerate','adultsnoedu','adultnohealth','unemployment')
+                       'grade3','grade8','lbw','childnohealth',
+                       'childpoverty','povertyrate','housingburden','momsnohs',
+                       'collegerate','adultsnoedu','adultnohealth','unemployment')
   
   # merge two data frames by ID
   # dfzipmap <- merge(original,UWcensuszip,by="TRACT")
@@ -877,6 +877,11 @@ output$mymap = renderLeaflet({
   
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(paste(original$trunctract))
+  browser()
+  labels<-paste("<p>",dfUW$county,"<p>",
+                "<p>", "CWB", round(dfUW$CWB_unemployment, digits = 5),"<p>",
+                sep="")
+  
   if(input$calculate == TRUE){value = getCWBI() #allows the switch to control map
   mycolor <- as.numeric(value[input$variable])}
   if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE && input$calculate == TRUE){value = getCWBI()
@@ -892,7 +897,10 @@ output$mymap = renderLeaflet({
                 weight = 1, 
                 smoothFactor = 0.5,
                 color = "white",
-                fillOpacity = 0.8)
+                fillOpacity = 0.8,
+                highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
+                                             fillOpacity = .7, bringToFront = TRUE ),
+                label = lapply(labels, HTML))
 })
 
 
@@ -900,61 +908,61 @@ output$mymap = renderLeaflet({
 # output$test = renderTable(append(input$metric))
 
 "*******************************
-          MAIN GRID
+MAIN GRID
 *******************************"
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
-      # Evaluating the Overall Page
-      # if (is.null(input$gradrate)==TRUE||is.null(input$variable)==TRUE)
-      # {
-      #   p("Welcome to United Way App", br(),
-      #     "Please Select a variable to begin.  Any variable will do")
-      # } else {
-        #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
-        tabsetPanel(
-         tabPanel(
-            "all_plots",p("Welcome to the Child Well Being Optimizer"),
-            p("This is the first version we could show to figure out how Variabes affect child well being index. Before you make a selection the other besides the first on show what the child well being was."),
-            p("TO START: Select and Change the variable to begin.  Then you can change the metric slider range.  The left most gauge shows what you have currently changed.  The optimization is based on the (slider) boundaries you set with the Metric Slider for each variable"),
-            fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot1",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot2",height="200")))),
-            fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot3",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot4",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot5",height="200")))),
-            fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot6",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot7",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot8",height="200")))),
-            fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot9",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot10",height="200"))),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot11",height="200")))),
-            fluidRow( column(4,
-                           box(width=12, amChartsOutput("GaugePlot12",height="200"))),
-                    column(4,
-                           box(width=12, amChartsOutput("GaugePlot13",height="200"))),
-                    column(4,
-                           box(width=12, amChartsOutput("GaugePlot14",height="200"))))#,
-          ),
-                    # tabPanel("CWBI Gauge", p("For the first version and a few of the other versions, the gauge CWBI is in a seperate tab.  We could put them in the same tab but it might be too much info."),
-                    #                          amChartsOutput('GaugeCWBI')),
-        tabPanel("the map is here",fluidPage(leafletOutput("mymap"))),
-        tabPanel("Additional Content here",p("These is the debug page to show raw output for us"),verbatimTextOutput('sample3'))
-        )
-
-      #}
-        
+  # Evaluating the Overall Page
+  # if (is.null(input$gradrate)==TRUE||is.null(input$variable)==TRUE)
+  # {
+  #   p("Welcome to United Way App", br(),
+  #     "Please Select a variable to begin.  Any variable will do")
+  # } else {
+  #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
+  tabsetPanel(
+    tabPanel(
+      "all_plots",p("Welcome to the Child Well Being Optimizer"),
+      p("This is the first version we could show to figure out how Variabes affect child well being index. Before you make a selection the other besides the first on show what the child well being was."),
+      p("TO START: Select and Change the variable to begin.  Then you can change the metric slider range.  The left most gauge shows what you have currently changed.  The optimization is based on the (slider) boundaries you set with the Metric Slider for each variable"),
+      fluidRow( column(4,
+                       box(width=12, amChartsOutput("GaugePlot",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot1",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot2",height="200")))),
+      fluidRow( column(4,
+                       box(width=12, amChartsOutput("GaugePlot3",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot4",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot5",height="200")))),
+      fluidRow( column(4,
+                       box(width=12, amChartsOutput("GaugePlot6",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot7",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot8",height="200")))),
+      fluidRow( column(4,
+                       box(width=12, amChartsOutput("GaugePlot9",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot10",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot11",height="200")))),
+      fluidRow( column(4,
+                       box(width=12, amChartsOutput("GaugePlot12",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot13",height="200"))),
+                column(4,
+                       box(width=12, amChartsOutput("GaugePlot14",height="200"))))#,
+    ),
+    # tabPanel("CWBI Gauge", p("For the first version and a few of the other versions, the gauge CWBI is in a seperate tab.  We could put them in the same tab but it might be too much info."),
+    #                          amChartsOutput('GaugeCWBI')),
+    tabPanel("the map is here",fluidPage(leafletOutput("mymap"))),
+    tabPanel("Additional Content here",p("These is the debug page to show raw output for us"),verbatimTextOutput('sample3'))
+  )
+  
+  #}
+  
 })
 
 
@@ -962,17 +970,17 @@ output$MainGrid = renderUI({
 
 "*********************************************
 
-                 RUNAPP
+RUNAPP
 # *********************************************"
 # Runapp ----
+#options(shiny.error = NULL)
 options(shiny.error = NULL)
-# options(shiny.error = recover)
 #options(shiny.reactlog=TRUE) 
 options(shiny.sanitize.errors = FALSE)
 # display.mode="showcase" #debug code
 # options(shiny.reactlog=TRUE) #debug code
 app <- shinyApp( ui = dashboardPage( skin = 'blue',
-                              header = header,
-                              sidebar = sidebar,
-                              body = body),
-          server = server)
+                                     header = header,
+                                     sidebar = sidebar,
+                                     body = body),
+                 server = server)
