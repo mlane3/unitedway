@@ -53,7 +53,7 @@ variablenamelist <- as.data.frame(data.table(
              Families Not Finan Stable', 'S: % Families w/Housing Burden', 'S: % Moms w/o
              HS Diploma', 'S: % Enrolled Post-Second Educ', 'S: % Adults w/o HS Diploma',
              'S: % Adults w/o Health Ins', 'S: Unemployment Rate'),
-  plotbutton = c(0,0,rep(0,12)),
+  plotbutton = c(0,rep(0,13)),
   starttitle = c( 'S: HS Graduation Rate', 'S: HS College&Career Readiness', 'S: %
                   Exceed 3rd Gr Reading Std', 'S: % Exceed 8th Gr Math Std', 'S: % Low Weight
                   Births', 'S: % Children w/o Health Ins', 'S: % Children in Poverty', 'S: %
@@ -81,7 +81,7 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 overall_constraints <- reactiveValues()
 overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 # county_constraints <- df1 = as.data.frame(read.csv("data/county constrants.csv"))
-overall_constraints[1:3,] = round(overall_constraints[1:3,],.01) # = df2[1:3,]
+# overall_constraints[1:3,] = round(overall_constraints[1:3,],.01) # = df2[1:3,]
 #full_names = as.data.frame(read.csv("data/overall constrants.csv", nrows = 3, row.names = 1)
 
 "*********************************************
@@ -109,22 +109,6 @@ sidebar = dashboardSidebar(
       #                         selectInput(inputId = 'county',
       #                                     label = 'Select County:',
       #                                     choices = counties, selected = counties[1]))),
-      sidebarMenu( 
-                    menuItem( text = "Variable Selection",
-                              icon = icon('th'),
-                              selectInput(inputId = 'variable',
-                                          label = 'Select a Variable:',
-                                          choices = variables, selected = variables[1]),
-                              p("Selected:"),
-                              tags$div(class="header", checked=NA,
-                                       tags$p(textOutput(outputId = "sample2"))
-                              ),
-                              switchInput(label = 'Start Optimization?',inputId = "calculate", value = FALSE),
-                              p("Map Controls:"),
-                              switchInput(label = 'Display CWBI',inputId = "mapcwbi",value = FALSE),
-                              selectInput(inputId="mapcolor",label="Pick a map Color",
-                                          choices = colors, selected = "RdYlBu" )
-                              )),
       # Eve Side Bar Menu ----
       sidebarMenu(
         menuItem(text = "Fixed Constraints",
@@ -145,7 +129,7 @@ sidebar = dashboardSidebar(
                             label = paste0("Enter ",variablenamelist$starttitle[5],":")),
                  textInput( inputId = "plotbutton6",
                             label = paste0("Enter ",variablenamelist$starttitle[6],":")),
-                 textInput( inputId = "plotbutton7",j
+                 textInput( inputId = "plotbutton7",
                             label = paste0("Enter ",variablenamelist$starttitle[7],":")),
                  textInput( inputId = "plotbutton8",
                             label = paste0("Enter ",variablenamelist$starttitle[8],":")),
@@ -164,6 +148,23 @@ sidebar = dashboardSidebar(
                  #.... Add more ....
         )
       ),
+      sidebarMenu( 
+                    menuItem( text = "Variable Selection",
+                              icon = icon('th'),
+                              selectInput(inputId = 'variable',
+                                          label = 'Select a Variable:',
+                                          choices = variables, selected = variables[1]),
+                              p("Selected:"),
+                              tags$div(class="header", checked=NA,
+                                       tags$p(textOutput(outputId = "sample2"))
+                              ),
+                              switchInput(label = 'Start Optimization?',inputId = "calculate", value = FALSE),
+                              switchInput(label = 'Calculate Max CWBI',inputId = "mapcwbi",value = FALSE),
+                              p("Map Controls:"),
+                              selectInput(inputId="mapcolor",label="Pick a map Color",
+                                          choices = colors, selected = "RdYlBu" )
+                              )),
+
       sidebarMenu(menuItemOutput('metric_slider'))
 
 )
@@ -186,7 +187,6 @@ server = function(input, output){
     rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist,updated = overall_constraints)
   # Eve Added  --------------------------------------------------------------
   user_text = observeEvent(input$execute,{
-    rv$run1
     # variablenamelist <- as.data.frame(data.table(
     #   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
     #                 "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
@@ -228,29 +228,29 @@ output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,
     
 #overall_constraints <- df2$ reactiveValues(overall_constraints)
 
-# Reactive Input ----
+# Reactive Input: Sliders ----
 
-variable_reactive = eventReactive(input$variable, 
-{
-  rv$run2 <- rv$run2 + 1
-  min_value = df2[1, input$variable]
-  max_value = df2[2, input$variable]
-  if(df2[3,input$variable] == overall_constraints[3,input$variable]){ #I am trying to intalize values here.
+#variable_reactive = eventReactive(input$variable, 
+#{
+#  rv$run2 <- rv$run2 + 1
+#  min_value = df2[1, input$variable]
+#  max_value = df2[2, input$variable]
+ # if(df2[3,input$variable] == overall_constraints[3,input$variable]){ #I am trying to intalize values here.
     # values <- c(min_value, df2[3, input$variable])
-    values <- c(df2[4, input$variable], max_value) #not sure about this change
-  } else {
+#    values <- c(df2[4, input$variable], max_value) #not sure about this change
+ # } else {
     # min_value = overall_constraints[1, input$variable]
     # max_value = overall_constraints[2, input$variable]
-    values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
-  }
+  #  values <- c(overall_constraints[3, input$variable], max_value) #not sure about this change
+#  }
     
-  if (length(input$variable == 1) )
-      sidebarMenu( menuItem( text = "Metric Slider",
-                              icon = icon('th'),
-                              tags$div(class="header", checked=NA,
-                                      tags$head("Adjust the boundary conditions of:"),
-                                      tags$p(textOutput(outputId = "sample"))
-                              ),
+ # if (length(input$variable == 1) )
+#      sidebarMenu( menuItem( text = "Metric Slider",
+#                              icon = icon('th'),
+#                              tags$div(class="header", checked=NA,
+#                                      tags$head("Adjust the boundary conditions of:"),
+#                                      tags$p(textOutput(outputId = "sample"))
+ #                             ),
                               
                               # sliderInput( inputId = "metric",
                               #              label = input$variable,
@@ -259,53 +259,52 @@ variable_reactive = eventReactive(input$variable,
                               #              value = values,
                               #              sep ="",
                               #              step = .1),
-                             sliderInput("gradrate",paste(rv$variablenamelist[1,3]),
-                                         min = df2$gradrate[1],max = df2$gradrate[2],
-                                         value = c(df2$gradrate[1],df2$gradrate[2]), #for the upper range
-                                         sep ="",step = .01, ticks = FALSE),
-                             sliderInput("ccrpi",paste(rv$variablenamelist[2,3]),
-                                         min = df2$ccrpi[1],max = df2$ccrpi[2],
-                                         value = c(df2$ccrpi[1],df2$ccrpi[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("grade3",paste(rv$variablenamelist[3,3]),
-                                         min = df2$grade3[1],max = df2$grade3[2],
-                                         value = c(df2$grade3[1],df2$grade3[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("grade8",paste(rv$variablenamelist[4,3]),
-                                         min = df2$grade8[1],max = df2$grade8[2],
-                                         value = c(df2$grade8[1],df2$grade8[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("lbw",paste(rv$variablenamelist[5,3]),
-                                         min = df2$lbw[1],max = df2$lbw[2],
-                                         value = c(df2$lbw[1],df2$lbw[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("childnohealth",paste(rv$variablenamelist[6,3]),
-                                         min = df2$childnohealth[1],max = df2$childnohealth[2],
-                                         value = c(df2$childnohealth[1],df2$childnohealth[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("childpoverty",paste(rv$variablenamelist[7,3]),
-                                         min = df2$childpoverty[1],max = df2$childpoverty[2],
-                                         value = c(df2$childpoverty[1],df2$childpoverty[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("povertyrate",paste(rv$variablenamelist[8,3]),
-                                         min = df2$povertyrate[1],max = df2$povertyrate[2],
-                                         value = c(df2$povertyrate[1],df2$povertyrate[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("housingburden",paste(rv$variablenamelist[9,3]),
-                                         min = df2$housingburden[1],max = df2$housingburden[2],
-                                         value = c(df2$housingburden[1],df2$housingburden[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("momsnohs",paste(rv$variablenamelist[10,3]),
-                                         min = df2$momsnohs[1],max = df2$momsnohs[2],
-                                         value = c(df2$momsnohs[1],df2$momsnohs[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("collegerate",paste(rv$variablenamelist[11,3]),
-                                         min = df2$collegerate[1],max = df2$collegerate[2],
-                                         value = c(df2$collegerate[1],df2$collegerate[2]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("adultsnoedu",paste(rv$variablenamelist[12,3]),
-                                         min = df2$adultsnoedu[1],max = df2$adultsnoedu[2],
-                                         value = c(df2$adultsnoedu[1],df2$adultsnoedu[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("adultnohealth",paste(rv$variablenamelist[13,3]),
-                                         min = df2$adultnohealth[1],max = df2$adultnohealth[2],
-                                         value = c(df2$adultnohealth[1],df2$adultnohealth[3]), sep ="",step = .01, ticks = FALSE),
-                             sliderInput("unemployment",paste(rv$variablenamelist[14,3]),
-                                         min = df2$unemployment[1],max = df2$unemployment[2],
-                                         value = c(df2$unemployment[1],df2$unemployment[3]), sep ="",step = .01, ticks = FALSE)
-                              
-        )
-      )
-})
+#                             sliderInput("gradrate",paste(rv$variablenamelist[1,3]),
+#                                         min = df2$gradrate[1],max = df2$gradrate[2],
+#                                         value = c(df2$gradrate[1],df2$gradrate[2]), #for the upper range
+#                                         sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("ccrpi",paste(rv$variablenamelist[2,3]),
+#                                         min = df2$ccrpi[1],max = df2$ccrpi[2],
+#                                         value = c(df2$ccrpi[1],df2$ccrpi[2]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("grade3",paste(rv$variablenamelist[3,3]),
+#                                         min = df2$grade3[1],max = df2$grade3[2],
+#                                         value = c(df2$grade3[1],df2$grade3[2]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("grade8",paste(rv$variablenamelist[4,3]),
+#                                         min = df2$grade8[1],max = df2$grade8[2],
+#                                         value = c(df2$grade8[1],df2$grade8[2]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("lbw",paste(rv$variablenamelist[5,3]),
+#                                         min = df2$lbw[1],max = df2$lbw[2],
+#                                         value = c(df2$lbw[1],df2$lbw[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("childnohealth",paste(rv$variablenamelist[6,3]),
+#                                         min = df2$childnohealth[1],max = df2$childnohealth[2],
+ #                                        value = c(df2$childnohealth[1],df2$childnohealth[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("childpoverty",paste(rv$variablenamelist[7,3]),
+ #                                        min = df2$childpoverty[1],max = df2$childpoverty[2],
+ #                                        value = c(df2$childpoverty[1],df2$childpoverty[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("povertyrate",paste(rv$variablenamelist[8,3]),
+ #                                        min = df2$povertyrate[1],max = df2$povertyrate[2],
+ #                                        value = c(df2$povertyrate[1],df2$povertyrate[3]), sep ="",step = .01, ticks = FALSE),
+  #                           sliderInput("housingburden",paste(rv$variablenamelist[9,3]),
+  #                                       min = df2$housingburden[1],max = df2$housingburden[2],
+#                             sliderInput("momsnohs",paste(rv$variablenamelist[10,3]),
+ #                                        min = df2$momsnohs[1],max = df2$momsnohs[2],
+#                                         value = c(df2$momsnohs[1],df2$momsnohs[3]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("collegerate",paste(rv$variablenamelist[11,3]),
+#                                         min = df2$collegerate[1],max = df2$collegerate[2],
+#                                         value = c(df2$collegerate[1],df2$collegerate[2]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("adultsnoedu",paste(rv$variablenamelist[12,3]),
+  #                                       min = df2$adultsnoedu[1],max = df2$adultsnoedu[2],
+   #                                      value = c(df2$adultsnoedu[1],df2$adultsnoedu[3]), sep ="",step = .01, ticks = FALSE),
+ #                            sliderInput("adultnohealth",paste(rv$variablenamelist[13,3]),
+#                                         min = df2$adultnohealth[1],max = df2$adultnohealth[2],
+#                                         value = c(df2$adultnohealth[1],df2$adultnohealth[3]), sep ="",step = .01, ticks = FALSE),
+#                             sliderInput("unemployment",paste(rv$variablenamelist[14,3]),
+#                                         min = df2$unemployment[1],max = df2$unemployment[2],
+#                                         value = c(df2$unemployment[1],df2$unemployment[3]), sep ="",step = .01, ticks = FALSE)
+ #                             
+#        )
+#      )
+#})
 
 # Update Slider ----
 # update <- eventReactive(input$metric,{
@@ -313,7 +312,8 @@ variable_reactive = eventReactive(input$variable,
 #   return(overall_constraints)
 #   # overall_constraints[2, input$variable] <<- input$metric[2]
 # })
-myupdate <- observeEvent(c(input$gradrate,input$ccrpi),{
+myupdate <- observeEvent(c(rv$run1,rv$variablenamelist),{
+  browser()
   print("running")
   #req(rv$run2 != 0)
   req(overall_constraints,input$gradrate)
@@ -353,30 +353,35 @@ myupdate <- observeEvent(c(input$gradrate,input$ccrpi),{
   rv$run3 <- rv$run3 + 1
 })
 
-# LPSolver Calc CWBI ----
+
 final <- reactiveValues()
+# Get the orginal values ----
 getoriginalvalues <- eventReactive(rv$run3,{
+  browser()
   req(overall_constraints,original)
   final <- overall_constraints # rv$updated
-  final <- readRDS("Atemporaryfile.Rds")
-  ## Mike's FIX
+  #final <- readRDS("Atemporaryfile.Rds")
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- -1.969282 #prep step from coefficents.R
   maxCWB_Z <- 1.380706 #prep step from coefficents.R
-  if(rv$run3 <= 1){
+  
+  #FIx THIS LINE ----
+  if(rv$run3 >= 1){
     final["df0_ave  ",input$variable] <- median(as.vector(final[1:2,input$variable]))
   } else {
-    final["df0_ave",input$variable] <- overall_constraints[4,input$variable]}
+    final["df0_ave",] <- df2["df0_ave",]}
+    #final["df0_ave",input$variable] <- df2[4,input$variable]#overall_constraints[4,input$variable]}
   # 
   final2 <- final["df0_ave",] 
   CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
   # CWBI <- median(input$gradrate)*(1+input$final/100)
   CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
-  final2 <- colMeans(final[1:2,])
+  #final2 <- colMeans(final[1:2,])
   final3 <- c(CWBI,final2,use.names=TRUE)
   return(final3)
 },ignoreNULL = FALSE)
-getCWBI <- eventReactive(c(rv$run3,rv$run1),{
+# LPSolver Calc CWBI ----
+getCWBI <- eventReactive(c(input$variable,rv$run1,input$mapcwbi),{
   #browser
   req(overall_constraints,original)
   # if(is.null(input$metric)==TRUE){final <- overall_constraints
@@ -389,8 +394,8 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
   #   final["df0_ave",input$variable] <- overall_constraints[4,input$variable]}
   final <- rv$updated
   variablenamelist2 <-rv$variablenamelist
-  if(exists("Anothertempfile.RDS")){variablenamelist2 <- readRDS("Anothertempfile.RDS")}
-  if(exists("Atemporaryfile.Rds")){final <- readRDS("Atemporaryfile.Rds")}
+  #if(exists("Anothertempfile.RDS")){variablenamelist2 <- readRDS("Anothertempfile.RDS")}
+  #if(exists("Atemporaryfile.Rds")){final <- readRDS("Atemporaryfile.Rds")}
 
   mycoef <- pop.Coef(original) # prep step from coefficents.R
   minCWB_Z <- min(df_index$CWB_Z) # -1.969282 #prep step from coefficents.R
@@ -399,7 +404,10 @@ getCWBI <- eventReactive(c(rv$run3,rv$run1),{
   #***We are optimizing this CWBZ
   # final2 <- final["Mean",] # input$final2 is a placeholder for optimizer)
   #browser()
-  final2 <- lptest(final,variablenamelist2) #lptest takes in overall_constraints or df2
+  final2 <- lp_solver(final,variablenamelist2) #lptest takes in overall_constraints or df2
+  if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE){
+    final2 <- lpmax(final,variablenamelist2)
+  }}
   final2 <- final2[1:14]
   names(final2) = variables
   CWBZ <- rowSums(mycoef$A*t(final2) - mycoef$B)
@@ -440,6 +448,8 @@ switch <- eventReactive(c(rv$run1,rv$run3,input$calculate,input$gradrate,input$c
 
   if(input$calculate==TRUE){
     value<-getCWBI()
+    for(i in 1:length(value)){if(value[i]>=100){value[i]<-99.9}
+    }
     rv$variablenamelist$title <- rv$variablenamelist$resulttitle
   }else{value<-getoriginalvalues()
   rv$variablenamelist$title <- rv$variablenamelist$starttitle
