@@ -159,7 +159,9 @@ lptest <- function(df2,initial = NULL){
 #This is a script to show the output of lptest()
 final <- lptest(df2) #lptest takes in original_constrants or df2
 final <- final[1:14]
+browser()
 CWBZ <- rowSums(mycoef$A*t(final) - mycoef$B)
+browser()
 CWBI <- 100*(CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)
 print(paste0("CWB Index equals"," ",CWBI))
 print(final - df2["df0_ave",])
