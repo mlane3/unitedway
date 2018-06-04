@@ -951,6 +951,13 @@ output$MainGrid = renderUI({
                     Just like gradient descent of a simple neural network, it iterates through about 200-1000
                     solutions to child well being while descending through the solutions
                     by a gradient (or subtracting) until it find the global optimized
+                    It uses a simple conjugate gradient descent spatial
+                    optimization (see Beale, E.M.L. 1972 for details or google
+                    Beale–Sorenson optimization or Fletcher-Beale-Powell
+                    optimization for the broader non-spatial optimization case).
+                    Just like a single node in neural network, it iterates through about 200-1000
+                    solutions to child well being descending through the solutions
+                    by a gradient (subtracting) until it find the global optimized
                     solution. Then it searches for the nearest reasonable local optimized
                     solution. On average iteration step takes about 5.56 seconds.")
                   ),
