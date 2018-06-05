@@ -4,8 +4,8 @@
                 Date: March 6th 2018
 
 *********************************************************"
-# Authors: Eva, Betty Toyin, and Michael.
-# Eva below I have done this # followed by "----" notation.  These should help you go
+# Authors: Vincent, Brian, Dan, Eva, Betty, Toyin, Sally, and Michael.
+# To reader, I have used the "----" notation.  These should help you go
 # through the file quickly.  It is separeted like it is with Sifael's stuff
 
 # NECESSARY PACKAGES ----
@@ -82,8 +82,6 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
 overall_constraints <- reactiveValues()
 overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 # county_constraints <- df1 = as.data.frame(read.csv("data/county constrants.csv"))
-# overall_constraints[1:3,] = round(overall_constraints[1:3,],2) # = df2[1:3,]
-#full_names = as.data.frame(read.csv("data/overall constrants.csv", nrows = 3, row.names = 1)
 
 "*********************************************
                   HEADER
@@ -94,8 +92,8 @@ header = dashboardHeader(title = 'United Way App')
 "*********************************************
                  SIDEBAR
 *********************************************"
-counties = unique(c("overall", original$county))
-variables = names(overall_constraints)
+counties <- unique(c("overall", original$county))
+variables <- names(overall_constraints)
 colors <- c("Quantile","RdGy",
 "RdYlBu", "RdYlGn", "Spectral")
 
@@ -177,7 +175,7 @@ sidebar = dashboardSidebar(
       #sidebarMenu(menuItemOutput('metric_slider'))
 
 )
-mapcolor <- "RdYlGn"
+mapcolor <- "Quantile"
 "*********************************************
                   BODY
 *********************************************"
@@ -416,12 +414,25 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$mapcwbi),{
 },ignoreNULL = FALSE)
 
 # Plotting -----
-# RENDER MENU
+# Optimizing Couny Constrants ----
 #output$metric_slider = renderMenu( variable_reactive() )
 #myexample = observeEvent(input$gradrate,{
-  output$sample3 = renderText({paste0(rv$run1,rv$run3)})
+#output$3 = renderText({paste0(rv$run1,rv$run3)})
 #})
-  
+observeEvent(c(input$calculate, input$mapcwbi),{
+  if(input$calculate == TRUE && input$mapcwbi == TRUE){
+    rv$run3 <- 1}
+  if(input$calculate == TRUE || input$mapcwbi == TRUE){
+    rv$run3 <- 0
+  }else{
+    rv$run3 <- 0}
+  if(rv$run1 ==1){
+    final <- county_solver.lp(overall_constraints,validate)
+    output$optimize <- renderTable(final)
+  }
+
+})
+
 
 # THE SWITCH ----
 #Google if there is a better way
@@ -839,8 +850,6 @@ output$mymap = renderLeaflet({
   # dfzipmap <- raster::merge(original,UWcensuszip,by="TRACT")
   original$trunctract<-uwmapdata$Tract
   original <- original[order(match(original$TRACT, counties$GEOID10)),]
-  #original <- original[order(match(original$trunctract, counties$TRACTCE10)),]
-
   mycolor <- as.numeric(unlist(original[, input$variable]))
   if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE){
     df_complete <- df_complete[order(match(df_complete$weave_ct2010,original$TRACT))]
@@ -854,9 +863,10 @@ output$mymap = renderLeaflet({
   bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
             .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
   
-  if(input$mapcolor == "Quantile"){pal <- colorQuantile("RdYlGn", domain = mycolor, n=5)
+  if(mapcolor == "Quantile"){pal <- colorQuantile("RdYlGn", domain = mycolor, n=5)
   }else{
-    pal <- colorBin(input$mapcolor, domain = mycolor, bins = bins,reverse = reverse)}
+    pal <- colorBin(mapcolor, domain = mycolor, bins = bins,reverse = reverse)
+  }
   
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(paste(original$trunctract))
@@ -873,19 +883,27 @@ output$mymap = renderLeaflet({
   # browser()
   #Plot the map
   leaflet() %>%
-    setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
+    setView(lng = -84.386330, lat = 33.753746, zoom = 7) %>%
     addProviderTiles(providers$Stamen.Toner) %>%
     addPolygons(data = counties,
                 fillColor = pal(mycolor),
                 weight = 1, 
-
-
+                smoothFactor = 0.5,
+                color = "green",
+                fillOpacity = 0.8,
+                highlight= highlightOptions(weight = 5, color ="#666666", dashArray = "",
+                                             fillOpacity = .7, bringToFront = TRUE ),
+                label = lapply(labels, HTML))
+})
 
 # output$test = renderTable(append(input$metric))
 
 "*******************************
           MAIN GRID
 *******************************"
+# Plotting optimized county values ----
+
+
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
@@ -907,50 +925,46 @@ output$MainGrid = renderUI({
                   p("Optimizers uses gauge plots allow you to compare the
                     original values and optimized values for each child well being
                     indicator"),
-                  p("TO START: Input what variables you want to fix. Then 
+                  strong("To Start:"),p("Input what variables you want to fix. Then 
                     decide how you want to optimize. The optimization is based
                     on what you fix. For example, low weight births is was 10.1%
-                    while unemployment is 5.3 in 2016. Nex see your results in
+                    while unemployment is 5.3 in 2016. Next see your results in
                     Main Plots tab. The S stands for the starting average Atlanta values while R
                     stands for the resulting optimized average Altanta values. Green
                     means it improves the CWBI while red means it
                     hurts CWBI."),
-                  p("The map allow you to see the indicators values at the census
-                    track level.  You can use the map to compare your current values.
-                    The color scale: The color scale is actually based on quartiling orginal
-                    data similar to the color scale on the other CWBI maps.
-                    Secret Feature: If the map is one color that because its allowing you
-                    to compare the atlanta average to your original value. You can
-                    quickly turn the optimizer on/off to see old and new values. 
-                    Changing the fix bound is what actually triggers the optimizer 
-                    to go through a full run."),
+                    p(strong("Using the map"),"The map allow you to see the
+                    indicators values at the census track level.  You can use
+                    the map to compare your current values. The color scale:
+                    The color scale is actually based on quartiling orginal
+                    data similar to the color scale on the other CWBI
+                    maps.","We hope this optimizer helps you to see Child Well
+                    Being from a broader perspective.","Secret
+                    feature If the map is one color that because its
+                    allowing you to compare the atlanta average to your
+                    original value. It doesn't have to be one color though.
+                    You can quickly turn the optimizer on/off to see old and
+                    new values. Changing the fix bound is what actually
+                    triggers the optimizer to go through a full run."),
                   h3("About Optimization:"),
                   p("Please note the optimizer make take up to 5 seconds to load"),
                   p("By default the algorithm figures out the optimium solution 
                     CWBI Goal of 68.9% or 10% improvement from the current 58.9%.
                     Since relationship between 2 indicators is not well known,
                     It treats each indicator as an independent variable,
-                    but relies on the original 2014 data.  
+                    but relies on the original data.
                     It uses a simple conjugate gradient spatial
                     optimization (see Beale, E.M.L. 1972 for details or google
-                    Beale–Sorenson optimization or Fletcher Bealeg Powell
-                    optimization for the broader optimization case).
-                    Just like gradient descent of a simple neural network, it iterates through about 200-1000
+                    Beale–Sorenson optimization or gradient descent optimization
+                    for the broader optimization case).
+                    Just like gradient descent of a single node neural network, it iterates through about 200-1000
                     solutions to child well being while descending through the solutions
-                    by a gradient (or subtracting) until it find the global optimized
-                    It uses a simple conjugate gradient descent spatial
-                    optimization (see Beale, E.M.L. 1972 for details or google
-                    Beale–Sorenson optimization or Fletcher-Beale-Powell
-                    optimization for the broader non-spatial optimization case).
-                    Just like a single node in neural network, it iterates through about 200-1000
-                    solutions to child well being descending through the solutions
-                    by a gradient (subtracting) until it find the global optimized
-                    solution. Then it searches for the nearest reasonable local optimized
-                    solution. On average iteration step takes about 5.56 seconds.")
-                  ),
+                    by a gradient (or subtracting) until it find the globally optimized solution.
+                    Then it searches for the nearest reasonable local optimized
+                    solution. On average iteration step takes about 5.56 seconds.")),
          tabPanel("Main Plots",
-              p("Welcome to the Child Well Being Optimizer.
-                This optimizer is to help figure out how indicators affect
+                  p("Welcome to the Child Well Being Optimizer.
+                  This optimizer is to help figure out how indicators affect
                 child well-being index. TO Start: Input what variables you want to fix. Then decide how you
                 want to optimize. Then click optimize. For example, low weight births was 10.1% while
                 unemployment is 5.3 in 2016. S = Start and R = Result"),
@@ -983,22 +997,14 @@ output$MainGrid = renderUI({
                     column(4,
                            box(width=12, amChartsOutput("GaugePlot13",height="200"),background='blue')),
                     column(4,
-                           box(width=12, amChartsOutput("GaugePlot14",height="200"),background='blue')))#,
-          ),
-                    # tabPanel("CWBI Gauge", p("For the first version and a few of the other versions, the gauge CWBI is in a seperate tab.  We could put them in the same tab but it might be too much info."),
-                    #                          amChartsOutput('GaugeCWBI')),
-        tabPanel("Map of Atlanta",h3("A map of Atlanta CWB"),
-                 p("Please note this the map make take about 1 min to load. 
-                   It has to fetch a google or open street map."),
-                 fluidPage(leafletOutput("mymap"))),
-        tabPanel("Debug Page",p("These is the debug page to show raw output for us"),verbatimTextOutput('sample3'))
-        )
-
-      #}
-        
-})
-
-
+                           box(width=12, amChartsOutput("GaugePlot14",height="200"),background='blue')))
+            ),
+         tabPanel("Map of Atlanta",
+                  h3("A map of Atlanta CWB"),
+                  p("Please note this the map make take about 1 min to load,It has to fetch a google or open street map."),
+                  fluidPage(leafletOutput("mymap"))))
+    }
+  )
 }
 
 "*********************************************
@@ -1006,13 +1012,12 @@ output$MainGrid = renderUI({
                  RUNAPP
 # *********************************************"
 # Runapp ----
-# options(shiny.error = NULL)
+options(shiny.error = NULL)
 # options(shiny.error = recover)
 # options(shiny.reactlog=TRUE) 
 options(shiny.sanitize.errors = FALSE)
 # display.mode="showcase" #debug code
-# options(shiny.reactlog=TRUE) #debug code
-app <- shinyApp( ui = dashboardPage( skin = 'blue',
+app <- shinyApp(ui = dashboardPage(skin = 'blue',
                               header = header,
                               sidebar = sidebar,
                               body = body),

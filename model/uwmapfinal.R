@@ -101,13 +101,19 @@ m <- leaflet() %>%
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
               label = lapply(labels, HTML))
+   browser()
    addLegend("bottomright", pal = pal, values = ~df0$gradrate,
           title = "CWB Index",
           labFormat = labelFormat(prefix = "$"),
           opacity = 1
 )
 m
-
+"************************************************************"
+#Useful functions I found for county level analysis
+"************************************************************"
+countyagg <- aggregate(counties, by="COUNTYFP10") #aggregate by county
+fips <- read.csv("data/FIP Codes.csv")
+countyagg <- merge(fips,countyagg$COUNTYFP10,by = intersect("county","COUNTYFP10"))
 
 "************************************************************"
         #rying possible ways to add legend
