@@ -35,7 +35,6 @@ lp_solver <- function(mydata,variablenamelist){
   
 }
 lptest <- function(mydata,variablenamelist){
-
   # You can ignore this loop
   # print(mydata[1,1])
   # for (i in 1:length(mydata)) {

@@ -62,6 +62,7 @@ server <- function(input, output) {
   
   # Show the first "n" observations ----
   output$view <- renderTable({
+    browser()
     head(datasetInput(), n = input$obs)
   })
   

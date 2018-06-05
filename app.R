@@ -168,16 +168,16 @@ sidebar = dashboardSidebar(
           p("Selected:"),
           tags$div(class="header", checked=NA,
                    tags$p(textOutput(outputId = "sample2"))
-          ),
-          selectInput(inputId="mapcolor",label="Pick a map Color",
-                      choices = colors, selected = "RdYlBu" )
+          )
+          # selectInput(inputId="mapcolor",label="Pick a map Color",
+          #             choices = colors, selected = "RdYlGn" )
         )
       )
-
+      
       #sidebarMenu(menuItemOutput('metric_slider'))
 
 )
-
+mapcolor <- "RdYlGn"
 "*********************************************
                   BODY
 *********************************************"
@@ -357,7 +357,6 @@ output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,
 #   # assign("rv$updated", rv$updated, envir=globalenv())
 #   rv$updated <<- rv$updated
 #   saveRDS(rv$updated,"Atemporaryfile.Rds")
-#   rv$run3 <- rv$run3 + 1
 # })
 
 
@@ -419,20 +418,16 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$mapcwbi),{
 # Plotting -----
 # RENDER MENU
 #output$metric_slider = renderMenu( variable_reactive() )
-#output$sample <- renderText({input$gradrate})
 #myexample = observeEvent(input$gradrate,{
   output$sample3 = renderText({paste0(rv$run1,rv$run3)})
 #})
-
+  
 
 # THE SWITCH ----
 #Google if there is a better way
-switch <- eventReactive(c(rv$run1,input$variable,input$calculate),
-{
+switch <- eventReactive(c(rv$run1,input$variable,input$calculate),{
   req(overall_constraints,input$variable != "")
-  # FIX THIS LINE ----
   rv$updated <- overall_constraints #Mike: IS this still used?
-  #rv$updated <- readRDS("Atemporaryfile.Rds") #Is this still used?
 
   if(input$calculate==TRUE){
     value<-getCWBI()
@@ -883,13 +878,6 @@ output$mymap = renderLeaflet({
     addPolygons(data = counties,
                 fillColor = pal(mycolor),
                 weight = 1, 
-                smoothFactor = 0.5,
-                color = "green",
-                fillOpacity = 0.8,
-                highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
-                                             fillOpacity = .7, bringToFront = TRUE ),
-                label = lapply(labels, HTML))
-})
 
 
 
@@ -967,29 +955,29 @@ output$MainGrid = renderUI({
                 want to optimize. Then click optimize. For example, low weight births was 10.1% while
                 unemployment is 5.3 in 2016. S = Start and R = Result"),
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot",height="200"),background='black')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot1",height="200"),background='red')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot2",height="200"),background='red'))),
+                           box(width=12, amChartsOutput("GaugePlot",height="200"),background='black')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot1",height="200"),background='red')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot2",height="200"),background='red'))),
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot3",height="200"),background='red')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot4",height="200"),background='red')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot5",height="200"),background='red'))),
+                           box(width=12, amChartsOutput("GaugePlot3",height="200"),background='red')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot4",height="200"),background='red')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot5",height="200"),background='red'))),
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot6",height="200"),background='red')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot7",height="200"),background='red')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot8",height="200"),background='orange'))),
+                           box(width=12, amChartsOutput("GaugePlot6",height="200"),background='red')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot7",height="200"),background='red')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot8",height="200"),background='orange'))),
             fluidRow( column(4,
-                             box(width=12, amChartsOutput("GaugePlot9",height="200"),background='orange')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot10",height="200"),background='orange')),
-                      column(4,
-                             box(width=12, amChartsOutput("GaugePlot11",height="200"),background='orange'))),
+                           box(width=12, amChartsOutput("GaugePlot9",height="200"),background='orange')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot10",height="200"),background='orange')),
+                    column(4,
+                           box(width=12, amChartsOutput("GaugePlot11",height="200"),background='orange'))),
             fluidRow( column(4,
                            box(width=12, amChartsOutput("GaugePlot12",height="200"),background='blue')),
                     column(4,

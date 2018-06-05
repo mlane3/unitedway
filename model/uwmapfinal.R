@@ -38,14 +38,14 @@ m
 
 #Let's create a chloropleth to show the child well being factors for each county
 
-m <- leaflet() %>%
-  setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
-  addProviderTiles(providers$Stamen.Toner) %>%
-  addPolygons(data = counties,
-              weight = 1, 
-              smoothFactor = 0.5,
-              fillColor= pal(df0$gradrate))
-m
+# m <- leaflet() %>%
+#   setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
+#   addProviderTiles(providers$Stamen.Toner) %>%
+#   addPolygons(data = counties,
+#               weight = 1, 
+#               smoothFactor = 0.5,
+#               fillColor= pal(df0$gradrate))
+# m
 
 
 df0 <- read_xlsx("2016 Original Data.xlsx")
@@ -63,7 +63,11 @@ for(i in 1:length(counties$GEOID10)){
     print(paste0(c(i,counties$GEOID10[i],df0$TRACT[i])))
   else{}
 }
-dfUW <- df0[order(match(df0$TRACT, counties$GEOID10))]
+counties <- subset(subset(subset(subset(counties,GEOID10 != "13063980000"),
+                  GEOID10 != "13121980000"),
+                  GEOID10 != "13121003700"),
+                  GEOID10 != "13089980000")
+dfUW <- df0[order(match(df0$TRACT, counties$GEOID10)),]
 mycolor <- as.numeric(df0$TRACT)
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
           .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
@@ -81,9 +85,9 @@ m <- leaflet() %>%
               color = "white",
               fillOpacity = 0.8)
 m
-
+browser()
 labels<-paste("<p>",dfUW$county,"<p>",
-              "<p>", "CWB", round(dfUW$CWB_unemployment, digits = 5),"<p>",
+              "<p>", "CWB", round(dfUW$unemployment, digits = 5),"<p>",
               sep="")
 m <- leaflet() %>%
   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
