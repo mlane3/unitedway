@@ -843,7 +843,6 @@ output$mymap = renderLeaflet({
   # merge two data frames by ID
   # dfzipmap <- raster::merge(original,UWcensuszip,by="TRACT")
   original$trunctract<-uwmapdata$Tract
-  # browser()
   original <- original[order(match(original$TRACT, counties$GEOID10)),]
   #original <- original[order(match(original$trunctract, counties$TRACTCE10)),]
 
