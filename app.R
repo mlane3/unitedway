@@ -43,6 +43,7 @@ library(foreach)
 source('model/UWCWBI_final.R')
 source('model/lpsolver.R')
 source('optim_solver.R')
+source('model/county_solver.R')
 variablenamelist <- as.data.frame(data.table(
   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
                 "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
@@ -399,10 +400,10 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
   maxCWB_Z <- 1.380706 # max(df_index$CWB_Z) prep step from coefficents.R
   #***We are optimizing this CWBZ
   # final2 <- lp_solver(final,variablenamelist2) #lptest takes in overall_constraints or df2
-  #Mike: NEED to improve Performance with the following 5 lines below
+  #Mike: need to improve Performance with the following 5 lines below
   final2 <- optim_solver(final,variablenamelist2)
   final2 <- final2$par[1:14]
-  if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE){
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE){
     final2 <- lpmax(final,variablenamelist2)[1:14]
   }}
   names(final2) = variables
@@ -912,10 +913,7 @@ output$mymap = renderLeaflet({
 "*******************************
           MAIN GRID
 *******************************"
-# Plotting optimized county values ----
-
-
-# The Actual Body or "Main Grid"----
+The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
       # if (is.null(input$gradrate)==TRUE||is.null(input$variable)==TRUE)
@@ -935,7 +933,7 @@ output$MainGrid = renderUI({
                   p("Optimizers uses gauge plots allow you to compare the
                     original values and optimized values for each child well being
                     indicator"),
-                  p(strong("To Start:"),"Input what variables you want to fix. Then 
+                  p(strong("To Start:"),"Input what variables you want to fix. Then
                     decide how you want to optimize. The optimization is based
                     on what you fix. For example, low weight births is was 10.1%
                     while unemployment is 5.3 in 2016. Next see your results in
@@ -958,7 +956,7 @@ output$MainGrid = renderUI({
                     triggers the optimizer to go through a full run."),
                   h3("About Optimization:"),
                   p("Please note the optimizer make take up to 5 seconds to load"),
-                  p("By default the algorithm figures out the optimium solution 
+                  p("By default the algorithm figures out the optimium solution
                     CWBI Goal of 68.9% or 10% improvement from the current 58.9%.
                     Since relationship between 2 indicators is not well known,
                     It treats each indicator as an independent variable,
