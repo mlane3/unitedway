@@ -152,7 +152,7 @@ county_solver <- function(mydata,variablenamelist){
   # Step 3: Bound Optimization ----
   # the number of variables is fixed to 14.  Index below would change if we 
   # add more variables.
-  x3 <- optim(x2$par,county.lp,lower= lower,upper= upper,
+  x3 <- optim(x2$par,new.lp,lower= lower,upper= upper,
         method="L-BFGS-B",control= list(parscale = parscale))
   final <- data.frame(row.names = variablenamelist$variable,
                       id=variablenamelist$variable,
