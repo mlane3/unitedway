@@ -443,13 +443,13 @@ observeEvent(c(input$calculate, input$maxcwbi),{
            alt = "You found the Secret!!! Congradulations! :D")
     }, deleteFile = F)
     output$conclusion2 <- renderTable(final)
-    output$conclusion <- renderText({paste("Congratulations, you found an Easter Egg!!
+    output$conclusion <- output$conclusion3 <- renderText({paste("Congratulations, you found an Easter Egg!!
      a.k.a. Secret Feature mentioned on the welcome page. This Spatial
      optimization by county is still in Beta (hence the table instead of a
-     plot).",'<p>',"This is an Easter Egg, so we can share the progress with
+     plot).","This is an Easter Egg, so we can share the progress with
      stakeholders, get feedback, and interest level.  It primarily has a few
      instability issues, performance issues to work out, and there are still
-     bounds missing.",'<p>',"Conclusion:  You if you look at both the CWBI optimization
+     bounds missing.","Conclusion:  You if you look at both the CWBI optimization
      from the gauges and county ones below they both say that CCRPI, 8th grade
      math, and low weight births. (We don’t mention this on other pages because
      we want the user the draw their own conclusions.)  It is surprising because
@@ -485,7 +485,7 @@ observeEvent(c(input$calculate, input$maxcwbi),{
      forecasting model (to predict future of indicators) or Pareto
      multiobjective optimization.  These Pareto charts can answer what is the
      cost of doing one optimization vs. another when there is more than one
-     goal! ",sep=" ")})
+     goal! ",sep="\n")})
   }
 
 })
@@ -997,8 +997,8 @@ output$MainGrid = renderUI({
                     hurts CWBI."),
                   p(strong("Using the map"),"The map allow you to see the
                     indicators values at the census track level.  You can use
-                    the map to compare your current values. The color scale:
-                    The color scale is actually based on quartiling orginal
+                    the map to compare your current values.",strong("The color scale:"),
+                    "The color scale is actually based on quartiling orginal
                     data similar to the color scale on the other CWBI
                     maps.","We hope this optimizer helps you to see Child Well
                     Being from a broader perspective.","Secret
@@ -1023,7 +1023,8 @@ output$MainGrid = renderUI({
                     solutions to child well being while descending through the solutions
                     by a gradient (or subtracting) until it find the globally optimized solution.
                     Then it searches for the nearest reasonable local optimized
-                    solution. On average iteration step takes about 5.56 seconds.")
+                    solution. On average iteration step takes about 5.56 seconds."),
+                  textOutput("conclusion")
                   ),
          tabPanel("Main Plots",strong("Welcome to the Child Well Being Optimizer."),
                   p("This optimizer is to help figure out how indicators affect
@@ -1067,8 +1068,8 @@ output$MainGrid = renderUI({
                   p("Please note this the map may take about 4 mins to load. It has to fetch a google or open street map."),
                   fluidPage(leafletOutput("mymap")),
                   conditionalPanel(condition = "input.maxcwbi == TRUE",
-                                   fluidPage(imageOutput("myImage"),
-                                   verbatimTextOutput("conclusion")),
+                                   imageOutput("myImage",height="100px"),
+                                   renderText("conclusion"),
                                    tableOutput("conclusion2")))
          )
     }
