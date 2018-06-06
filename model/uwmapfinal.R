@@ -38,14 +38,14 @@ m
 
 #Let's create a chloropleth to show the child well being factors for each county
 
-# m <- leaflet() %>%
-#   setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
-#   addProviderTiles(providers$Stamen.Toner) %>%
-#   addPolygons(data = counties,
-#               weight = 1, 
-#               smoothFactor = 0.5,
-#               fillColor= pal(df0$gradrate))
-# m
+m <- leaflet() %>%
+  setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
+  addProviderTiles(providers$Stamen.Toner) %>%
+  addPolygons(data = counties,
+              weight = 1, 
+              smoothFactor = 0.5,
+              fillColor= pal(df0$gradrate))
+m
 
 
 df0 <- read_xlsx("2016 Original Data.xlsx")
