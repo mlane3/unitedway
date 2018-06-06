@@ -67,7 +67,7 @@ counties <- subset(subset(subset(subset(counties,GEOID10 != "13063980000"),
                   GEOID10 != "13121003700"),
                   GEOID10 != "13089980000")
 dfUW <- df0[order(match(df0$TRACT, counties$GEOID10)),]
-mycolor <- as.numeric(df0$TRACT)
+mycolor <- as.numeric(df0$unemployment)
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
           .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
 pal <- colorBin("RdYlBu", domain = mycolor, bins = bins)
@@ -92,6 +92,7 @@ pal2 <- colorNumeric(
   palette = "RdYlBu",
   domain =df0$gradrate
 )
+
 m <- leaflet() %>%
   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
   addProviderTiles(providers$Stamen.Toner) %>%
@@ -99,7 +100,7 @@ m <- leaflet() %>%
               fillColor = pal(mycolor),
               weight = 1, 
               smoothFactor = 0.5,
-              color = "orange",
+              color = "green",
               fillOpacity =0.5,
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
