@@ -85,10 +85,13 @@ m <- leaflet() %>%
               color = "white",
               fillOpacity = 0.8)
 m
-browser()
 labels<-paste("<p>",dfUW$county,"<p>",
               "<p>", "CWB", round(dfUW$unemployment, digits = 5),"<p>",
               sep="")
+pal2 <- colorNumeric(
+  palette = "RdYlBu",
+  domain =df0$gradrate
+)
 m <- leaflet() %>%
   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
   addProviderTiles(providers$Stamen.Toner) %>%
@@ -100,13 +103,12 @@ m <- leaflet() %>%
               fillOpacity =0.5,
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
-              label = lapply(labels, HTML))
-   browser()
-   addLegend("bottomright", pal = pal, values = ~df0$gradrate,
-          title = "CWB Index",
-          labFormat = labelFormat(prefix = "$"),
-          opacity = 1
-)
+              label = lapply(labels, HTML)) %>%
+  addLegend(position="bottomright", pal = pal2, values = df0$gradrate,
+            title = "CWB Index",
+            labFormat = labelFormat(suffix = "%"),
+            opacity = 1
+  )
 m
 "************************************************************"
 #Useful functions I found for county level analysis
