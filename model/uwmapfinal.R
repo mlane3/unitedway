@@ -68,7 +68,7 @@ counties <- subset(subset(subset(subset(counties,GEOID10 != "13063980000"),
                   GEOID10 != "13121003700"),
                   GEOID10 != "13089980000")
 dfUW <- df0[order(match(df0$TRACT, counties$GEOID10)),]
-mycolor <- as.numeric(df0$unemployment)
+mycolor <- as.numeric(df0$TRACT)
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
           .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
 pal <- colorBin("RdYlBu", domain = mycolor, bins = bins)
