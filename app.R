@@ -855,17 +855,19 @@ output$mymap = renderLeaflet({
   # dfzipmap <- raster::merge(original,UWcensuszip,by="TRACT")
   original$trunctract<-uwmapdata$Tract
   original <- original[order(match(original$TRACT, counties$GEOID10)),]
-  mycolor <- as.numeric(unlist(original[, input$variable]))
-  if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE){
-    df_complete <- df_complete[order(match(df_complete$weave_ct2010,original$TRACT))]
-    mycolor<- as.numeric(df_complete$CWB_Index)
+  legendcolor <- mycolor <- as.numeric(unlist(original[, input$variable]))
+  df_complete <- df_complete[order(match(df_complete$weave_ct2010,original$TRACT))]
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE){
+    browser()
+    mycolor<- as.numeric(df_complete$CWB_Index)*100
+    legendcolor<- as.numeric(df_complete$CWB_Index)*100
   }}
   #If value positively impacts CWBI then don't reverse else reverse the color scale.
   # if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate')){
   #   reverse = FALSE}else{reverse=TRUE}
   reverse = FALSE
   #Add our color pallete to our map
-  bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
+  bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor),
             .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
   
   if(mapcolor == "Quantile"){pal <- colorQuantile("RdYlGn", domain = mycolor, n=5)
@@ -875,33 +877,37 @@ output$mymap = renderLeaflet({
   
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(paste(original$trunctract))
-  labels<-paste("<p>", original$county,"<p>",
-                "<p>", input$variable,
-                round(as.numeric(unlist(original[, input$variable])), digits = 5),"<p>",
+  labels<-paste("<p>", original$county,"<p>","CWBI ",
+                round(as.numeric(df_complete$CWB_Index)),"<p>", input$variable,
+                " ",round(as.numeric(unlist(original[, input$variable])), digits = 5),"<p>",
                 sep="")
-  
+  pal2 <- colorNumeric(palette = "RdYlGn",domain = legendcolor)
   if(input$calculate == TRUE){value = getCWBI() #allows the switch to control map
   mycolor <- as.numeric(value[input$variable])}
-  if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE && input$calculate == TRUE){value = getCWBI()
-  mycolor <- as.numeric(68.9)
-  }}
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE && input$calculate == TRUE){value = getCWBI()
+
+  mycolor <- as.numeric(68.9)}}
   # browser()
   #Plot the map
   leaflet() %>%
-    setView(lng = -84.386330, lat = 33.753746, zoom = 7) %>%
+    setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
     addProviderTiles(providers$Stamen.Toner) %>%
     addPolygons(data = counties,
                 fillColor = pal(mycolor),
-                weight = 1, 
+                weight = 1,
                 smoothFactor = 0.5,
                 color = "green",
                 fillOpacity = 0.8,
                 highlight= highlightOptions(weight = 5, color ="#666666", dashArray = "",
-                                             fillOpacity = .7, bringToFront = TRUE ),
-                label = lapply(labels, HTML))
-})
+                                            fillOpacity = .7, bringToFront = TRUE ),
+                label = lapply(labels, HTML)) %>%
+    addLegend(position="bottomright", pal = pal2, values = legendcolor,
+              title = rv$variablenamelist[input$variable,3],
+              labFormat = labelFormat(suffix = "%"),
+              opacity = 1
+    )
 
-# output$test = renderTable(append(input$metric))
+  })
 
 "*******************************
           MAIN GRID
@@ -1005,7 +1011,7 @@ output$MainGrid = renderUI({
                            box(width=12, amChartsOutput("GaugePlot14",height="200"),background='blue')))
             ),
          tabPanel("Map of Atlanta",
-                  h3("A map of Atlanta CWB"),
+                  h3("A map of Atlanta Child Well Being"),
                   p("Please note this the map make take about 1 min to load,It has to fetch a google or open street map."),
                   fluidPage(leafletOutput("mymap"))))
     }

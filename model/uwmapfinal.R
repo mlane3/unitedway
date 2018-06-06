@@ -38,13 +38,14 @@ m
 
 #Let's create a chloropleth to show the child well being factors for each county
 
-m <- leaflet() %>%
-  setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
-  addProviderTiles(providers$Stamen.Toner) %>%
-  addPolygons(data = counties,
-              weight = 1, 
-              smoothFactor = 0.5)
-m
+# m <- leaflet() %>%
+#   setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
+#   addProviderTiles(providers$Stamen.Toner) %>%
+#   addPolygons(data = counties,
+#               weight = 1, 
+#               smoothFactor = 0.5,
+#               fillColor= pal(df0$gradrate))
+# m
 
 
 df0 <- read_xlsx("2016 Original Data.xlsx")
@@ -63,9 +64,9 @@ for(i in 1:length(counties$GEOID10)){
   else{}
 }
 counties <- subset(subset(subset(subset(counties,GEOID10 != "13063980000"),
-                  GEOID10 != "13121980000"),
-                  GEOID10 != "13121003700"),
-                  GEOID10 != "13089980000")
+                                 GEOID10 != "13121980000"),
+                          GEOID10 != "13121003700"),
+                   GEOID10 != "13089980000")
 dfUW <- df0[order(match(df0$TRACT, counties$GEOID10)),]
 mycolor <- as.numeric(df0$unemployment)
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
@@ -90,7 +91,7 @@ labels<-paste("<p>",dfUW$county,"<p>",
               sep="")
 pal2 <- colorNumeric(
   palette = "RdYlBu",
-  domain =df0$gradrate
+  domain =df0$unemployment
 )
 
 m <- leaflet() %>%
@@ -105,7 +106,7 @@ m <- leaflet() %>%
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
               label = lapply(labels, HTML)) %>%
-  addLegend(position="bottomright", pal = pal2, values = df0$gradrate,
+  addLegend(position="bottomright", pal = pal2, values = df0$unemployment,
             title = "CWB Index",
             labFormat = labelFormat(suffix = "%"),
             opacity = 1
@@ -119,22 +120,21 @@ fips <- read.csv("data/FIP Codes.csv")
 countyagg <- merge(fips,countyagg$COUNTYFP10,by = intersect("county","COUNTYFP10"))
 
 "************************************************************"
-        #rying possible ways to add legend
+#rying possible ways to add legend
 "************************************************************"
-pal <- colorNumeric(
-  palette = "YlGnBu",
-  domain =df0$gradrate
-)
-m <- leaflet() %>%
-  setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
-  addPolygons(data = counties,smoothFactor = 0.2, fillOpacity = 1,
-              color = ~pal(df0$gradrate)
-              
-  ) %>%
-  addLegend("bottomright", pal = mycolor, values = ~df0$gradrate,
-            title = "CWB Index",
-            labFormat = labelFormat(prefix = "$"),
-            opacity = 1
-  )
-
-m
+# pal <- colorNumeric(
+#   palette = "YlGnBu",
+#   domain =df0$gradrate
+# )
+# m <- leaflet() %>%
+#   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
+#   addPolygons(data = counties,smoothFactor = 0.2, fillOpacity = 1,
+#               color = ~pal(df0$gradrate)
+#               
+#   ) %>%
+#   addLegend("bottomright", pal = mycolor, values = ~df0$gradrate,
+#             title = "CWB Index",
+#             labFormat = labelFormat(prefix = "$"),
+#             opacity = 1
+#   )
+# m
