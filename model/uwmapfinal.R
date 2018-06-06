@@ -43,8 +43,7 @@ m <- leaflet() %>%
   addProviderTiles(providers$Stamen.Toner) %>%
   addPolygons(data = counties,
               weight = 1, 
-              smoothFactor = 0.5,
-              fillColor= pal(df0$gradrate))
+              smoothFactor = 0.5)
 m
 
 
@@ -100,7 +99,7 @@ m <- leaflet() %>%
               fillColor = pal(mycolor),
               weight = 1, 
               smoothFactor = 0.5,
-              color = "green",
+              color = "orange",
               fillOpacity =0.5,
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
@@ -136,4 +135,5 @@ m <- leaflet() %>%
             labFormat = labelFormat(prefix = "$"),
             opacity = 1
   )
+
 m
