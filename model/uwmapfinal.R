@@ -86,8 +86,9 @@ m <- leaflet() %>%
               fillOpacity = 0.8)
 m
 
-labels<-paste("<p>",df0$county,"<p>",
-              "<p>", "CWB", round(uwmapdata$CWB_Index, digits = 5),"<p>",
+labels<-paste("<p>",dfUW$county,"<p>",
+              "<p>", "CWB", round(dfUW$unemployment, digits = 5),"<p>",
+              sep="")
 pal2 <- colorNumeric(
   palette = "RdYlBu",
   domain =df0$gradrate
