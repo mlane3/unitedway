@@ -138,6 +138,7 @@ optim_solver <- function(mydata,variablenamelist){
       validate(need(variablenamelist$plotbutton[i] > mydata["Min",i],message))
       validate(need(variablenamelist$plotbutton[i] < mydata["Max",i],message))
       # Add constraint to fix indicator
+      mydata[i] <- variablenamelist$plotbutton[i]
       upper[i] <- variablenamelist$plotbutton[i] + .001
       lower[i] <- variablenamelist$plotbutton[i] - .001
     }
