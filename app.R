@@ -155,7 +155,7 @@ sidebar = dashboardSidebar(
                   p("Stop or Start an Optimization:"),
                   switchInput(label = 'Optimization',inputId = "calculate", value = FALSE),
                   p("Use or Don't Use a goal 68.9% CWBI:"),
-                  switchInput(label = 'Unconstrained',inputId = "maxcwbi",value = FALSE)
+                  switchInput(label = 'Unconstrained',inputId = "mapcwbi",value = FALSE)
         )),
       sidebarMenu(
         menuItem(text ="Map Controls:",
@@ -192,7 +192,7 @@ server = function(input, output){
   #variablenamelist<-reactiveValues()
     #mike to fix variablenamelist vs. rv$variablenamelist might be confusing
     rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist,updated = overall_constraints)
-  # Eve: The Input Buttons --------------------------------------------------------------
+  # Eve Added  --------------------------------------------------------------
   user_text = observeEvent(input$execute,{
     # variablenamelist <- as.data.frame(data.table(
     #   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
@@ -229,12 +229,12 @@ server = function(input, output){
     print(rv$variablenamelist)
   })
 
-# Select Variable for Map: ----
+# Select County  ----
 output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,3]})
     
 #overall_constraints <- df2$ reactiveValues(overall_constraints)
 
-# Reactive Sliders: ----
+# Reactive Input: Sliders ----
 
 #variable_reactive = eventReactive(input$variable, 
 #{
@@ -312,7 +312,7 @@ output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,
 #      )
 #})
 
-# Eve: Update Slider ----
+# Update Slider ----
 # update <- eventReactive(input$metric,{
 #   overall_constraints[3, input$variable] <<- input$metric[1]
 #   return(overall_constraints)
@@ -359,7 +359,7 @@ output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,
 
 
 final <- reactiveValues()
-# Orginal CWBI ----
+# Get the orginal values ----
 getoriginalvalues <- eventReactive(c(rv$run1,rv$variablenamelist$plotbutton),{
   req(overall_constraints,original)
   final <- overall_constraints # rv$updated
@@ -387,10 +387,8 @@ getoriginalvalues <- eventReactive(c(rv$run1,rv$variablenamelist$plotbutton),{
   final3 <- c(CWBI,final2,use.names=TRUE)
   return(final3)
 },ignoreNULL = FALSE)
-# Lpsolver FInal CWBI----
-##This is the core of the optimizer, it used to be a linear problem
-##It used to be a linear problem solver, but now its a gradient solver
-getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
+# LPSolver Calc CWBI ----
+getCWBI <- eventReactive(c(input$variable,rv$run1,input$mapcwbi),{
   req(overall_constraints,original)
   final <- rv$updated
   variablenamelist2 <-rv$variablenamelist
@@ -415,28 +413,29 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
   return(final3)
 },ignoreNULL = FALSE)
 
-# County Solver for Final CWBI ----
+# Plotting -----
+# Optimizing Couny Constrants ----
 #output$metric_slider = renderMenu( variable_reactive() )
 #myexample = observeEvent(input$gradrate,{
 #output$3 = renderText({paste0(rv$run1,rv$run3)})
 #})
-observeEvent(c(input$calculate, input$maxcwbi),{
-  if(input$calculate == TRUE && input$maxcwbi == TRUE){
+observeEvent(c(input$calculate, input$mapcwbi),{
+  if(input$calculate == TRUE && input$mapcwbi == TRUE){
     rv$run3 <- 1}
-  if(input$calculate == TRUE || input$maxcwbi == TRUE){
+  if(input$calculate == TRUE || input$mapcwbi == TRUE){
     rv$run3 <- 0
   }else{
     rv$run3 <- 0}
   if(rv$run1 ==1){
-    final <- county_solver(overall_constraints,validate)
+    final <- county_solver.lp(overall_constraints,validate)
     output$optimize <- renderTable(final)
   }
 
 })
 
 
-# The SWITCH ----
-#This Switch Turns Optimizer on or off
+# THE SWITCH ----
+#Google if there is a better way
 switch <- eventReactive(c(rv$run1,input$variable,input$calculate),{
   req(overall_constraints,input$variable != "")
   rv$updated <- overall_constraints #Mike: IS this still used?
@@ -451,13 +450,9 @@ switch <- eventReactive(c(rv$run1,input$variable,input$calculate),{
   }
   return(value)
 },ignoreNULL = FALSE,ignoreInit = FALSE)
-
-# Plotting -----
+#
 observe(switch())
-observeEvent(c(rv$run1,input$calculate),{
-  final <- as.data.frame(switch())
-  output$conclusion <- renderTable(final)
-})
+# PLOTTING THE GAUGES ----
 # output$GaugePlot = output$GaugeCWBI = renderAmCharts({
 #   final <- switch() #(Load child well being)
 #   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
@@ -919,17 +914,18 @@ output$MainGrid = renderUI({
       # } else {
         #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
-         tabPanel("Welcome",h1("Welcome to the Child Well Being Optimizer"),
+         tabPanel("welcome",
+                  h1("Welcome to the Child Well Being Optimizer"),
                   p("This optimizer to help figure out what needs to be changed
-                    to improve child well being. Primarily its to help figure out
-                    how indicators affect child well-being index. The gauges show
-                    the initial values. There is also a map so you can compare your
-                    local child well being or indicators with that of Atlanta average."),
+              to improve child well being. Primarily its to help figure out
+              how indicators affect child well-being index. The gauges show
+              the initial values. There is also a map so you can compare your
+              local child well being or indicators with that of Atlanta average."),
                   h3("Directions:"),
                   p("Optimizers uses gauge plots allow you to compare the
                     original values and optimized values for each child well being
                     indicator"),
-                  p(strong("To Start:"),"Input what variables you want to fix. Then 
+                  strong("To Start:"),p("Input what variables you want to fix. Then 
                     decide how you want to optimize. The optimization is based
                     on what you fix. For example, low weight births is was 10.1%
                     while unemployment is 5.3 in 2016. Next see your results in
@@ -937,7 +933,7 @@ output$MainGrid = renderUI({
                     stands for the resulting optimized average Altanta values. Green
                     means it improves the CWBI while red means it
                     hurts CWBI."),
-                  p(strong("Using the map"),"The map allow you to see the
+                    p(strong("Using the map"),"The map allow you to see the
                     indicators values at the census track level.  You can use
                     the map to compare your current values. The color scale:
                     The color scale is actually based on quartiling orginal
@@ -965,14 +961,13 @@ output$MainGrid = renderUI({
                     solutions to child well being while descending through the solutions
                     by a gradient (or subtracting) until it find the globally optimized solution.
                     Then it searches for the nearest reasonable local optimized
-                    solution. On average iteration step takes about 5.56 seconds.")
-                  ),
-         tabPanel("Main Plots",strong("Welcome to the Child Well Being Optimizer."),
-                  p("This optimizer is to help figure out how indicators affect
-                    Child Well-Being index. To Start: Input what variables you want to fix. Then decide how you
-                    want to optimize. Then click optimize. S = Start and R = Result."),
-                  p("For example,  For example, low weight births was 10.1% while
-                    unemployment is 5.3 in 2016."),
+                    solution. On average iteration step takes about 5.56 seconds.")),
+         tabPanel("Main Plots",
+                  p("Welcome to the Child Well Being Optimizer.
+                  This optimizer is to help figure out how indicators affect
+                child well-being index. TO Start: Input what variables you want to fix. Then decide how you
+                want to optimize. Then click optimize. For example, low weight births was 10.1% while
+                unemployment is 5.3 in 2016. S = Start and R = Result"),
             fluidRow( column(4,
                            box(width=12, amChartsOutput("GaugePlot",height="200"),background='black')),
                     column(4,
