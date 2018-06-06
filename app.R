@@ -43,6 +43,7 @@ library(foreach)
 source('model/UWCWBI_final.R')
 source('model/lpsolver.R')
 source('optim_solver.R')
+source('model/county_solver.R')
 variablenamelist <- as.data.frame(data.table(
   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
                 "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
@@ -399,10 +400,10 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
   maxCWB_Z <- 1.380706 # max(df_index$CWB_Z) prep step from coefficents.R
   #***We are optimizing this CWBZ
   # final2 <- lp_solver(final,variablenamelist2) #lptest takes in overall_constraints or df2
-  #Mike: NEED to improve Performance with the following 5 lines below
+  #Mike: need to improve Performance with the following 5 lines below
   final2 <- optim_solver(final,variablenamelist2)
   final2 <- final2$par[1:14]
-  if(length(input$mapcwbi)==1){if(input$mapcwbi == TRUE){
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE){
     final2 <- lpmax(final,variablenamelist2)[1:14]
   }}
   names(final2) = variables
@@ -422,18 +423,72 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
 #})
 observeEvent(c(input$calculate, input$maxcwbi),{
   if(input$calculate == TRUE && input$maxcwbi == TRUE){
-    rv$run3 <- 1}
-  if(input$calculate == TRUE || input$maxcwbi == TRUE){
+    rv$run3 <- 1
+    print(rv$run3)}
+  if(input$calculate == TRUE && input$maxcwbi == FALSE){
     rv$run3 <- 0
-  }else{
+    print(rv$run3)}
+  if(input$calculate == FALSE && input$maxcwbi == TRUE){
     rv$run3 <- 0}
-  if(rv$run1 ==1){
-    final <- county_solver(overall_constraints,validate)
-    output$optimize <- renderTable(final)
+  if(input$calculate == FALSE && input$maxcwbi == FALSE){
+    rv$run3 <- 0}
+  if(rv$run3 ==1){
+    final <- county_solver(overall_constraints,rv$variablenamelist)
+    output$myImage <- renderImage({
+      pfad <- "Pictures/easteregg.jpg"
+      list(src = pfad,
+           contentType = 'image/png',
+           width = 200,
+           height = 150,
+           alt = "You found the Secret!!! Congradulations! :D")
+    }, deleteFile = F)
+    output$conclusion2 <- renderTable(final)
+    output$conclusion <- renderText({paste("Congratulations, you found an Easter Egg!!
+     a.k.a. Secret Feature mentioned on the welcome page. This Spatial
+     optimization by county is still in Beta (hence the table instead of a
+     plot).",'<p>',"This is an Easter Egg, so we can share the progress with
+     stakeholders, get feedback, and interest level.  It primarily has a few
+     instability issues, performance issues to work out, and there are still
+     bounds missing.",'<p>',"Conclusion:  You if you look at both the CWBI optimization
+     from the gauges and county ones below they both say that CCRPI, 8th grade
+     math, and low weight births. (We don’t mention this on other pages because
+     we want the user the draw their own conclusions.)  It is surprising because
+     the app was not designed to do a drill down, but it is giving a drill down
+     of the optimization due to accuracy alone.  The fact that results stay
+     consistent across the drill down --> this suggests the need to do stock and
+     flow models, spatial analytics (like correlation), spatial regression, so
+     we can figure out the relationships between variables and better understand
+     what we need to do to improve child well being. Bounds Issue: Primarily on
+     of the largest issues, is the lack of domain-expert upper and bounds across
+     time at the most granular level.  Specifically, we are waiting to hear back
+     from the DOE about max/min boundaries for CCRPI (at the school level in
+     greater metro Atlanta) as public data accessibility is a challenge.  If we
+     could find more accurate bounds for family poverty and adults without high
+     school diplomas Instability and Performance Issues: Due to the bounds issue
+     and need for more stackholder involvement, the optimizer currently not a
+     BUE global optimization.  The Conjugate Gradient optimizer relies on a
+     “parameter scaling factor” in order improve accuracy and speed.  Currently
+     the parameter scaling is based on simple spatial standard deviation by the
+     county distance, but this does not factor in population.  No one of the
+     team has much geospatial expertise so we did try to factor a distance
+     weight by county, but ARC could provide expertise calculating distance
+     weights and population weights. The Catch-22 (or Good News):  We should
+     mention that is actually the variation by county and indicator that plays
+     the big role in model accuracy. Also the  Some Instability allows the model
+     to Performance issue:  For the local optimization. We can fix the
+     county-level BUE problem very easily if we let optimizer run for 24 hours
+     (Basically do ensembling). However who is going to stare at a blank webpage
+     for 24 hours? Furthermore, we hope to get feedback from stakeholders, ARC,
+     UW about the spatial side of things.  To help communicate, we made this
+     Easter Egg. Future Ideas: Eventually once instability issue is solved or
+     with new data, we can ut this optimizer into either a time based
+     forecasting model (to predict future of indicators) or Pareto
+     multiobjective optimization.  These Pareto charts can answer what is the
+     cost of doing one optimization vs. another when there is more than one
+     goal! ",sep=" ")})
   }
 
 })
-
 
 # The SWITCH ----
 #This Switch Turns Optimizer on or off
@@ -454,10 +509,10 @@ switch <- eventReactive(c(rv$run1,input$variable,input$calculate),{
 
 # Plotting -----
 observe(switch())
-observeEvent(c(rv$run1,input$calculate),{
-  final <- as.data.frame(switch())
-  output$conclusion <- renderTable(final)
-})
+# observeEvent(c(rv$run1,input$calculate),{
+#   final <- as.data.frame(switch())
+#   output$conclusion <- renderTable(final)
+# })
 # output$GaugePlot = output$GaugeCWBI = renderAmCharts({
 #   final <- switch() #(Load child well being)
 #   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
@@ -858,7 +913,6 @@ output$mymap = renderLeaflet({
   legendcolor <- mycolor <- as.numeric(unlist(original[, input$variable]))
   df_complete <- df_complete[order(match(df_complete$weave_ct2010,original$TRACT))]
   if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE){
-    browser()
     mycolor<- as.numeric(df_complete$CWB_Index)*100
     legendcolor<- as.numeric(df_complete$CWB_Index)*100
   }}
@@ -878,16 +932,17 @@ output$mymap = renderLeaflet({
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(paste(original$trunctract))
   labels<-paste("<p>", original$county,"<p>","CWBI ",
-                round(as.numeric(df_complete$CWB_Index)),"<p>", input$variable,
+                round(as.numeric(df_complete$CWB_Index)*100,2),"<p>", input$variable,
                 " ",round(as.numeric(unlist(original[, input$variable])), digits = 5),"<p>",
                 sep="")
+  if(input$maxcwbi!=TRUE){legendtitle <- rv$variablenamelist[input$variable,3]
+  }else{legendtitle <- "CWBI"}
   pal2 <- colorNumeric(palette = "RdYlGn",domain = legendcolor)
   if(input$calculate == TRUE){value = getCWBI() #allows the switch to control map
   mycolor <- as.numeric(value[input$variable])}
-  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE && input$calculate == TRUE){value = getCWBI()
-
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE && input$calculate == TRUE){
+  value = getCWBI() #Mike: we can add more dyanmicism here
   mycolor <- as.numeric(68.9)}}
-  # browser()
   #Plot the map
   leaflet() %>%
     setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
@@ -902,7 +957,7 @@ output$mymap = renderLeaflet({
                                             fillOpacity = .7, bringToFront = TRUE ),
                 label = lapply(labels, HTML)) %>%
     addLegend(position="bottomright", pal = pal2, values = legendcolor,
-              title = rv$variablenamelist[input$variable,3],
+              title = legendtitle,
               labFormat = labelFormat(suffix = "%"),
               opacity = 1
     )
@@ -912,9 +967,6 @@ output$mymap = renderLeaflet({
 "*******************************
           MAIN GRID
 *******************************"
-# Plotting optimized county values ----
-
-
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
@@ -935,7 +987,7 @@ output$MainGrid = renderUI({
                   p("Optimizers uses gauge plots allow you to compare the
                     original values and optimized values for each child well being
                     indicator"),
-                  p(strong("To Start:"),"Input what variables you want to fix. Then 
+                  p(strong("To Start:"),"Input what variables you want to fix. Then
                     decide how you want to optimize. The optimization is based
                     on what you fix. For example, low weight births is was 10.1%
                     while unemployment is 5.3 in 2016. Next see your results in
@@ -957,8 +1009,8 @@ output$MainGrid = renderUI({
                     new values. Changing the fix bound is what actually
                     triggers the optimizer to go through a full run."),
                   h3("About Optimization:"),
-                  p("Please note the optimizer make take up to 5 seconds to load"),
-                  p("By default the algorithm figures out the optimium solution 
+                  p("Please note the optimizer may take up to 5 seconds to load"),
+                  p("By default the algorithm figures out the optimium solution
                     CWBI Goal of 68.9% or 10% improvement from the current 58.9%.
                     Since relationship between 2 indicators is not well known,
                     It treats each indicator as an independent variable,
@@ -1012,8 +1064,13 @@ output$MainGrid = renderUI({
             ),
          tabPanel("Map of Atlanta",
                   h3("A map of Atlanta Child Well Being"),
-                  p("Please note this the map make take about 1 min to load,It has to fetch a google or open street map."),
-                  fluidPage(leafletOutput("mymap"))))
+                  p("Please note this the map may take about 4 mins to load. It has to fetch a google or open street map."),
+                  fluidPage(leafletOutput("mymap")),
+                  conditionalPanel(condition = "input.maxcwbi == TRUE",
+                                   fluidRow(box(imageOutput("myImage"),
+                                   verbatimTextOutput("conclusion"))),
+                                   tableOutput("conclusion2")))
+         )
     }
   )
 }

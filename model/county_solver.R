@@ -133,29 +133,27 @@ county_solver <- function(mydata,variablenamelist){
   x2 <- as.data.table(t(x1))
   names(x2) <- c(paste0(x1$id,"_",x1$variable))
   xframe <- as.data.frame(lapply(x2[3,],as.double))
-  lower 
   lower <- rep.int(3,nrow(x1)) # lower <- mydata["Min",] #Mike: need to add boundar
   upper <- rep.int(96,nrow(x1)) # upper <- mydata["Max",] #Mike: need to add 
   # parscale improves how fast optimizer solves.
-  
-  # parscale <- rep.int(floor(attr(scale(unlist(x1$value)),"scaled:scale")),nrow(x1))
+  parscale <- rep.int(round(df0_sd,1),13)
   # Note 23 derived from Z-score scaling using scale()
   # parscale = rep(floor(min(as.numeric(x))),length(x))
   # Note min(x) = 9.27... , so 9 derived from min/max scaling
   means <- numeric()
  
   # Step 1: Find the Best Unbound Optimization Model ----
-  x2_3 <- optim(xframe, county.lp, method = "CG", control = list(maxit=200,type = 2,parscale = parscale))
+  x2_3 <- optim(xframe, county.lp, method = "CG", control = list(maxit=101,type = 2,parscale = parscale))
   # Step 2: Use the best optimizer ----
   #This index is almost always 2 so why do I just set x3 = x2_3?
   x2 <- x2_3
   # Step 3: Bound Optimization ----
   # the number of variables is fixed to 14.  Index below would change if we 
   # add more variables.
-  x3 <- optim(x2$par,county.lp,lower= lower,upper= upper,
-        method="L-BFGS-B",control= list(parscale = parscale))
+  x3 <- optim(x2$par,new.lp,lower= lower,upper= upper,
+        method="L-BFGS-B",control= list(maxit=100,parscale = parscale))
   final <- data.frame(row.names = variablenamelist$variable,
-                      id=variablenamelist$variable,
+                      id = variablenamelist$title,
                       Butts = x3$par[1:14],Cherokee = x3$par[15:28],
                       Clayton = x3$par[29:42],Cobb = x3$par[43:56],
                       Coweta = x3$par[57:70], DeKalb = x3$par[71:84],
@@ -165,5 +163,5 @@ county_solver <- function(mydata,variablenamelist){
                       Rockdale = x3$par[169:182])
                       return(final)
 }
-# optim_solver(overall_constraints, variablenamelist)
-# system.time(ro <- optim_solver(overall_constraints, variablenamelist))
+# county_solver(overall_constraints, variablenamelist)
+# system.time(ro <- county_solver(overall_constraints, variablenamelist))
