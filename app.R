@@ -442,9 +442,12 @@ observeEvent(c(input$calculate, input$maxcwbi),{
            height = 150,
            alt = "You found the Secret!!! Congradulations! :D")
     }, deleteFile = F)
-    output$conclusion2 <- renderTable(final)
-    output$conclusion <- output$conclusion3 <- renderText({paste("Congratulations, you found an Easter Egg!!
-     a.k.a. Secret Feature mentioned on the welcome page. This Spatial
+    output$conclusion3 <- renderText("You found an easter Egg: The CWBI
+                                     Optimization by County. FOR MORE DETAILS:
+                                     go to the Welcome Tab to see the new details")
+     output$conclusion2 <- renderTable(final)
+     output$conclusion <- renderText({paste("Congratulations, you found an Easter Egg!!
+     a.k.a. Secret Feature mentioned on this welcome page. The Spatial
      optimization by county is still in Beta (hence the table instead of a
      plot).","This is an Easter Egg, so we can share the progress with
      stakeholders, get feedback, and interest level.  It primarily has a few
@@ -978,44 +981,50 @@ output$MainGrid = renderUI({
         #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
          tabPanel("Welcome",h1("Welcome to the Child Well Being Optimizer"),
-                  p("This optimizer to help figure out what needs to be changed
-                    to improve child well being. Primarily its to help figure out
-                    how indicators affect child well-being index. The gauges show
-                    the initial values. There is also a map so you can compare your
-                    local child well being or indicators with that of Atlanta average."),
+                  p("This optimizer is aimed at determining what factors can
+                  be changed in order to improve Child Well- Being. to help
+                  figure out what needs to be changed to improve child well
+                  being.Through the manipulation of chosen factors you can see
+                  how the selected indicators have an effect on the child
+                  well-being index. The Optimizers uses gauge plots that allow
+                  you to compare the original values and optimized values for
+                  each child well-being indicator. Initially, gauges shows
+                  average values of the orginal data."),
                   h3("Directions:"),
-                  p("Optimizers uses gauge plots allow you to compare the
-                    original values and optimized values for each child well being
-                    indicator"),
-                  p(strong("To Start:"),"Input what variables you want to fix. Then
-                    decide how you want to optimize. The optimization is based
-                    on what you fix. For example, low weight births is was 10.1%
-                    while unemployment is 5.3 in 2016. Next see your results in
-                    Main Plots tab. The S stands for the starting average Atlanta values while R
-                    stands for the resulting optimized average Altanta values. Green
-                    means it improves the CWBI while red means it
-                    hurts CWBI."),
-                  p(strong("Using the map"),"The map allow you to see the
-                    indicators values at the census track level.  You can use
-                    the map to compare your current values.",strong("The color scale:"),
-                    "The color scale is actually based on quartiling orginal
-                    data similar to the color scale on the other CWBI
-                    maps.","We hope this optimizer helps you to see Child Well
-                    Being from a broader perspective.","Secret
-                    feature If the map is one color that because its
-                    allowing you to compare the atlanta average to your
-                    original value. It doesn't have to be one color though.
-                    You can quickly turn the optimizer on/off to see old and
-                    new values. Changing the fix bound is what actually
-                    triggers the optimizer to go through a full run."),
+                  p(strong("To Start:"),"Input what variables you would like
+                  to fix, and then decide how you want to optimize. The
+                  optimization is based on what you decide to fix. For
+                  example, in 2016 % moms without high school births was 15.1%
+                  while unemployment was 5.3.  By increasing moms without high
+                  school to over 15.1, we see that families not fin stable,
+                  housing burden, and unemployment have to improve (decrease)
+                  by over 1 to 4.  By manipulating or decreasing the
+                  unemployment rate you can see the other indicators only have
+                  to improve by less to reach the goal of 689. Next, see your
+                  results in Main Plots tab. The S stands for the starting
+                  average Atlanta values while R stands for the resulting
+                  optimized average Atlanta values. Green indicates an
+                  improvement in CWBI while red indicates a diminishment in
+                  CWBI."), p(strong("Using the map:"),"The map allows you to
+                  see the indicator values at the census track level. You can
+                  use the map to compare your current values to the Atlanta
+                  average values. ",strong("The color scale:"), "he color
+                  scale is based on quartile analysis of the original data and
+                  is similar to the color scale found on other CWBI maps.","We
+                  hope this optimizer helps you to see Child Well Being from a
+                  broader perspective.",strong("Secret Feature Hint:"),"If the
+                  map displays only one color it is because the app is
+                  allowing you to compare your original value to the Atlanta
+                  average value. You can quickly",'turn the optimizer on/off',"to
+                  see the old and new values. Changing the fix bound triggers
+                  the optimizer to go through a full run. "),
                   h3("About Optimization:"),
                   p("Please note the optimizer may take up to 5 seconds to load"),
                   p("By default the algorithm figures out the optimium solution
                     CWBI Goal of 68.9% or 10% improvement from the current 58.9%.
                     Since relationship between 2 indicators is not well known,
                     It treats each indicator as an independent variable,
-                    but relies on the original data.
-                    It uses a simple conjugate gradient spatial
+                    but relies on the original data. It uses a simple conjugate gradient spatial
                     optimization (see Beale, E.M.L. 1972 for details or google
                     Beale–Sorenson optimization or gradient descent optimization
                     for the broader optimization case).
@@ -1023,15 +1032,19 @@ output$MainGrid = renderUI({
                     solutions to child well being while descending through the solutions
                     by a gradient (or subtracting) until it find the globally optimized solution.
                     Then it searches for the nearest reasonable local optimized
-                    solution. On average iteration step takes about 5.56 seconds."),
+                    solution. On average iteration step takes about 5.56 seconds.",p(),p()),
                   textOutput("conclusion")
                   ),
          tabPanel("Main Plots",strong("Welcome to the Child Well Being Optimizer."),
                   p("This optimizer is to help figure out how indicators affect
                     Child Well-Being index. To Start: Input what variables you want to fix. Then decide how you
                     want to optimize. Then click optimize. S = Start and R = Result."),
-                  p("For example,  For example, low weight births was 10.1% while
-                    unemployment is 5.3 in 2016."),
+                  p("For example,  For example, input % Moms without High
+                  School to 15.1% while unemployment is %5.3 in 2016. Input in
+                  both and turn on 'optimize', You shoudl get that child
+                  poverty has to be 20.1 and is the largest shift that
+                  indicators have to make to compensate for the increase %
+                  moms with no high school"),
             fluidRow( column(4,
                            box(width=12, amChartsOutput("GaugePlot",height="200"),background='black')),
                     column(4,
@@ -1069,7 +1082,7 @@ output$MainGrid = renderUI({
                   fluidPage(leafletOutput("mymap")),
                   conditionalPanel(condition = "input.maxcwbi == TRUE",
                                    imageOutput("myImage",height="100px"),
-                                   renderText("conclusion"),
+                                   textOutput("conclusion3"),
                                    tableOutput("conclusion2")))
          )
     }
