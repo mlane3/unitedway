@@ -1067,8 +1067,8 @@ output$MainGrid = renderUI({
                   p("Please note this the map may take about 4 mins to load. It has to fetch a google or open street map."),
                   fluidPage(leafletOutput("mymap")),
                   conditionalPanel(condition = "input.maxcwbi == TRUE",
-                                   fluidRow(box(imageOutput("myImage"),
-                                   verbatimTextOutput("conclusion"))),
+                                   fluidPage(imageOutput("myImage"),
+                                   verbatimTextOutput("conclusion")),
                                    tableOutput("conclusion2")))
          )
     }
