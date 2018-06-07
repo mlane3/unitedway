@@ -81,6 +81,7 @@ names(original) = c('county','weave_ct2010','gradrate','ccrpi',
                     'collegerate','adultsnoedu','adultnohealth','unemployment')
 # Overall Constraints
 overall_constraints <- reactiveValues()
+final <- reactiveValues()
 overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 # county_constraints <- df1 = as.data.frame(read.csv("data/county constrants.csv"))
 
@@ -190,24 +191,12 @@ body = dashboardBody(
 *********************************************"
 # Server ----
 server = function(input, output){
-  #variablenamelist<-reactiveValues()
-    #mike to fix variablenamelist vs. rv$variablenamelist might be confusing
-    rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,variablenamelist = variablenamelist,updated = overall_constraints)
+  rv <- reactiveValues(run2 = 0,run3 = 0,run4 = 0,run5 = 0,run1 = 0,
+                       variablenamelist = variablenamelist,
+                       updated = overall_constraints,
+                       myfinal = df2['df0_ave',])
   # Eve: The Input Buttons --------------------------------------------------------------
   user_text = observeEvent(input$execute,{
-    # variablenamelist <- as.data.frame(data.table(
-    #   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
-    #                 "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
-    #                 "adultsnoedu", "adultnohealth", "unemployment" ),
-    #   number = 1:14,
-    #   title = c( "Graduation Rate", "College and Career Readiness Score", "%
-    #              childern exceed 3rd grade reading standard", "% childern exceed 8th grade math
-    #              standard", "Low Weight Births", "% children wo health insurance", "% childern
-    #              in poverty", "% families not financially stable", "% with housing cost
-    #              burden", "% of Moms with no high school", "% Adults in Post-Secondary
-    #              Education", "% Adults with no high school", "% adults wo health insurance",
-    #              "Unemployment Rate"),
-    #   plotbutton = c(1,rep(0,13))))
     #Eve Added on Wednesday
     rv$variablenamelist$plotbutton[1]<-as.numeric(input$plotbutton1)
     rv$variablenamelist$plotbutton[2]<-as.numeric(input$plotbutton2)
@@ -227,7 +216,6 @@ server = function(input, output){
     rv$variablenamelist <<- rv$variablenamelist
     actionButton(inputId = "execute", label = "Submit")
     rv$run1 <- rv$run1 + 1
-    print(rv$variablenamelist)
   })
 
 # Select Variable for Map: ----
@@ -358,8 +346,6 @@ output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,
 #   saveRDS(rv$updated,"Atemporaryfile.Rds")
 # })
 
-
-final <- reactiveValues()
 # Orginal CWBI ----
 getoriginalvalues <- eventReactive(c(rv$run1,rv$variablenamelist$plotbutton),{
   req(overall_constraints,original)
@@ -421,82 +407,84 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
 #myexample = observeEvent(input$gradrate,{
 #output$3 = renderText({paste0(rv$run1,rv$run3)})
 #})
-observeEvent(c(input$calculate, input$maxcwbi),{
-  if(input$calculate == TRUE && input$maxcwbi == TRUE){
-    rv$run3 <- 1
-    print(rv$run3)}
-  if(input$calculate == TRUE && input$maxcwbi == FALSE){
-    rv$run3 <- 0
-    print(rv$run3)}
-  if(input$calculate == FALSE && input$maxcwbi == TRUE){
-    rv$run3 <- 0}
-  if(input$calculate == FALSE && input$maxcwbi == FALSE){
-    rv$run3 <- 0}
-  if(rv$run3 ==1){
-    final <- county_solver(overall_constraints,rv$variablenamelist)
-    output$myImage <- renderImage({
-      pfad <- "Pictures/easteregg.jpg"
-      list(src = pfad,
-           contentType = 'image/png',
-           width = 200,
-           height = 150,
-           alt = "You found the Secret!!! Congradulations! :D")
-    }, deleteFile = F)
-    output$conclusion3 <- renderText("You found an easter Egg: The CWBI
-                                     Optimization by County. FOR MORE DETAILS:
-                                     go to the Welcome Tab to see the new details")
-     output$conclusion2 <- renderTable(final)
-     output$conclusion <- renderText({paste("Congratulations, you found an Easter Egg!!
-     a.k.a. Secret Feature mentioned on this welcome page. The Spatial
-     optimization by county is still in Beta (hence the table instead of a
-     plot).","This is an Easter Egg, so we can share the progress with
-     stakeholders, get feedback, and interest level.  It primarily has a few
-     instability issues, performance issues to work out, and there are still
-     bounds missing.","Conclusion:  You if you look at both the CWBI optimization
-     from the gauges and county ones below they both say that CCRPI, 8th grade
-     math, and low weight births. (We don’t mention this on other pages because
-     we want the user the draw their own conclusions.)  It is surprising because
-     the app was not designed to do a drill down, but it is giving a drill down
-     of the optimization due to accuracy alone.  The fact that results stay
-     consistent across the drill down --> this suggests the need to do stock and
-     flow models, spatial analytics (like correlation), spatial regression, so
-     we can figure out the relationships between variables and better understand
-     what we need to do to improve child well being. Bounds Issue: Primarily on
-     of the largest issues, is the lack of domain-expert upper and bounds across
-     time at the most granular level.  Specifically, we are waiting to hear back
-     from the DOE about max/min boundaries for CCRPI (at the school level in
-     greater metro Atlanta) as public data accessibility is a challenge.  If we
-     could find more accurate bounds for family poverty and adults without high
-     school diplomas Instability and Performance Issues: Due to the bounds issue
-     and need for more stackholder involvement, the optimizer currently not a
-     BUE global optimization.  The Conjugate Gradient optimizer relies on a
-     “parameter scaling factor” in order improve accuracy and speed.  Currently
-     the parameter scaling is based on simple spatial standard deviation by the
-     county distance, but this does not factor in population.  No one of the
-     team has much geospatial expertise so we did try to factor a distance
-     weight by county, but ARC could provide expertise calculating distance
-     weights and population weights. The Catch-22 (or Good News):  We should
-     mention that is actually the variation by county and indicator that plays
-     the big role in model accuracy. Also the  Some Instability allows the model
-     to Performance issue:  For the local optimization. We can fix the
-     county-level BUE problem very easily if we let optimizer run for 24 hours
-     (Basically do ensembling). However who is going to stare at a blank webpage
-     for 24 hours? Furthermore, we hope to get feedback from stakeholders, ARC,
-     UW about the spatial side of things.  To help communicate, we made this
-     Easter Egg. Future Ideas: Eventually once instability issue is solved or
-     with new data, we can ut this optimizer into either a time based
-     forecasting model (to predict future of indicators) or Pareto
-     multiobjective optimization.  These Pareto charts can answer what is the
-     cost of doing one optimization vs. another when there is more than one
-     goal! ",sep="\n")})
-  }
-
-})
+# observeEvent(c(input$calculate, input$maxcwbi),{
+#   if(input$calculate == TRUE && input$maxcwbi == TRUE){
+#     rv$run3 <- 1
+#     print(rv$run3)}
+#   if(input$calculate == TRUE && input$maxcwbi == FALSE){
+#     rv$run3 <- 0
+#     print(rv$run3)}
+#   if(input$calculate == FALSE && input$maxcwbi == TRUE){
+#     rv$run3 <- 0}
+#   if(input$calculate == FALSE && input$maxcwbi == FALSE){
+#     rv$run3 <- 0}
+#   if(rv$run3 ==1){
+#     final <- county_solver(overall_constraints,rv$variablenamelist)
+#     output$myImage <- renderImage({
+#       pfad <- "Pictures/easteregg.jpg"
+#       list(src = pfad,
+#            contentType = 'image/png',
+#            width = 200,
+#            height = 150,
+#            alt = "You found the Secret!!! Congradulations! :D")
+#     }, deleteFile = F)
+#     output$conclusion3 <- renderText("You found an easter Egg: The CWBI
+#                                      Optimization by County. FOR MORE DETAILS:
+#                                      go to the Welcome Tab to see the new details")
+#      output$conclusion2 <- renderTable(final)
+#      output$conclusion <- renderText({paste("Congratulations, you found an Easter Egg!!
+#      a.k.a. Secret Feature mentioned on this welcome page. The Spatial
+#      optimization by county is still in Beta (hence the table instead of a
+#      plot).","This is an Easter Egg, so we can share the progress with
+#      stakeholders, get feedback, and interest level.  It primarily has a few
+#      instability issues, performance issues to work out, and there are still
+#      bounds missing.","Conclusion:  You if you look at both the CWBI optimization
+#      from the gauges and county ones below they both say that CCRPI, 8th grade
+#      math, and low weight births. (We don’t mention this on other pages because
+#      we want the user the draw their own conclusions.)  It is surprising because
+#      the app was not designed to do a drill down, but it is giving a drill down
+#      of the optimization due to accuracy alone.  The fact that results stay
+#      consistent across the drill down --> this suggests the need to do stock and
+#      flow models, spatial analytics (like correlation), spatial regression, so
+#      we can figure out the relationships between variables and better understand
+#      what we need to do to improve child well being. Bounds Issue: Primarily on
+#      of the largest issues, is the lack of domain-expert upper and bounds across
+#      time at the most granular level.  Specifically, we are waiting to hear back
+#      from the DOE about max/min boundaries for CCRPI (at the school level in
+#      greater metro Atlanta) as public data accessibility is a challenge.  If we
+#      could find more accurate bounds for family poverty and adults without high
+#      school diplomas Instability and Performance Issues: Due to the bounds issue
+#      and need for more stackholder involvement, the optimizer currently not a
+#      BUE global optimization.  The Conjugate Gradient optimizer relies on a
+#      “parameter scaling factor” in order improve accuracy and speed.  Currently
+#      the parameter scaling is based on simple spatial standard deviation by the
+#      county distance, but this does not factor in population.  No one of the
+#      team has much geospatial expertise so we did try to factor a distance
+#      weight by county, but ARC could provide expertise calculating distance
+#      weights and population weights. The Catch-22 (or Good News):  We should
+#      mention that is actually the variation by county and indicator that plays
+#      the big role in model accuracy. Also the  Some Instability allows the model
+#      to Performance issue:  For the local optimization. We can fix the
+#      county-level BUE problem very easily if we let optimizer run for 24 hours
+#      (Basically do ensembling). However who is going to stare at a blank webpage
+#      for 24 hours? Furthermore, we hope to get feedback from stakeholders, ARC,
+#      UW about the spatial side of things.  To help communicate, we made this
+#      Easter Egg. Future Ideas: Eventually once instability issue is solved or
+#      with new data, we can ut this optimizer into either a time based
+#      forecasting model (to predict future of indicators) or Pareto
+#      multiobjective optimization.  These Pareto charts can answer what is the
+#      cost of doing one optimization vs. another when there is more than one
+#      goal! ",sep="\n")})
+#   }
+# 
+# })
 
 # The SWITCH ----
 #This Switch Turns Optimizer on or off
 switch <- eventReactive(c(rv$run1,input$variable,input$calculate),{
-  req(overall_constraints,input$variable != "")
+  req(overall_constraints)
+  validate(need(input$variable !="","Error: Intial Guess got lost. Please select data to make sure it is avialable"))
+  #validate(rv$run1)
   rv$updated <- overall_constraints #Mike: IS this still used?
 
   if(input$calculate==TRUE){
@@ -529,16 +517,19 @@ observe(switch())
 #   amSolidGauge(x = value,
 #                  min = 0, max = 100,
 #                  main = "CWBI", type = "semi",type="semi")
-  
 output$GaugePlot = renderAmCharts({
-  #output$GaugeCWBI
-  final <- switch() #(Load child well being)
+  message = paste("Server is asleep", br(),
+  "Server needs user input. Please find and click the submit button or optimize button. If it does not wake up, then please contact the app owner")
+  validate(need(is.null(input$calculate)==F,message),
+           need(is.null(input$execute)==F,message),
+           need(is.null(input$variable)==F,message))
+  rv$myfinal <- switch() #(Load child well being)
   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
   value = 58.489
-  value = round(unname(unlist(final[1])),1)
+  value = round(unname(unlist(rv$myfinal[1])),1)
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
-                     color = c("#ea3838", "#00CC00"),
+                     color = c("#ea3838", "#00CC00"),width=20,
                      stringsAsFactors = FALSE)
   #mainColor = "#FFFFFF"
   amAngularGauge(x = value, textsize = 12,
@@ -548,19 +539,18 @@ output$GaugePlot = renderAmCharts({
   })
 
 output$GaugePlot1 = renderAmCharts({
-  final = switch() #(Load child well being)
+  # final = switch() #(Load child well being)
   #note START and END need to either be both even or both odd integers
   START = 43
   value = round(df2[4, "gradrate"],1) 
   END = 97
-  DIAL = round(unname(unlist(final["gradrate"])),1) # overall_constraints[3, "gradrate"]
+  DIAL = round(unname(unlist(switch()["gradrate"])),1) # overall_constraints[3, "gradrate"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
-  #browser()
   if(('gradrate' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
@@ -571,21 +561,21 @@ output$GaugePlot1 = renderAmCharts({
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
-                 main = rv$variablenamelist$title[1], bands = bands,step=(END-START)/2,
+                 main = "test", bands = bands,step=(END-START)/2,
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot2 = renderAmCharts({
-  final = switch() #(Load child well being)
+  #final = switch() #(Load child well being)
   START = 44
   value = round(df2[4, "ccrpi"],1)
   END = 94
-  DIAL = round(unname(unlist(final["ccrpi"])),1) # overall_constraints[3, "ccrpi"]
+  DIAL = round(unname(unlist(rv$myfinal["ccrpi"])),1) # overall_constraints[3, "ccrpi"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is ccrpi or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('ccrpi' == 'ccrpi'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
@@ -610,7 +600,7 @@ output$GaugePlot3 = renderAmCharts({
   if(('grade3' == 'grade3'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
@@ -629,7 +619,7 @@ output$GaugePlot4 = renderAmCharts({
   START = 3
   value = round(df2[4, "grade8"],1)
   END = 83
-  DIAL = round(unname(unlist(final["grade8"])),1) # overall_constraints[3, "grade3"]
+  DIAL = round(unname(unlist(rv$myfinal["grade8"])),1) # overall_constraints[3, "grade3"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('grade8' == 'grade8'))
@@ -654,7 +644,7 @@ output$GaugePlot5 = renderAmCharts({
   START = 2
   value = round(df2[4, "lbw"],1)
   END = 20
-  DIAL = round(unname(unlist(final["lbw"]),.01)) # overall_constraints[3, "lbw"]
+  DIAL = round(unname(unlist(rv$myfinal["lbw"]),.01)) # overall_constraints[3, "lbw"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('lbw' == 'gradrate'))
@@ -679,7 +669,7 @@ output$GaugePlot6 = renderAmCharts({
   START = 0
   value = round(df2[4, "childnohealth"],1)
   END = 48
-  DIAL = round(unname(unlist(final["childnohealth"])),1) # overall_constraints[3, "childnohealth"]
+  DIAL = round(unname(unlist(rv$myfinal["childnohealth"])),1) # overall_constraints[3, "childnohealth"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('childnohealth' == 'gradrate'))
@@ -704,7 +694,7 @@ output$GaugePlot7 = renderAmCharts({
   START = 0
   value = round(df2[4, "childpoverty"],1)
   END = 42
-  DIAL = round(unname(unlist(final["childpoverty"])),1) # overall_constraints[3, "childpoverty"]
+  DIAL = round(unname(unlist(rv$myfinal["childpoverty"])),1) # overall_constraints[3, "childpoverty"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('childpoverty' == 'gradrate'))
@@ -729,7 +719,7 @@ output$GaugePlot8 = renderAmCharts({
   START = 1
   value = round(df2[4, "povertyrate"],1)
   END = 94
-  DIAL = round(unname(unlist(final["povertyrate"])),1) # overall_constraints[3, "povertyrate"]
+  DIAL = round(unname(unlist(rv$myfinal["povertyrate"])),1) # overall_constraints[3, "povertyrate"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('povertyrate' == 'gradrate'))
@@ -746,7 +736,7 @@ output$GaugePlot8 = renderAmCharts({
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
-                 main = rv$variablenamelist$title[8], bands = bands,step=(END-START)/2,
+                 main = "test", bands = bands,step=(END-START)/2,
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot9 = renderAmCharts({
@@ -754,7 +744,7 @@ output$GaugePlot9 = renderAmCharts({
   START = 10
   value = round(df2[4, "housingburden"],1)
   END = 76
-  DIAL = round(unname(unlist(final["housingburden"])),1) # overall_constraints[3, "housingburden"]
+  DIAL = round(unname(unlist(rv$myfinal["housingburden"])),1) # overall_constraints[3, "housingburden"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('housingburden' == 'gradrate'))
@@ -775,11 +765,11 @@ output$GaugePlot9 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot10 = renderAmCharts({
-  final = switch() #(Load child well being)
+  #final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "momsnohs"],1)
   END = 80
-  DIAL = round(unname(unlist(final["momsnohs"])),1) # overall_constraints[3, "momsnohs"]
+  DIAL = round(unname(unlist(rv$myfinal["momsnohs"])),1) # overall_constraints[3, "momsnohs"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('momsnohs' == 'gradrate'))
@@ -800,11 +790,11 @@ output$GaugePlot10 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot11 = renderAmCharts({
-  final = switch() #(Load child well being)
+  #final = switch() #(Load child well being)
   START = 41
   value = round(df2[4, "collegerate"],1)
   END = 95
-  DIAL = round(unname(unlist(final["collegerate"])),1) # overall_constraints[3, "collegerate"]
+  DIAL = round(unname(unlist(rv$myfinal["collegerate"])),1) # overall_constraints[3, "collegerate"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('collegerate' == 'collegerate'))
@@ -825,11 +815,11 @@ output$GaugePlot11 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot12 = renderAmCharts({
-  final = switch() #(Load child well being)
+  #final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "adultsnoedu"],1)
   END = 78
-  DIAL = round(unname(unlist(final["adultsnoedu"])),1) # overall_constraints[3, "adultsnoedu"]
+  DIAL = round(unname(unlist(rv$myfinal["adultsnoedu"])),1) # overall_constraints[3, "adultsnoedu"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('adultsnoedu' == 'gradrate'))
@@ -850,11 +840,11 @@ output$GaugePlot12 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot13 = renderAmCharts({
-  final = switch() #(Load child well being)
+  #final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "adultnohealth"],1)
   END = 92
-  DIAL = round(unname(unlist(final["adultnohealth"])),1) # overall_constraints[3, "adultnohealth"]
+  DIAL = round(unname(unlist(rv$myfinal["adultnohealth"])),1) # overall_constraints[3, "adultnohealth"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('adultnohealth' == 'gradrate'))
@@ -875,11 +865,11 @@ output$GaugePlot13 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot14 = renderAmCharts({
-  final = switch() #(Load child well being)
+  #final = switch() #(Load child well being)
   START = 1
   value = round(df2[4, "unemployment"],1)
   END = 14
-  DIAL = round(unname(unlist(final["unemployment"])),1) # overall_constraints[3, "unemployment"]
+  DIAL = round(unname(unlist(rv$myfinal["unemployment"])),1) # overall_constraints[3, "unemployment"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('unemployment' == 'gradrate'))
@@ -973,10 +963,13 @@ output$mymap = renderLeaflet({
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
-      # if (is.null(input$gradrate)==TRUE||is.null(input$variable)==TRUE)
+      # if (is.null(input$calculate)==TRUE||is.null(input$execute)==TRUE||
+      #     is.null(input$variable)==TRUE)
       # {
-      #   p("Welcome to United Way App", br(),
-      #     "Please Select a variable to begin.  Any variable will do")
+      #   p("Welcome to United App: Server has not finished waking up", br(),
+      #     "If you are seeing this text it means server is starting up and ran a small bug.  Basically the server 
+      #     needs to be woken up with a user input. Please find the submit button or optimize button.  If you don't
+      #     see a change in anything after 15 seconds or less please contact the app owner")
       # } else {
         #tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
@@ -997,11 +990,11 @@ output$MainGrid = renderUI({
                   example, in 2016 % moms without high school births was 15.1%
                   while unemployment was 5.3.  By increasing moms without high
                   school to over 15.1, we see that families not fin stable,
-                  housing burden, and unemployment have to improve (decrease)
+                  housing burden, and unemployment have to imp.rove (decrease)
                   by over 1 to 4.  By manipulating or decreasing the
                   unemployment rate you can see the other indicators only have
                   to improve by less to reach the goal of 689. Next, see your
-                  results in Main Plots tab. The S stands for the starting
+                  results in Optimizer tab. The S stands for the starting
                   average Atlanta values while R stands for the resulting
                   optimized average Atlanta values. Green indicates an
                   improvement in CWBI while red indicates a diminishment in
@@ -1035,16 +1028,16 @@ output$MainGrid = renderUI({
                     solution. On average iteration step takes about 5.56 seconds.",p(),p()),
                   textOutput("conclusion")
                   ),
-         tabPanel("Main Plots",strong("Welcome to the Child Well Being Optimizer."),
-                  p("This optimizer is to help figure out how indicators affect
-                    Child Well-Being index. To Start: Input what variables you want to fix. Then decide how you
-                    want to optimize. Then click optimize. S = Start and R = Result."),
-                  p("For example,  For example, input % Moms without High
-                  School to 15.1% while unemployment is %5.3 in 2016. Input in
-                  both and turn on 'optimize', You shoudl get that child
-                  poverty has to be 20.1 and is the largest shift that
-                  indicators have to make to compensate for the increase %
-                  moms with no high school"),
+         tabPanel("Optimizer",strong("Welcome to the Child Well Being
+         Optimizer."), p("This optimizer is to help figure out how indicators
+         affect Child Well-Being index. To Start: Input what variables you
+         want to fix. Then decide how you want to optimize. Then click
+         optimize. S = Start and R = Result."), p("For example,  For example,
+         input % Moms without High School to 15.1% while unemployment is %5.3
+         in 2016. Input in both and turn on 'optimize', You shoudl get that
+         child poverty has to be 20.1 and is the largest shift that indicators
+         have to make to compensate for the increase % moms with no high
+         school"),
             fluidRow( column(4,
                            box(width=12, amChartsOutput("GaugePlot",height="200"),background='black')),
                     column(4,
@@ -1094,11 +1087,11 @@ output$MainGrid = renderUI({
                  RUNAPP
 # *********************************************"
 # Runapp ----
-options(shiny.error = NULL)
+#options(shiny.error = NULL)
 # options(shiny.error = recover)
-# options(shiny.reactlog=TRUE) 
-options(shiny.sanitize.errors = FALSE)
-# display.mode="showcase" #debug code
+#options(shiny.reactlog=TRUE) 
+# options(shiny.sanitize.errors = FALSE)
+#display.mode="showcase" #debug code
 app <- shinyApp(ui = dashboardPage(skin = 'blue',
                               header = header,
                               sidebar = sidebar,
