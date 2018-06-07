@@ -544,7 +544,7 @@ output$GaugePlot1 = renderAmCharts({
   START = 43
   value = round(df2[4, "gradrate"],1) 
   END = 97
-  DIAL = round(unname(unlist(switch()["gradrate"])),1) # overall_constraints[3, "gradrate"]
+  DIAL = round(unname(unlist(rv$myfinal["gradrate"])),1) # overall_constraints[3, "gradrate"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is gradrate or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('gradrate' == 'gradrate'))
@@ -561,7 +561,7 @@ output$GaugePlot1 = renderAmCharts({
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
-                 main = "test", bands = bands,step=(END-START)/2,
+                 main = rv$variablenamelist$title[1], bands = bands,step=(END-START)/2,
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot2 = renderAmCharts({
@@ -736,7 +736,7 @@ output$GaugePlot8 = renderAmCharts({
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
-                 main = "test", bands = bands,step=(END-START)/2,
+                 main = rv$variablenamelist$title[3], bands = bands,step=(END-START)/2,
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot9 = renderAmCharts({
