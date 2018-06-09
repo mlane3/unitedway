@@ -1,7 +1,7 @@
 
 
 #Intialize ----
-library(data.table)
+# library(data.table)
 # overall_constraints <- df2 <- as.data.frame(read.csv("data/overall constrants.csv", skip = 2, row.names = 1))
 # variablenamelist <- as.data.frame(data.table( variable = c( "gradrate",
 #                                                             "ccrpi", "grade3", "grade8", "lbw", "childnohealth", "childpoverty",
