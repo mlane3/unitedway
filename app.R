@@ -10,12 +10,12 @@
 
 # NECESSARY PACKAGES ----
 #this simple script installs packages
-# packages = c("stats","shiny","shinydashboard","shinyWidgets","ggplot2","ggmap","rgdal",
-#              "htmltools","mapview","htmlwidgets","RColorBrewer","rAmCharts","sp","leaflet",
-#              "raster","highcharter","dplyr","readxl","data.table","lpSolve","lpSolveAPI")
-# lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==F)
-#   {install.packages(x,dependencies = T)}});
-# rm(packages)
+packages = c("stats","shiny","shinydashboard","shinyWidgets","ggplot2","ggmap","rgdal",
+             "htmltools","mapview","htmlwidgets","RColorBrewer","rAmCharts","sp","leaflet",
+             "raster","highcharter","dplyr","readxl","data.table","lpSolve","lpSolveAPI")
+lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==F)
+  {install.packages(x,dependencies = T)}});
+rm(packages)
 
 # Shiny Dependencies
 library(stats) #Despite this package is imporant enough that if there are conflicts()
