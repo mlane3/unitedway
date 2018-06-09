@@ -22,7 +22,7 @@ library(shinydashboard)
 library(shinyWidgets)
 # Plotting Dependencies
 library(ggplot2)
-library(plotly)
+#library(plotly)
 library(ggmap)
 library(rgdal)
 library(htmltools)
@@ -33,12 +33,11 @@ library(sp)
 library(raster)
 library(leaflet)
 library(rAmCharts)
+library(highcharter)
 # Data Processing Dependencies
 library(dplyr)
 library(readxl)
 library(data.table)
-library(readxl)
-library(foreach)
 # Sourcing Prior Scripts
 source('model/UWCWBI_final.R')
 source('model/lpsolver.R')
@@ -529,7 +528,7 @@ output$GaugePlot = renderAmCharts({
   value = round(unname(unlist(rv$myfinal[1])),1)
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
-                     color = c("#ea3838", "#00CC00"),width=20,
+                     color = c("#ea3838", "#00CC00"),width=15,
                      stringsAsFactors = FALSE)
   #mainColor = "#FFFFFF"
   amAngularGauge(x = value, textsize = 12,
@@ -537,9 +536,28 @@ output$GaugePlot = renderAmCharts({
                  bands = bands,#theme="dark",mainColor = "#FFFFFF",
                  creditsPosition = "bottom-right")
   })
-
+output$GaugePlot <- renderAmCharts({
+  message = paste("You find the UW APP debug page. Server is asleep", br(),
+                  "Server needs user input. Please find & click the submit button or optimize button. If it does not display charts after 15 seconds, then please contact the app owner")
+  validate(need(is.null(input$calculate)==F,message),
+           need(is.null(input$execute)==F,message),
+           need(is.null(input$variable)==F,message))
+  rv$myfinal <- switch() #(Load child well being)
+  # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
+  value = 58.489
+  value = round(unname(unlist(rv$myfinal[1])),1)
+  # AM Angular Gauge
+  bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
+                     color = c("#ea3838", "#00CC00"),width=15,
+                     stringsAsFactors = FALSE)
+  #mainColor = "#FFFFFF"
+  amAngularGauge(x = value, textsize = 12,
+                 start = 0, end = 100,main = "CWBI",step = 25,
+                 bands = bands,#theme="dark",mainColor = "#FFFFFF",
+                 creditsPosition = "bottom-right")
+})
 output$GaugePlot1 = renderAmCharts({
-  # final = switch() #(Load child well being)
+  final = switch() #(Load child well being)
   #note START and END need to either be both even or both odd integers
   START = 43
   value = round(df2[4, "gradrate"],1) 
@@ -556,7 +574,7 @@ output$GaugePlot1 = renderAmCharts({
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -565,7 +583,7 @@ output$GaugePlot1 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot2 = renderAmCharts({
-  #final = switch() #(Load child well being)
+  ##final = switch() #(Load child well being)
   START = 44
   value = round(df2[4, "ccrpi"],1)
   END = 94
@@ -581,7 +599,7 @@ output$GaugePlot2 = renderAmCharts({
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -590,11 +608,11 @@ output$GaugePlot2 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot3 = renderAmCharts({
-  final = switch() #(Load child well being)
+  ##final = switch() #(Load child well being)
   START = 28
   value = round(df2[4, "grade3"],1)
   END = 90
-  DIAL = round(unname(unlist(final["grade3"])),1) # overall_constraints[3, "grade3"]
+  DIAL = round(unname(unlist(rv$myfinal["grade3"])),1) # overall_constraints[3, "grade3"]
   # AM Angular Gauge
   #PURU Comment: Check if the variable is grade3 or ccrpi or grade3 or grade8 or collegerate use RED to GREEN, if not SWAP color
   if(('grade3' == 'grade3'))
@@ -606,7 +624,7 @@ output$GaugePlot3 = renderAmCharts({
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -615,7 +633,7 @@ output$GaugePlot3 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot4 = renderAmCharts({
-  final = switch() #(Load child well being)
+  ##final = switch() #(Load child well being)
   START = 3
   value = round(df2[4, "grade8"],1)
   END = 83
@@ -625,13 +643,13 @@ output$GaugePlot4 = renderAmCharts({
   if(('grade8' == 'grade8'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -640,7 +658,7 @@ output$GaugePlot4 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot5 = renderAmCharts({
-  final = switch() #(Load child well being)
+  ##final = switch() #(Load child well being)
   START = 2
   value = round(df2[4, "lbw"],1)
   END = 20
@@ -650,13 +668,13 @@ output$GaugePlot5 = renderAmCharts({
   if(('lbw' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -665,7 +683,7 @@ output$GaugePlot5 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot6 = renderAmCharts({
-  final = switch() #(Load child well being)
+  ##final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "childnohealth"],1)
   END = 48
@@ -675,13 +693,13 @@ output$GaugePlot6 = renderAmCharts({
   if(('childnohealth' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -690,7 +708,7 @@ output$GaugePlot6 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot7 = renderAmCharts({
-  final = switch() #(Load child well being)
+  #final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "childpoverty"],1)
   END = 42
@@ -700,13 +718,13 @@ output$GaugePlot7 = renderAmCharts({
   if(('childpoverty' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -715,7 +733,7 @@ output$GaugePlot7 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot8 = renderAmCharts({
-  final = switch() #(Load child well being)
+  ##final = switch() #(Load child well being)
   START = 1
   value = round(df2[4, "povertyrate"],1)
   END = 94
@@ -725,13 +743,13 @@ output$GaugePlot8 = renderAmCharts({
   if(('povertyrate' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -740,7 +758,7 @@ output$GaugePlot8 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot9 = renderAmCharts({
-  final = switch() #(Load child well being)
+  ##final = switch() #(Load child well being)
   START = 10
   value = round(df2[4, "housingburden"],1)
   END = 76
@@ -750,13 +768,13 @@ output$GaugePlot9 = renderAmCharts({
   if(('housingburden' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -765,7 +783,7 @@ output$GaugePlot9 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot10 = renderAmCharts({
-  #final = switch() #(Load child well being)
+  ###final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "momsnohs"],1)
   END = 80
@@ -775,13 +793,13 @@ output$GaugePlot10 = renderAmCharts({
   if(('momsnohs' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -790,7 +808,7 @@ output$GaugePlot10 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot11 = renderAmCharts({
-  #final = switch() #(Load child well being)
+  ###final = switch() #(Load child well being)
   START = 41
   value = round(df2[4, "collegerate"],1)
   END = 95
@@ -800,13 +818,13 @@ output$GaugePlot11 = renderAmCharts({
   if(('collegerate' == 'collegerate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -815,7 +833,7 @@ output$GaugePlot11 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot12 = renderAmCharts({
-  #final = switch() #(Load child well being)
+  ###final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "adultsnoedu"],1)
   END = 78
@@ -825,13 +843,13 @@ output$GaugePlot12 = renderAmCharts({
   if(('adultsnoedu' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -840,7 +858,7 @@ output$GaugePlot12 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot13 = renderAmCharts({
-  #final = switch() #(Load child well being)
+  ###final = switch() #(Load child well being)
   START = 0
   value = round(df2[4, "adultnohealth"],1)
   END = 92
@@ -850,13 +868,13 @@ output$GaugePlot13 = renderAmCharts({
   if(('adultnohealth' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -865,7 +883,7 @@ output$GaugePlot13 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot14 = renderAmCharts({
-  #final = switch() #(Load child well being)
+  ###final = switch() #(Load child well being)
   START = 1
   value = round(df2[4, "unemployment"],1)
   END = 14
@@ -875,13 +893,13 @@ output$GaugePlot14 = renderAmCharts({
   if(('unemployment' == 'gradrate'))
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#ea3838","#00CC00"),
+                        color = c("#ea3838","#00CC00"),width=15,
                         stringsAsFactors = FALSE)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
-                        color = c("#00CC00", "#ea3838"),
+                        color = c("#00CC00", "#ea3838"),width=15,
                         stringsAsFactors = FALSE)
   }
   amAngularGauge(x = DIAL,textsize = 12,
@@ -889,6 +907,119 @@ output$GaugePlot14 = renderAmCharts({
                  main = rv$variablenamelist$title[14], bands = bands,step=(END-START)/2,
                  creditsPosition = "bottom-right")
 })
+# Plot the high charts ----
+output$mychart4 <- renderHighchart({
+  
+  highchart(width = 400, height = 400) %>% 
+    hc_chart(type = "solidgauge",backgroundColor = "#F0F0F0",marginTop = 50) %>% 
+    hc_title(text = "Child & Education",style = list(fontSize = "20px")) %>% 
+    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = FALSE,style = list(fontSize = '16px'),
+               pointFormat = '{series.name}<br><span style="font-size:2em; color: color: black; font-weight: bold">{point.y}%</span>',
+               positioner = JS("function (labelWidth, labelHeight) {return {x: 100 + labelWidth / 2,y: 180};}")) %>% 
+    hc_pane(startAngle = 0,endAngle = 270,
+            background = list(
+              list(outerRadius = '112%',innerRadius = '88%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth =  0),
+              list(outerRadius = '87%',innerRadius = '63%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth = 0),
+              list(outerRadius = '62%',innerRadius =  '38%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth = 0))) %>% 
+    hc_yAxis(min = 0,
+             max = 100,
+             tickLength= 100,
+             lineWidth = 0,
+             TickWidth = 10,
+             minorTickInterval=12.5,
+             minorTickWidth=5,
+             tickColor= 'black',
+             tickAmount=5,
+             labels=list(x=-24,y=-5,style = list(fontSize = "90%",fontWeight= "bold", color= "black"))
+             #tickPositions = list()
+    ) %>% #
+    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = FALSE),linecap = 'round',stickyTracking = FALSE)) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[1],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["gradrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[1],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["gradrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[2],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["ccrpi"])))))) %>%
+    hc_add_series(name = rv$variablenamelist$title[2],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["ccrpi"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[3],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["grade3"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[3],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["grade3"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[4],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["grade8"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[4],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["grade8"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[11],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "36%",innerRadius = "28%",y = unname(as.numeric(unlist(rv$myfinal["collegerate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[11],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "36%",innerRadius = "36%",y = as.numeric(unname(unlist(rv$updated["collegerate"])))))) 
+})
+output$mychart3 <- renderHighchart({
+  
+  highchart(width = 400, height = 400) %>% 
+    hc_chart(type = "solidgauge",backgroundColor = "#F0F0F0",marginTop = 50) %>% 
+    hc_title(text = "Health and Moms",style = list(fontSize = "20px")) %>% 
+    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = FALSE,style = list(fontSize = '16px'),
+               pointFormat = '{series.name}<br><span style="font-size:2em; color: color: black; font-weight: bold">{point.y}%</span>',
+               positioner = JS("function (labelWidth, labelHeight) {return {x: 100 + labelWidth / 2,y: 180};}")) %>% 
+    hc_pane(startAngle = 0,endAngle = 270,
+            background = list(
+              list(outerRadius = '112%',innerRadius = '88%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth =  0),
+              list(outerRadius = '87%',innerRadius = '63%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth = 0),
+              list(outerRadius = '62%',innerRadius =  '38%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth = 0))) %>% 
+    hc_yAxis(min = 0,
+             max = 60,
+             tickLength= 100,
+             lineWidth = 0,
+             TickWidth = 10,
+             minorTickInterval=15,
+             minorTickWidth=5,
+             tickColor= 'black',
+             tickAmount=3,
+             labels=list(x=-24,y=-5,style = list(fontSize = "90%",fontWeight= "bold", color= "black"))
+             #tickPositions = list()
+    ) %>% #
+    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = FALSE),linecap = 'round',stickyTracking = FALSE)) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[5],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["lbw"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[5],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["lbw"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[6],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["childnohealth"])))))) %>%
+    hc_add_series(name = rv$variablenamelist$title[6],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["childnohealth"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[10],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["momsnohs"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[10],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["momsnohs"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[13],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["adultnohealth"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[13],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["adultnohealth"])))))) 
+})
+output$mychart2 <- renderHighchart({
+  
+  highchart(width = 400, height = 400) %>% 
+    hc_chart(type = "solidgauge",backgroundColor = "#F0F0F0",marginTop = 50) %>% 
+    hc_title(text = "Income and Family",style = list(fontSize = "20px")) %>% 
+    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = FALSE,style = list(fontSize = '16px'),
+               pointFormat = '{series.name}<br><span style="font-size:2em; color: color: black; font-weight: bold">{point.y}%</span>',
+               positioner = JS("function (labelWidth, labelHeight) {return {x: 100 + labelWidth / 2,y: 180};}")) %>% 
+    hc_pane(startAngle = 0,endAngle = 270,
+            background = list(
+              list(outerRadius = '112%',innerRadius = '88%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth =  0),
+              list(outerRadius = '87%',innerRadius = '63%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth = 0),
+              list(outerRadius = '62%',innerRadius =  '38%',backgroundColor = JS("Highcharts.Color('#F0F0F0').setOpacity(0.1).get()"),borderWidth = 0))) %>% 
+    hc_yAxis(min = 0,
+             max = 60,
+             tickLength= 100,
+             lineWidth = 0,
+             TickWidth = 10,
+             minorTickInterval=15,
+             minorTickWidth=5,
+             tickColor= 'black',
+             tickAmount=3,
+             labels=list(x=-24,y=-5,style = list(fontSize = "90%",fontWeight= "bold", color= "black"))
+             #tickPositions = list()
+    ) %>% #7cb5ec
+    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = FALSE),linecap = 'round',stickyTracking = FALSE)) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[7],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["childpoverty"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[7],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["childpoverty"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[8],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["housingburden"])))))) %>%
+    hc_add_series(name = rv$variablenamelist$title[8],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["housingburden"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[9],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["povertyrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[9],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["povertyrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[12],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["adultsnoedu"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[12],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["adultsnoedu"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[14],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "36%",innerRadius = "28%",y = unname(as.numeric(unlist(rv$myfinal["unemployment"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[14],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "36%",innerRadius = "36%",y = as.numeric(unname(unlist(rv$updated["unemployment"])))))) 
+})
+
+
+
 # Plotting the Map ----
 output$mymap = renderLeaflet({
   counties <- shapefile("data/United Way Tracts (TIGER 2010).shp")
@@ -982,7 +1113,7 @@ output$MainGrid = renderUI({
                   well-being index. The Optimizers uses gauge plots that allow
                   you to compare the original values and optimized values for
                   each child well-being indicator. Initially, gauges shows
-                  average values of the orginal data."),
+                  average values of the orginal data.  Note this app can be easily updated to the 2016 data by simply uploading the right csv"),
                   h3("Directions:"),
                   p(strong("To Start:"),"Input what variables you would like
                   to fix, and then decide how you want to optimize. The
@@ -1061,14 +1192,30 @@ output$MainGrid = renderUI({
                     column(4,
                            box(width=12, amChartsOutput("GaugePlot10",height="200"),background='orange')),
                     column(4,
-                           box(width=12, amChartsOutput("GaugePlot11",height="200"),background='orange'))),
+                           box(width=12, amChartsOutput("GaugePlot11",height="200"),background='orange'))
+                    ),
             fluidRow( column(4,
                            box(width=12, amChartsOutput("GaugePlot12",height="200"),background='blue')),
                     column(4,
                            box(width=12, amChartsOutput("GaugePlot13",height="200"),background='blue')),
                     column(4,
                            box(width=12, amChartsOutput("GaugePlot14",height="200"),background='blue')))
-            ),
+                  ),
+         tabPanel("Compare Optimization",strong("Welcome to the Child Well Being
+                                     Optimizer."), p("All the directions are the same.  However, graphically
+                                                     It might be a bit clear what is going on with child well being
+                                                     As now you can see all the indicators near each other.
+                                                     Hover over a bar to see what indicator is is.  Indicators
+                                                     best grouped by county level correlations in the data. Similar to a Iphone
+                                                     Health cart the gauges show the Results as Goals.  In fact optimization is about prescribing what the goal
+                                                     for certain indicators should be rather then predict what they are.  It strongly suggests the need to find relationships between
+                                                     highly spatially correlated indicators."),
+                  fluidRow(column(6,box(width=12, amChartsOutput("GaugeCWBI",height="400"),background='black')),
+                           column(6,box(width=12, highchartOutput("mychart2")))),
+                  fluidRow(column(6,box(width=12, highchartOutput("mychart3"))),
+                           column(6,box(width=12, highchartOutput("mychart4")))
+                  )
+        ),
          tabPanel("Map of Atlanta",
                   h3("A map of Atlanta Child Well Being"),
                   p("Please note this the map may take about 4 mins to load. It has to fetch a google or open street map."),
@@ -1087,9 +1234,9 @@ output$MainGrid = renderUI({
                  RUNAPP
 # *********************************************"
 # Runapp ----
-#options(shiny.error = NULL)
-# options(shiny.error = recover)
-#options(shiny.reactlog=TRUE) 
+# options(shiny.error = NULL)
+options(shiny.error = recover)
+# options(shiny.reactlog=TRUE) 
 # options(shiny.sanitize.errors = FALSE)
 #display.mode="showcase" #debug code
 app <- shinyApp(ui = dashboardPage(skin = 'blue',
