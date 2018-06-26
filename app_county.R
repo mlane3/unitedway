@@ -1123,46 +1123,30 @@ output$MainGrid = renderUI({
       tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
          tabPanel("Welcome",h1("Welcome to the Child Well Being Optimizer"),
-                  p("The purpose of this optimizer is to determine which
-                  factors should be changed to improve Child Well-Being and
-                  what the impact of those changes would be on the Child
-                  Well-Being Index. This is done by setting a goal of 10%
-                  improvement (68.9) and then optimizing to see what need to
-                  be done to reach that goal (ie. giving what are the goals
-                  for each indicator). It is possible to select and adjust
-                  multiple factors.  Your selections then show how the goal
-                  for each indicator changes. Initially, gauges shows average
-                  values of the orginal data. The Optimizer then allows you to
-                  compare the original (or adjusted) values to the optimized
-                  values for each child well-being indicator. It uses gauge
-                  plots to make the calculations. Note this app can be easily
-                  updated to the 2016 data by simply replacing the right
-                  csv."),
-                    h3("Directions:"), p(strong("To Start:"),"1) Each
-                  indicator is set to its current average Atlanta value.   To
-                  investigate how changing an indicator would affect the
-                  overall Child Well-Being Index, select one or more variables
-                  you would like to adjust.)"),p("2) Input new values for the
-                  variable(s) you would like to adjust under Enter Fixed
-                  Constrants Tab.)"),
-                  p("3) Press Optimize. Once the Optimizer has run, you will see two sets of indicators: Original Start Values
-                  (labeled S for Start) and Result (labeled R).   The “Original”
-                  set of indicators will reflect the adjusted score for any
-                  indicator that you changed and the existing score for each
-                  indicator that was not changed. 3) You can then use the
-                  other two tabs compare gauges and map A purely hypotechical
-                  example, For example, suppose in 2016 tbe average % moms
-                  without high school births was 15.1% while average
-                  unemployment was 5.3%.  By increasing moms without high
-                  school to over 15.1% by itself, we see that families not
-                  finacially stable, housing burden have to improve (decrease)
-                  by over 4x the orginal goal.  By manipulating or decreasing
-                  the unemployment rate you can see the other indicators only
-                  have to improve by less to reach the goal of 68.9%. Next,
-                  see your results in Optimizer tab. The S stands for the
-                  starting average Atlanta values while R stands for the
-                  resulting optimized average Atlanta values. Green indicates
-                  an improvement in CWBI while red indicates a diminishment in
+                  p("This optimizer is aimed at determining what factors can
+                  be changed in order to improve Child Well- Being. to help
+                  figure out what needs to be changed to improve child well
+                  being.Through the manipulation of chosen factors you can see
+                  how the selected indicators have an effect on the child
+                  well-being index. The Optimizers uses gauge plots that allow
+                  you to compare the original values and optimized values for
+                  each child well-being indicator. Initially, gauges shows
+                  average values of the orginal data.  Note this app can be easily updated to the 2016 data by simply uploading the right csv"),
+                  h3("Directions:"),
+                  p(strong("To Start:"),"Input what variables you would like
+                  to fix, and then decide how you want to optimize. The
+                  optimization is based on what you decide to fix. For
+                  example, in 2016 % moms without high school births was 15.1%
+                  while unemployment was 5.3.  By increasing moms without high
+                  school to over 15.1, we see that families not fin stable,
+                  housing burden, and unemployment have to imp.rove (decrease)
+                  by over 1 to 4.  By manipulating or decreasing the
+                  unemployment rate you can see the other indicators only have
+                  to improve by less to reach the goal of 689. Next, see your
+                  results in Optimizer tab. The S stands for the starting
+                  average Atlanta values while R stands for the resulting
+                  optimized average Atlanta values. Green indicates an
+                  improvement in CWBI while red indicates a diminishment in
                   CWBI."), p(strong("Using the map:"),"The map allows you to
                   see the indicator values at the census track level. You can
                   use the map to compare your current values to the Atlanta
@@ -1173,32 +1157,36 @@ output$MainGrid = renderUI({
                   broader perspective.",strong("Secret Feature Hint:"),"If the
                   map displays only one color it is because the app is
                   allowing you to compare your original value to the Atlanta
-                  average value. You can quickly",'turn the optimizer
-                  on/off',"to see the old and new values. Changing the fix
-                  bound triggers the optimizer to go through a full run. "),
-                  h3("About Optimization:"), p("Please note the optimizer may
-                  take up to 5 seconds to load"), p("By default the algorithm
-                  figures out the optimium solution CWBI Goal of 68.9% or 10%
-                  improvement from the current 58.9%. Since relationship
-                  between 2 indicators is not well known, It treats each
-                  indicator as an independent variable, but relies on the
-                  original data. It uses a simple conjugate gradient spatial
-                  optimization (see Beale, E.M.L. 1972 for details or google
-                  Beale–Sorenson optimization or gradient descent optimization
-                  for the broader optimization case). Just like gradient
-                  descent of a single node neural network, it iterates through
-                  about 200-1000 solutions to child well being while
-                  descending through the solutions by a gradient (or
-                  subtracting) until it find the globally optimized solution.
-                  Then it searches for the nearest reasonable local optimized
-                  solution. On average iteration step takes about 5.56
-                  seconds.",p(),p()),
-                  textOutput("conclusion")),
-             tabPanel("Optimizer",strong("Welcome to the Child Well Being
-             Optimizer."), p("This optimizer is to help figure out how indicators
-             affect Child Well-Being index. To Start: Input what variables you
-             want to fix. Then decide how you want to optimize. Then click
-             optimize. S = Start and R = Result."),
+                  average value. You can quickly",'turn the optimizer on/off',"to
+                  see the old and new values. Changing the fix bound triggers
+                  the optimizer to go through a full run. "),
+                  h3("About Optimization:"),
+                  p("Please note the optimizer may take up to 5 seconds to load"),
+                  p("By default the algorithm figures out the optimium solution
+                    CWBI Goal of 68.9% or 10% improvement from the current 58.9%.
+                    Since relationship between 2 indicators is not well known,
+                    It treats each indicator as an independent variable,
+                    but relies on the original data. It uses a simple conjugate gradient spatial
+                    optimization (see Beale, E.M.L. 1972 for details or google
+                    Beale–Sorenson optimization or gradient descent optimization
+                    for the broader optimization case).
+                    Just like gradient descent of a single node neural network, it iterates through about 200-1000
+                    solutions to child well being while descending through the solutions
+                    by a gradient (or subtracting) until it find the globally optimized solution.
+                    Then it searches for the nearest reasonable local optimized
+                    solution. On average iteration step takes about 5.56 seconds.",p(),p()),
+                  textOutput("conclusion")
+                  ),
+         tabPanel("Optimizer",strong("Welcome to the Child Well Being
+         Optimizer."), p("This optimizer is to help figure out how indicators
+         affect Child Well-Being index. To Start: Input what variables you
+         want to fix. Then decide how you want to optimize. Then click
+         optimize. S = Start and R = Result."), p("For example,  For example,
+         input % Moms without High School to 15.1% while unemployment is %5.3
+         in 2016. Input in both and turn on 'optimize', You shoudl get that
+         child poverty has to be 20.1 and is the largest shift that indicators
+         have to make to compensate for the increase % moms with no high
+         school"),
             fluidRow( column(4,
                            box(width=12, amChartsOutput("GaugePlot",height="200"),background='black')),
                     column(4,
@@ -1267,8 +1255,8 @@ output$MainGrid = renderUI({
                  RUNAPP
 # *********************************************"
 # Runapp ----
-options(shiny.error = NULL)
-# options(shiny.error = recover)
+# options(shiny.error = NULL)
+options(shiny.error = recover)
 # options(shiny.reactlog=T) 
 options(shiny.sanitize.errors = F)
 # display.mode="showcase" #debug code

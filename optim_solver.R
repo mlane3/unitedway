@@ -215,7 +215,6 @@ optim_solver <- function(mydata,variablenamelist){
   x2 <- x2_3
   
   # Step 3: Bound Optimization ----
-  
   x3 <- optim(x2$par,new.lp,lower = lower,upper = upper,method="L-BFGS-B",control = list(parscale = parscale))
   # RPD$x3 <- (x3$par-testdata$min)/testdata$min
   # RPI$x3 <- (x3$par-testdata$min)/(testdata$max-testdata$min)
