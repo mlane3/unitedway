@@ -45,7 +45,7 @@ library(lpSolveAPI)
 # Sourcing Prior Scripts
 source('model/UWCWBI_final.R') #Calculates Child Well Being and Loads Data
 source('model/lpsolver.R') #The backup linear optimizer
-source('optim_solver.R') # The current optimizer
+source('model/optim_solver.R') # The current optimizer
 source('model/county_solver.R') #The county level optimizer (in Beta)
 variablenamelist <- as.data.frame(data.table(
   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
