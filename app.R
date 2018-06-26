@@ -948,16 +948,16 @@ output$mychart4 <- renderHighchart({
              #tickPositions = list()
     ) %>% #
     hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = F),linecap = 'round',stickyTracking = F)) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[1],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["gradrate"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[1],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["gradrate"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[2],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["ccrpi"])))))) %>%
-    hc_add_series(name = rv$variablenamelist$title[2],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["ccrpi"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[3],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["grade3"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[3],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["grade3"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[4],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["grade8"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[4],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["grade8"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[11],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "36%",innerRadius = "28%",y = unname(as.numeric(unlist(rv$myfinal["collegerate"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[11],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "36%",innerRadius = "36%",y = as.numeric(unname(unlist(rv$updated["collegerate"])))))) 
+    hc_add_series(name = rv$variablenamelist$title[1],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["gradrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[1],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["gradrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[2],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["ccrpi"])))))) %>%
+    hc_add_series(name = rv$variablenamelist$starttitle[2],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["ccrpi"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[3],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["grade3"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[3],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["grade3"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[4],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["grade8"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[4],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["grade8"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[11],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "36%",innerRadius = "28%",y = unname(as.numeric(unlist(rv$myfinal["collegerate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[11],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "36%",innerRadius = "36%",y = as.numeric(unname(unlist(rv$updated["collegerate"])))))) 
 })
 output$mychart3 <- renderHighchart({
   require(htmlwidgets)
@@ -986,14 +986,14 @@ output$mychart3 <- renderHighchart({
              #tickPositions = list()
     ) %>% #
     hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = F),linecap = 'round',stickyTracking = F)) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[5],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["lbw"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[5],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["lbw"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[6],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["childnohealth"])))))) %>%
-    hc_add_series(name = rv$variablenamelist$title[6],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["childnohealth"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[10],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["momsnohs"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[10],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["momsnohs"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[13],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["adultnohealth"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[13],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["adultnohealth"])))))) 
+    hc_add_series(name = rv$variablenamelist$title[5],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["lbw"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[5],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["lbw"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[6],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["childnohealth"])))))) %>%
+    hc_add_series(name = rv$variablenamelist$starttitle[6],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["childnohealth"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[10],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["momsnohs"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[10],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["momsnohs"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[13],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["adultnohealth"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[13],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["adultnohealth"])))))) 
 })
 output$mychart2 <- renderHighchart({
   require(htmlwidgets)
@@ -1022,16 +1022,16 @@ output$mychart2 <- renderHighchart({
              #tickPositions = list()
     ) %>% #7cb5ec
     hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = F),linecap = 'round',stickyTracking = F)) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[7],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["childpoverty"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[7],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["childpoverty"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[8],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["housingburden"])))))) %>%
-    hc_add_series(name = rv$variablenamelist$title[8],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["housingburden"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[9],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["povertyrate"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[9],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["povertyrate"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[12],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["adultsnoedu"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[12],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["adultsnoedu"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$starttitle[14],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "36%",innerRadius = "28%",y = unname(as.numeric(unlist(rv$myfinal["unemployment"])))))) %>% 
-    hc_add_series(name = rv$variablenamelist$title[14],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "36%",innerRadius = "36%",y = as.numeric(unname(unlist(rv$updated["unemployment"])))))) 
+    hc_add_series(name = rv$variablenamelist$title[7],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["childpoverty"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[7],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["childpoverty"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[8],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["housingburden"])))))) %>%
+    hc_add_series(name = rv$variablenamelist$starttitle[8],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "90%",innerRadius = "90%",y = as.numeric(unname(unlist(rv$updated["housingburden"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[9],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "72%",innerRadius = "64%",y = as.numeric(unname(unlist(rv$myfinal["povertyrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[9],borderColor = JS("Highcharts.getOptions().colors[6]"),data = list(list(color = JS("Highcharts.getOptions().colors[6]"),radius = "72%",innerRadius = "72%",y = as.numeric(unname(unlist(rv$updated["povertyrate"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[12],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "54%",innerRadius = "46%",y = as.numeric(unname(unlist(rv$myfinal["adultsnoedu"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[12],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["adultsnoedu"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$title[14],borderColor = JS("Highcharts.Color('#7cb5ec').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#7cb5ec').setOpacity(0).get()"),radius = "36%",innerRadius = "28%",y = unname(as.numeric(unlist(rv$myfinal["unemployment"])))))) %>% 
+    hc_add_series(name = rv$variablenamelist$starttitle[14],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "36%",innerRadius = "36%",y = as.numeric(unname(unlist(rv$updated["unemployment"])))))) 
 })
 
 
@@ -1170,16 +1170,12 @@ output$MainGrid = renderUI({
                   scale is based on quartile analysis of the original data and
                   is similar to the color scale found on other CWBI maps.","We
                   hope this optimizer helps you to see Child Well Being from a
-                  broader perspective.",strong("Secret Feature Hint:"),"If the
-                  map displays only one color it is because the app is
-                  allowing you to compare your original value to the Atlanta
-                  average value. You can quickly",'turn the optimizer
-                  on/off',"to see the old and new values. Changing the fix
+                  broader perspective.","to see the old and new values. Changing the fix
                   bound triggers the optimizer to go through a full run. "),
                   h3("About Optimization:"), p("Please note the optimizer may
-                  take up to 5 seconds to load"), p("By default the algorithm
-                  figures out the optimium solution CWBI Goal of 68.9% or 10%
-                  improvement from the current 58.9%. Since relationship
+                  take up to 5 seconds to load"),
+                  "By default the algorithm figures out the optimium solution CWBI Goal of 68.9% or 10%
+                  improvement from the 2014 value of 58.9%. Since relationship
                   between 2 indicators is not well known, It treats each
                   indicator as an independent variable, but relies on the
                   original data. It uses a simple conjugate gradient spatial
@@ -1192,8 +1188,9 @@ output$MainGrid = renderUI({
                   subtracting) until it find the globally optimized solution.
                   Then it searches for the nearest reasonable local optimized
                   solution. On average iteration step takes about 5.56
-                  seconds.",p(),p()),
-                  textOutput("conclusion")),
+                  seconds."
+                  # textOutput("conclusion")
+                  ),
              tabPanel("Optimizer",strong("Welcome to the Child Well Being
              Optimizer."), p("This optimizer is to help figure out how indicators
              affect Child Well-Being index. To Start: Input what variables you
@@ -1241,10 +1238,10 @@ output$MainGrid = renderUI({
                                                      for certain indicators should be rather then predict what they are.  It strongly suggests the need to find relationships between
                                                      highly spatially correlated indicators.",
                                                      strong("hover the fluid gauge to see what each part of the gauge means")),
-                  fluidRow(column(6,box(width=12, amChartsOutput("GaugeCWBI",height="400"),background='black')),
-                           column(6,box(width=12, highchartOutput("mychart2")))),
-                  fluidRow(column(6,box(width=12, highchartOutput("mychart3"))),
-                           column(6,box(width=12, highchartOutput("mychart4")))
+                  fluidRow(column(6,box(width=12, amChartsOutput("GaugeCWBI",height="300"),background='black')),
+                           column(6,box(width=12, highchartOutput("mychart2",height="300")))),
+                  fluidRow(column(6,box(width=12, highchartOutput("mychart3",height="300"))),
+                           column(6,box(width=12, highchartOutput("mychart4",height="300")))
                   )
         ),
          tabPanel("Map of Atlanta",
