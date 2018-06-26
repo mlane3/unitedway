@@ -10,27 +10,29 @@
 
 # NECESSARY PACKAGES ----
 #this simple script installs packages
-packages = c("foreach","stats","shiny","lpSolve","lpSolveAPI","shinydashboard","ggplot2","plotly","leaflet",
-             "rAmCharts","dplyr","readxl","data.table","shinyWidgets","ggmap","rgdal","mapview")
-lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==FALSE){install.packages(x,dependencies = TRUE)}});
+packages = c("stats","shiny","shinydashboard","shinyWidgets","ggplot2","ggmap","rgdal",
+             "htmltools","mapview","htmlwidgets","RColorBrewer","rAmCharts","sp","leaflet",
+             "raster","highcharter","dplyr","readxl","data.table","lpSolve","lpSolveAPI")
+lapply(packages, FUN = function(x){if(x %in% rownames(installed.packages())==F)
+  {install.packages(x,dependencies = T)}});
 rm(packages)
 
 # Shiny Dependencies
-library(stats)
+library(stats) #Despite this package is imporant enough that if there are conflicts()
+# It should be loaded last
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
 # Plotting Dependencies
 library(ggplot2)
-#library(plotly)
 library(ggmap)
 library(rgdal)
 library(htmltools)
 library(mapview)
-library(htmlwidgets)
+# library(htmlwidgets)
 library(RColorBrewer)
 library(sp)
-library(raster)
+# library(raster)
 library(leaflet)
 library(rAmCharts)
 library(highcharter)
@@ -38,11 +40,13 @@ library(highcharter)
 library(dplyr)
 library(readxl)
 library(data.table)
+library(lpSolve)
+library(lpSolveAPI)
 # Sourcing Prior Scripts
-source('model/UWCWBI_final.R')
-source('model/lpsolver.R')
-source('optim_solver.R')
-source('model/county_solver.R')
+source('model/UWCWBI_final.R') #Calculates Child Well Being and Loads Data
+source('model/lpsolver.R') #The backup linear optimizer
+source('optim_solver.R') # The current optimizer
+source('model/county_solver.R') #The county level optimizer (in Beta)
 variablenamelist <- as.data.frame(data.table(
   variable = c( "gradrate", "ccrpi", "grade3", "grade8", "lbw", "childnohealth",
                 "childpoverty", "povertyrate", "housingburden", "momsnohs", "collegerate",
@@ -154,9 +158,9 @@ sidebar = dashboardSidebar(
                   p("By default the algorithm figures out the optimium solution 
                   CWBI Goal of 68.9 or 10% improvement"),
                   p("Stop or Start an Optimization:"),
-                  switchInput(label = 'Optimization',inputId = "calculate", value = FALSE),
+                  switchInput(label = 'Optimization',inputId = "calculate", value = F),
                   p("Use or Don't Use a goal 68.9% CWBI:"),
-                  switchInput(label = 'Unconstrained',inputId = "maxcwbi",value = FALSE)
+                  switchInput(label = 'Unconstrained',inputId = "maxcwbi",value = F)
         )),
       sidebarMenu(
         menuItem(text ="Map Controls:",
@@ -256,45 +260,45 @@ output$sample2 = output$sample = renderText({rv$variablenamelist[input$variable,
 #                             sliderInput("gradrate",paste(rv$variablenamelist[1,3]),
 #                                         min = df2$gradrate[1],max = df2$gradrate[2],
 #                                         value = c(df2$gradrate[1],df2$gradrate[2]), #for the upper range
-#                                         sep ="",step = .01, ticks = FALSE),
+#                                         sep ="",step = .01, ticks = F),
 #                             sliderInput("ccrpi",paste(rv$variablenamelist[2,3]),
 #                                         min = df2$ccrpi[1],max = df2$ccrpi[2],
-#                                         value = c(df2$ccrpi[1],df2$ccrpi[2]), sep ="",step = .01, ticks = FALSE),
+#                                         value = c(df2$ccrpi[1],df2$ccrpi[2]), sep ="",step = .01, ticks = F),
 #                             sliderInput("grade3",paste(rv$variablenamelist[3,3]),
 #                                         min = df2$grade3[1],max = df2$grade3[2],
-#                                         value = c(df2$grade3[1],df2$grade3[2]), sep ="",step = .01, ticks = FALSE),
+#                                         value = c(df2$grade3[1],df2$grade3[2]), sep ="",step = .01, ticks = F),
 #                             sliderInput("grade8",paste(rv$variablenamelist[4,3]),
 #                                         min = df2$grade8[1],max = df2$grade8[2],
-#                                         value = c(df2$grade8[1],df2$grade8[2]), sep ="",step = .01, ticks = FALSE),
+#                                         value = c(df2$grade8[1],df2$grade8[2]), sep ="",step = .01, ticks = F),
 #                             sliderInput("lbw",paste(rv$variablenamelist[5,3]),
 #                                         min = df2$lbw[1],max = df2$lbw[2],
-#                                         value = c(df2$lbw[1],df2$lbw[3]), sep ="",step = .01, ticks = FALSE),
+#                                         value = c(df2$lbw[1],df2$lbw[3]), sep ="",step = .01, ticks = F),
  #                            sliderInput("childnohealth",paste(rv$variablenamelist[6,3]),
 #                                         min = df2$childnohealth[1],max = df2$childnohealth[2],
- #                                        value = c(df2$childnohealth[1],df2$childnohealth[3]), sep ="",step = .01, ticks = FALSE),
+ #                                        value = c(df2$childnohealth[1],df2$childnohealth[3]), sep ="",step = .01, ticks = F),
  #                            sliderInput("childpoverty",paste(rv$variablenamelist[7,3]),
  #                                        min = df2$childpoverty[1],max = df2$childpoverty[2],
- #                                        value = c(df2$childpoverty[1],df2$childpoverty[3]), sep ="",step = .01, ticks = FALSE),
+ #                                        value = c(df2$childpoverty[1],df2$childpoverty[3]), sep ="",step = .01, ticks = F),
  #                            sliderInput("povertyrate",paste(rv$variablenamelist[8,3]),
  #                                        min = df2$povertyrate[1],max = df2$povertyrate[2],
- #                                        value = c(df2$povertyrate[1],df2$povertyrate[3]), sep ="",step = .01, ticks = FALSE),
+ #                                        value = c(df2$povertyrate[1],df2$povertyrate[3]), sep ="",step = .01, ticks = F),
   #                           sliderInput("housingburden",paste(rv$variablenamelist[9,3]),
   #                                       min = df2$housingburden[1],max = df2$housingburden[2],
 #                             sliderInput("momsnohs",paste(rv$variablenamelist[10,3]),
  #                                        min = df2$momsnohs[1],max = df2$momsnohs[2],
-#                                         value = c(df2$momsnohs[1],df2$momsnohs[3]), sep ="",step = .01, ticks = FALSE),
+#                                         value = c(df2$momsnohs[1],df2$momsnohs[3]), sep ="",step = .01, ticks = F),
 #                             sliderInput("collegerate",paste(rv$variablenamelist[11,3]),
 #                                         min = df2$collegerate[1],max = df2$collegerate[2],
-#                                         value = c(df2$collegerate[1],df2$collegerate[2]), sep ="",step = .01, ticks = FALSE),
+#                                         value = c(df2$collegerate[1],df2$collegerate[2]), sep ="",step = .01, ticks = F),
  #                            sliderInput("adultsnoedu",paste(rv$variablenamelist[12,3]),
   #                                       min = df2$adultsnoedu[1],max = df2$adultsnoedu[2],
-   #                                      value = c(df2$adultsnoedu[1],df2$adultsnoedu[3]), sep ="",step = .01, ticks = FALSE),
+   #                                      value = c(df2$adultsnoedu[1],df2$adultsnoedu[3]), sep ="",step = .01, ticks = F),
  #                            sliderInput("adultnohealth",paste(rv$variablenamelist[13,3]),
 #                                         min = df2$adultnohealth[1],max = df2$adultnohealth[2],
-#                                         value = c(df2$adultnohealth[1],df2$adultnohealth[3]), sep ="",step = .01, ticks = FALSE),
+#                                         value = c(df2$adultnohealth[1],df2$adultnohealth[3]), sep ="",step = .01, ticks = F),
 #                             sliderInput("unemployment",paste(rv$variablenamelist[14,3]),
 #                                         min = df2$unemployment[1],max = df2$unemployment[2],
-#                                         value = c(df2$unemployment[1],df2$unemployment[3]), sep ="",step = .01, ticks = FALSE)
+#                                         value = c(df2$unemployment[1],df2$unemployment[3]), sep ="",step = .01, ticks = F)
  #                             
 #        )
 #      )
@@ -356,10 +360,10 @@ getoriginalvalues <- eventReactive(c(rv$run1,rv$variablenamelist$plotbutton),{
   if(rv$run1 >= 1){
     for(i in 1:14){
       if(rv$variablenamelist$plotbutton[i] !=0){
-        message = paste("Error",rv$variablenamelist$starttitle[i],"must be between",
-                        df2["Min",i],"&",df2["Max",i],"OR zero (not a fixed constraint)")
-        validate(need(rv$variablenamelist$plotbutton[i] > df2["Min",i],message))
-        validate(need(rv$variablenamelist$plotbutton[i] < df2["Max",i],message))
+        # message = paste("Error",rv$variablenamelist$starttitle[i],"must be between",
+        #                 df2["Min",i],"&",df2["Max",i],"OR zero (not a fixed constraint)")
+        # validate(need(rv$variablenamelist$plotbutton[i] > df2["Min",i],message))
+        # validate(need(rv$variablenamelist$plotbutton[i] < df2["Max",i],message))
         final["df0_ave",i] <- rv$variablenamelist$plotbutton[i]
       }else{
         final["df0_ave",i] <- df2["df0_ave",i]
@@ -370,9 +374,9 @@ getoriginalvalues <- eventReactive(c(rv$run1,rv$variablenamelist$plotbutton),{
   final2 <- final["df0_ave",] 
   CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
   CWBI <- as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3))
-  final3 <- c(CWBI,final2,use.names=TRUE)
+  final3 <- c(CWBI,final2,use.names=T)
   return(final3)
-},ignoreNULL = FALSE)
+},ignoreNULL = F)
 # Lpsolver FInal CWBI----
 ##This is the core of the optimizer, it used to be a linear problem
 ##It used to be a linear problem solver, but now its a gradient solver
@@ -390,7 +394,7 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
   #Mike: need to improve Performance with the following 5 lines below
   final2 <- optim_solver(final,variablenamelist2)
   final2 <- final2$par[1:14]
-  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE){
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == T){
     final2 <- lpmax(final,variablenamelist2)[1:14]
   }}
   names(final2) = variables
@@ -398,10 +402,10 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
   CWBZ <- sum(mycoef$A*final2 - mycoef$B) #Calculate optimized value
   CWBI <- abs(as.numeric(round((CWBZ - minCWB_Z)/(maxCWB_Z - minCWB_Z)*100,3)))
   names(CWBI) = "CWBI"
-  final3 <- c(CWBI,final2,use.names=TRUE)
+  final3 <- c(CWBI,final2,use.names=T)
   print("done")
   return(final3)
-},ignoreNULL = FALSE)
+},ignoreNULL = F)
 
 # County Solver for Final CWBI ----
 #output$metric_slider = renderMenu( variable_reactive() )
@@ -409,15 +413,15 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
 #output$3 = renderText({paste0(rv$run1,rv$run3)})
 #})
 # observeEvent(c(input$calculate, input$maxcwbi),{
-#   if(input$calculate == TRUE && input$maxcwbi == TRUE){
+#   if(input$calculate == T && input$maxcwbi == T){
 #     rv$run3 <- 1
 #     print(rv$run3)}
-#   if(input$calculate == TRUE && input$maxcwbi == FALSE){
+#   if(input$calculate == T && input$maxcwbi == F){
 #     rv$run3 <- 0
 #     print(rv$run3)}
-#   if(input$calculate == FALSE && input$maxcwbi == TRUE){
+#   if(input$calculate == F && input$maxcwbi == T){
 #     rv$run3 <- 0}
-#   if(input$calculate == FALSE && input$maxcwbi == FALSE){
+#   if(input$calculate == F && input$maxcwbi == F){
 #     rv$run3 <- 0}
 #   if(rv$run3 ==1){
 #     final <- county_solver(overall_constraints,rv$variablenamelist)
@@ -484,11 +488,11 @@ getCWBI <- eventReactive(c(input$variable,rv$run1,input$maxcwbi),{
 #This Switch Turns Optimizer on or off
 switch <- eventReactive(c(rv$run1,input$variable,input$calculate),{
   req(overall_constraints)
-  validate(need(input$variable !="","Error: Intial Guess got lost. Please select data to make sure it is avialable"))
-  #validate(rv$run1)
+  # validate(need(input$variable !="","Error: Intial Guess got lost. Please select data to make sure it is avialable"))
+  # validate(rv$run1)
   rv$updated <- overall_constraints["df0_ave",] #Mike: IS this still used?
   
-  if(input$calculate==TRUE){
+  if(input$calculate==T){
     rv$updated <- getoriginalvalues()[2:15]
     
     value<-getCWBI()
@@ -502,7 +506,7 @@ switch <- eventReactive(c(rv$run1,input$variable,input$calculate),{
   }
   
   return(value)
-},ignoreNULL = FALSE,ignoreInit = FALSE)
+},ignoreNULL = F,ignoreInit = F)
 
 # Plotting -----
 observe(switch())
@@ -517,18 +521,18 @@ observe(switch())
 #   # AM Angular Gauge
 #   # bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
 #   #                    color = c("#ea3838", "#00CC00"),
-#   #                    stringsAsFactors = FALSE)
+#   #                    stringsAsFactors = F)
 #   amSolidGauge(x = 59, color = c("#ea3838", "#00CC00"),type="semi")
 #   amSolidGauge(x = 100, color = c("#ea3838", "#00CC00"),type="semi")
 #   amSolidGauge(x = value,
 #                  min = 0, max = 100,
 #                  main = "CWBI", type = "semi",type="semi")
 output$GaugeCWBI <- renderAmCharts({
-  message = paste("You find the UW APP debug page. Server is asleep", br(),
-  "Server needs user input. Please find & click the submit button or optimize button. If it does not display charts after 15 seconds, then please contact the app owner")
-  validate(need(is.null(input$calculate)==F,message),
-           need(is.null(input$execute)==F,message),
-           need(is.null(input$variable)==F,message))
+  # message = paste("You find the UW APP debug page. Server is asleep", br(),
+  # "Server needs user input. Please find & click the submit button or optimize button. If it does not display charts after 15 seconds, then please contact the app owner")
+  # validate(need(is.null(input$calculate)==F,message),
+  #          need(is.null(input$execute)==F,message),
+  #          need(is.null(input$variable)==F,message))
   rv$myfinal <- switch() #(Load child well being)
   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
   value = 58.489
@@ -536,7 +540,7 @@ output$GaugeCWBI <- renderAmCharts({
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
                      color = c("#ea3838", "#00CC00"),width=15,
-                     stringsAsFactors = FALSE)
+                     stringsAsFactors = F)
   #mainColor = "#FFFFFF"
   amAngularGauge(x = value, textsize = 12,
                  start = 0, end = 100,main = "CWBI",step = 25,
@@ -546,9 +550,9 @@ output$GaugeCWBI <- renderAmCharts({
 output$GaugePlot <- renderAmCharts({
   message = paste("You find the UW APP debug page. Server is asleep", br(),
                   "Server needs user input. Please find & click the submit button or optimize button. If it does not display charts after 15 seconds, then please contact the app owner")
-  validate(need(is.null(input$calculate)==F,message),
-           need(is.null(input$execute)==F,message),
-           need(is.null(input$variable)==F,message))
+  # validate(need(is.null(input$calculate)==F,message),
+  #          need(is.null(input$execute)==F,message),
+  #          need(is.null(input$variable)==F,message))
   rv$myfinal <- switch() #(Load child well being)
   # if(is.null(final)){final <- as.vector(58.9)} # useful for debugging
   value = 58.489
@@ -556,7 +560,7 @@ output$GaugePlot <- renderAmCharts({
   # AM Angular Gauge
   bands = data.frame(start = c(0,58.9), end = c(58.9, 100),
                      color = c("#ea3838", "#00CC00"),width=15,
-                     stringsAsFactors = FALSE)
+                     stringsAsFactors = F)
   #mainColor = "#FFFFFF"
   amAngularGauge(x = value, textsize = 12,
                  start = 0, end = 100,main = "CWBI",step = 25,
@@ -576,13 +580,13 @@ output$GaugePlot1 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -601,13 +605,13 @@ output$GaugePlot2 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -626,13 +630,13 @@ output$GaugePlot3 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -651,13 +655,13 @@ output$GaugePlot4 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -676,13 +680,13 @@ output$GaugePlot5 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -701,13 +705,13 @@ output$GaugePlot6 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -726,13 +730,13 @@ output$GaugePlot7 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -751,13 +755,13 @@ output$GaugePlot8 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -776,13 +780,13 @@ output$GaugePlot9 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -801,13 +805,13 @@ output$GaugePlot10 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -826,13 +830,13 @@ output$GaugePlot11 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -851,13 +855,13 @@ output$GaugePlot12 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -876,13 +880,13 @@ output$GaugePlot13 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -890,6 +894,8 @@ output$GaugePlot13 = renderAmCharts({
                  creditsPosition = "bottom-right")
 })
 output$GaugePlot14 = renderAmCharts({
+  require(htmlwidgets)
+  require(highcharter)
   ###final = switch() #(Load child well being)
   START = 1
   value = round(df2[4, "unemployment"],1)
@@ -901,13 +907,13 @@ output$GaugePlot14 = renderAmCharts({
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#ea3838","#00CC00"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   else
   {
     bands <- data.frame(start = c(START,value), end = c(value, END),
                         color = c("#00CC00", "#ea3838"),width=15,
-                        stringsAsFactors = FALSE)
+                        stringsAsFactors = F)
   }
   amAngularGauge(x = DIAL,textsize = 12,
                  start = START, end = END,
@@ -916,11 +922,12 @@ output$GaugePlot14 = renderAmCharts({
 })
 # Plot the high charts ----
 output$mychart4 <- renderHighchart({
-  
+  require(htmlwidgets)
+  require(highcharter)
   highchart(width = 400, height = 400) %>% 
     hc_chart(type = "solidgauge",backgroundColor = "#F0F0F0",marginTop = 50) %>% 
     hc_title(text = "Child & Education",style = list(fontSize = "20px")) %>% 
-    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = FALSE,style = list(fontSize = '16px'),
+    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = F,style = list(fontSize = '16px'),
                pointFormat = '{series.name}<br><span style="font-size:2em; color: color: black; font-weight: bold">{point.y}%</span>',
                positioner = JS("function (labelWidth, labelHeight) {return {x: 100 + labelWidth / 2,y: 180};}")) %>% 
     hc_pane(startAngle = 0,endAngle = 270,
@@ -940,7 +947,7 @@ output$mychart4 <- renderHighchart({
              labels=list(x=-24,y=-5,style = list(fontSize = "90%",fontWeight= "bold", color= "black"))
              #tickPositions = list()
     ) %>% #
-    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = FALSE),linecap = 'round',stickyTracking = FALSE)) %>% 
+    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = F),linecap = 'round',stickyTracking = F)) %>% 
     hc_add_series(name = rv$variablenamelist$starttitle[1],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["gradrate"])))))) %>% 
     hc_add_series(name = rv$variablenamelist$title[1],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["gradrate"])))))) %>% 
     hc_add_series(name = rv$variablenamelist$starttitle[2],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["ccrpi"])))))) %>%
@@ -953,11 +960,12 @@ output$mychart4 <- renderHighchart({
     hc_add_series(name = rv$variablenamelist$title[11],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "36%",innerRadius = "36%",y = as.numeric(unname(unlist(rv$updated["collegerate"])))))) 
 })
 output$mychart3 <- renderHighchart({
-  
+  require(htmlwidgets)
+  require(highcharter)
   highchart(width = 400, height = 400) %>% 
     hc_chart(type = "solidgauge",backgroundColor = "#F0F0F0",marginTop = 50) %>% 
     hc_title(text = "Health and Moms",style = list(fontSize = "20px")) %>% 
-    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = FALSE,style = list(fontSize = '16px'),
+    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = F,style = list(fontSize = '16px'),
                pointFormat = '{series.name}<br><span style="font-size:2em; color: color: black; font-weight: bold">{point.y}%</span>',
                positioner = JS("function (labelWidth, labelHeight) {return {x: 100 + labelWidth / 2,y: 180};}")) %>% 
     hc_pane(startAngle = 0,endAngle = 270,
@@ -977,7 +985,7 @@ output$mychart3 <- renderHighchart({
              labels=list(x=-24,y=-5,style = list(fontSize = "90%",fontWeight= "bold", color= "black"))
              #tickPositions = list()
     ) %>% #
-    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = FALSE),linecap = 'round',stickyTracking = FALSE)) %>% 
+    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = F),linecap = 'round',stickyTracking = F)) %>% 
     hc_add_series(name = rv$variablenamelist$starttitle[5],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["lbw"])))))) %>% 
     hc_add_series(name = rv$variablenamelist$title[5],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["lbw"])))))) %>% 
     hc_add_series(name = rv$variablenamelist$starttitle[6],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["childnohealth"])))))) %>%
@@ -988,11 +996,12 @@ output$mychart3 <- renderHighchart({
     hc_add_series(name = rv$variablenamelist$title[13],borderColor = JS("Highcharts.getOptions().colors[0]"),data = list(list(color = JS("Highcharts.getOptions().colors[0]"),radius = "54%",innerRadius = "54%",y = as.numeric(unname(unlist(rv$updated["adultnohealth"])))))) 
 })
 output$mychart2 <- renderHighchart({
-  
+  require(htmlwidgets)
+  require(highcharter)
   highchart(width = 400, height = 400) %>% 
     hc_chart(type = "solidgauge",backgroundColor = "#F0F0F0",marginTop = 50) %>% 
     hc_title(text = "Income and Family",style = list(fontSize = "20px")) %>% 
-    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = FALSE,style = list(fontSize = '16px'),
+    hc_tooltip(borderWidth = 0,backgroundColor = '#fff',shadow = F,style = list(fontSize = '16px'),
                pointFormat = '{series.name}<br><span style="font-size:2em; color: color: black; font-weight: bold">{point.y}%</span>',
                positioner = JS("function (labelWidth, labelHeight) {return {x: 100 + labelWidth / 2,y: 180};}")) %>% 
     hc_pane(startAngle = 0,endAngle = 270,
@@ -1012,7 +1021,7 @@ output$mychart2 <- renderHighchart({
              labels=list(x=-24,y=-5,style = list(fontSize = "90%",fontWeight= "bold", color= "black"))
              #tickPositions = list()
     ) %>% #7cb5ec
-    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = FALSE),linecap = 'round',stickyTracking = FALSE)) %>% 
+    hc_plotOptions(solidgauge = list(borderWidth = '15px',dataLabels = list(enabled = F),linecap = 'round',stickyTracking = F)) %>% 
     hc_add_series(name = rv$variablenamelist$starttitle[7],borderColor = JS("Highcharts.Color('#ED561B').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#ED561B').setOpacity(0).get()"),radius = "108%",innerRadius = "100%",y = as.numeric(unname(unlist(rv$myfinal["childpoverty"])))))) %>% 
     hc_add_series(name = rv$variablenamelist$title[7],borderColor = JS("Highcharts.getOptions().colors[8]"),data = list(list(color = JS("Highcharts.getOptions().colors[8]"),radius = "108%",innerRadius = "108%",y = as.numeric(unname(unlist(rv$updated["childpoverty"])))))) %>% 
     hc_add_series(name = rv$variablenamelist$starttitle[8],borderColor = JS("Highcharts.Color('#e4d354').setOpacity(0.5).get()"),data = list(list(color = JS("Highcharts.Color('#e4d354').setOpacity(0).get()"),radius = "90%",innerRadius = "82%",y = as.numeric(unname(unlist(rv$myfinal["housingburden"])))))) %>%
@@ -1029,49 +1038,51 @@ output$mychart2 <- renderHighchart({
 
 # Plotting the Map ----
 output$mymap = renderLeaflet({
-  counties <- shapefile("data/United Way Tracts (TIGER 2010).shp")
+  require(leaflet)
+  # counties <- raster::shapefile("United Way Tracts (TIGER 2010).shp")
+  counties <- readRDS("countiesspatial.RDS")
   #UWcensuszip <- read_excel("data/TRACT_ZIP_122014.xlsx")
   uwmapdata<-read_excel("Complete index table w trunct tract.xlsx")
   names(original) <- c('county','TRACT','gradrate','ccrpi',
                   'grade3','grade8','lbw','childnohealth',
                   'childpoverty','povertyrate','housingburden','momsnohs',
                   'collegerate','adultsnoedu','adultnohealth','unemployment')
-  
+
   # merge two data frames by ID
   # dfzipmap <- raster::merge(original,UWcensuszip,by="TRACT")
   original$trunctract<-uwmapdata$Tract
   original <- original[order(match(original$TRACT, counties$GEOID10)),]
   legendcolor <- mycolor <- as.numeric(unlist(original[, input$variable]))
   df_complete <- df_complete[order(match(df_complete$weave_ct2010,original$TRACT))]
-  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE){
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == T){
     mycolor<- as.numeric(df_complete$CWB_Index)*100
     legendcolor<- as.numeric(df_complete$CWB_Index)*100
   }}
   #If value positively impacts CWBI then don't reverse else reverse the color scale.
   # if((input$variable == 'gradrate') || (input$variable == 'ccrpi') || (input$variable == 'grade3') || (input$variable == 'grade8') || (input$variable == 'collegerate')){
-  #   reverse = FALSE}else{reverse=TRUE}
-  reverse = FALSE
+  #   reverse = F}else{reverse=T}
+  reverse = F
   #Add our color pallete to our map
   bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor),
             .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
-  
+
   if(mapcolor == "Quantile"){pal <- colorQuantile("RdYlGn", domain = mycolor, n=5)
   }else{
     pal <- colorBin(mapcolor, domain = mycolor, bins = bins,reverse = reverse)
   }
-  
+
   # mycolor <- dff0$trunctract
   # mycolor <- as.numeric(paste(original$trunctract))
   labels<-paste("<p>", original$county,"<p>","CWBI ",
                 round(as.numeric(df_complete$CWB_Index)*100,2),"<p>", input$variable,
                 " ",round(as.numeric(unlist(original[, input$variable])), digits = 5),"<p>",
                 sep="")
-  if(input$maxcwbi!=TRUE){legendtitle <- rv$variablenamelist[input$variable,3]
+  if(input$maxcwbi!=T){legendtitle <- rv$variablenamelist[input$variable,3]
   }else{legendtitle <- "CWBI"}
   pal2 <- colorNumeric(palette = "RdYlGn",domain = legendcolor)
-  if(input$calculate == TRUE){value = getCWBI() #allows the switch to control map
+  if(input$calculate == T){value = getCWBI() #allows the switch to control map
   mycolor <- as.numeric(value[input$variable])}
-  if(length(input$maxcwbi)==1){if(input$maxcwbi == TRUE && input$calculate == TRUE){
+  if(length(input$maxcwbi)==1){if(input$maxcwbi == T && input$calculate == T){
   value = getCWBI() #Mike: we can add more dyanmicism here
   mycolor <- as.numeric(68.9)}}
   #Plot the map
@@ -1085,7 +1096,7 @@ output$mymap = renderLeaflet({
                 color = "green",
                 fillOpacity = 0.8,
                 highlight= highlightOptions(weight = 5, color ="#666666", dashArray = "",
-                                            fillOpacity = .7, bringToFront = TRUE ),
+                                            fillOpacity = .7, bringToFront = T ),
                 label = lapply(labels, HTML)) %>%
     addLegend(position="bottomright", pal = pal2, values = legendcolor,
               title = legendtitle,
@@ -1101,14 +1112,14 @@ output$mymap = renderLeaflet({
 # The Actual Body or "Main Grid"----
 output$MainGrid = renderUI({
       # Evaluating the Overall Page
-      if (is.null(input$calculate)==TRUE||is.null(input$execute)==TRUE||
-          is.null(input$variable)==TRUE)
-      {
-        p("Welcome to United App: Server has not finished waking up", br(),
-          "If you are seeing this text it means server is starting up and ran a small bug.  Basically the server
-          needs to be woken up with a user input. Please find the submit button or optimize button.  If you don't
-          see a change in anything after 15 seconds or less please contact the app owner")
-      } else {
+      # if (is.null(input$calculate)==T||is.null(input$execute)==T|| #This breaks highcharts
+      #     is.null(input$variable)==T)
+      # {
+      #   p("Welcome to United App: Server has not finished waking up", br(),
+      #     "If you are seeing this text it means server is starting up and ran a small bug.  Basically the server
+      #     needs to be woken up with a user input. Please find the submit button or optimize button.  If you don't
+      #     see a change in anything after 15 seconds or less please contact the app owner")
+      # } else {
       tabsetPanel(tabPanel("Additional Content here",verbatimTextOutput('sample3')))
         tabsetPanel(
          tabPanel("Welcome",h1("Welcome to the Child Well Being Optimizer"),
@@ -1216,7 +1227,8 @@ output$MainGrid = renderUI({
                                                      best grouped by county level correlations in the data. Similar to a Iphone
                                                      Health cart the gauges show the Results as Goals.  In fact optimization is about prescribing what the goal
                                                      for certain indicators should be rather then predict what they are.  It strongly suggests the need to find relationships between
-                                                     highly spatially correlated indicators."),
+                                                     highly spatially correlated indicators.",
+                                                     strong("hover the fluid gauge to see what each part of the gauge means")),
                   fluidRow(column(6,box(width=12, amChartsOutput("GaugeCWBI",height="400"),background='black')),
                            column(6,box(width=12, highchartOutput("mychart2")))),
                   fluidRow(column(6,box(width=12, highchartOutput("mychart3"))),
@@ -1226,13 +1238,14 @@ output$MainGrid = renderUI({
          tabPanel("Map of Atlanta",
                   h3("A map of Atlanta Child Well Being"),
                   p("Please note this the map may take about 4 mins to load. It has to fetch a google or open street map."),
-                  fluidPage(leafletOutput("mymap")),
-                  conditionalPanel(condition = "input.maxcwbi == TRUE",
-                                   imageOutput("myImage",height="100px"),
-                                   textOutput("conclusion3"),
-                                   tableOutput("conclusion2")))
-        ) #This bracket goes to Tab set
-        } #This bracket is for the if statement
+                  fluidPage(leafletOutput("mymap"))
+                  # conditionalPanel(condition = "input.maxcwbi == T",
+                  #                  imageOutput("myImage",height="100px"),
+                  #                  textOutput("conclusion3"),
+                  #                  tableOutput("conclusion2"))
+                  )
+        )  #This bracket goes to Tab set
+        #} #This bracket is for the if statement
     } #This bracket is the main grid
   ) #This paren is the main grid
 } #This bracket is the server
@@ -1244,9 +1257,9 @@ output$MainGrid = renderUI({
 # Runapp ----
 # options(shiny.error = NULL)
 options(shiny.error = recover)
-# options(shiny.reactlog=TRUE) 
-options(shiny.sanitize.errors = FALSE)
-#display.mode="showcase" #debug code
+# options(shiny.reactlog=T) 
+options(shiny.sanitize.errors = F)
+# display.mode="showcase" #debug code
 app <- shinyApp(ui = dashboardPage(skin = 'blue',
                               header = header,
                               sidebar = sidebar,

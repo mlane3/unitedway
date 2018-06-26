@@ -143,15 +143,26 @@ for(j in 1:v_c)  {
     v_mean  <- tbl_COUNTY_mean[,j]/100; v_sd <- tbl_COUNTY_stdev[,j]/100
     log_max <- max_fx(v_mean,v_sd)
     log_min <- min_fx(v_mean,v_sd)
-    data.matrix
-    tbl_COUNTY_max[,j] <- if(log_max > 1){return(log_max)}else{v_max}
-    tbl_COUNTY_min[,j] <- if(log_min < 0){return(log_min)}else{v_min}
+    for(i in 1:14){
+      if(log_max[i] < 1){tbl_COUNTY_max[i,j] <- 100*log_max[i]
+      }else{
+        tbl_COUNTY_max[i,j] <- v_max[i]}
+      if(log_min[i] < v_min[i]/100 && log_min[i] > 0){tbl_COUNTY_min[i,j] <- 100*log_min[i]
+      }else{
+        tbl_COUNTY_min[i,j] <- v_min[i]}
+    }
 }
+#Fix of tbl_COUNTY_min ----
+# Both child poverty and momsnohs have negative values which is odd.  Could these be typos?
+tbl_COUNTY_min <- abs(tbl_COUNTY_min)
+
+#browser()
 # Write as one big dataframe ----
 
 #From https://stackoverflow.com/questions/17499013/how-do-i-make-a-list-of-data-frames
 # Alternatives method: big_data = dplyr::bind_col(df_list)
 # Get them all in a list
+
 df_list <- mget(c("tbl_COUNTY_min","tbl_COUNTY_max","tbl_COUNTY_mean","tbl_COUNTY_stdev"))
 # Merge them into a dataframe
 tbl_COUNTY <- do.call(what = cbind, args = df_list)
@@ -170,3 +181,4 @@ if(v_debug) {
   rm(list=setdiff(ls(), keep))
  # put cleanup code here
 }
+write.csv(tbl_COUNTY,"data/county constrants.csv")

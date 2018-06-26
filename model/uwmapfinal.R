@@ -1,3 +1,5 @@
+#This mapping script is by bglover and includes commits from Pull Rshiny 44.
+
 #Final Map Draft
 library(leaflet)
 library(dplyr)
@@ -36,13 +38,14 @@ m
 
 #Let's create a chloropleth to show the child well being factors for each county
 
-m <- leaflet() %>%
-  setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
-  addProviderTiles(providers$Stamen.Toner) %>%
-  addPolygons(data = counties,
-              weight = 1, 
-              smoothFactor = 0.5)
-m
+# m <- leaflet() %>%
+#   setView(lng =-84.386330, lat = 33.753746,zoom = 8)  %>%
+#   addProviderTiles(providers$Stamen.Toner) %>%
+#   addPolygons(data = counties,
+#               weight = 1, 
+#               smoothFactor = 0.5,
+#               fillColor= pal(df0$gradrate))
+# m
 
 
 df0 <- read_xlsx("2016 Original Data.xlsx")
@@ -60,8 +63,12 @@ for(i in 1:length(counties$GEOID10)){
     print(paste0(c(i,counties$GEOID10[i],df0$TRACT[i])))
   else{}
 }
-dfUW <- df0[order(match(df0$TRACT, counties$GEOID10))]
-mycolor <- as.numeric(df0$TRACT)
+counties <- subset(subset(subset(subset(counties,GEOID10 != "13063980000"),
+                                 GEOID10 != "13121980000"),
+                          GEOID10 != "13121003700"),
+                   GEOID10 != "13089980000")
+dfUW <- df0[order(match(df0$TRACT, counties$GEOID10)),]
+mycolor <- as.numeric(df0$unemployment)
 bins <- c(0, .10*max(mycolor), .20*max(mycolor), .30*max(mycolor), 
           .40*max(mycolor), .50*max(mycolor), .60*max(mycolor), .70*max(mycolor), Inf)
 pal <- colorBin("RdYlBu", domain = mycolor, bins = bins)
@@ -79,9 +86,14 @@ m <- leaflet() %>%
               fillOpacity = 0.8)
 m
 
-labels<-paste("<p>",df0$county,"<p>",
-              "<p>", "CWB", round(uwmapdata$CWB_Index, digits = 5),"<p>",
+labels<-paste("<p>",dfUW$county,"<p>",
+              "<p>", "CWB", round(dfUW$unemployment, digits = 5),"<p>",
               sep="")
+pal2 <- colorNumeric(
+  palette = "RdYlBu",
+  domain =df0$unemployment
+)
+
 m <- leaflet() %>%
   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
   addProviderTiles(providers$Stamen.Toner) %>%
@@ -89,9 +101,40 @@ m <- leaflet() %>%
               fillColor = pal(mycolor),
               weight = 1, 
               smoothFactor = 0.5,
-              color = "orange",
+              color = "green",
               fillOpacity =0.5,
               highlight= highlightOptions (weight = 5, color ="#666666", dashArray = "",
                                            fillOpacity = .7, bringToFront = TRUE ),
-              label = lapply(labels, HTML))
+              label = lapply(labels, HTML)) %>%
+  addLegend(position="bottomright", pal = pal2, values = df0$unemployment,
+            title = "CWB Index",
+            labFormat = labelFormat(suffix = "%"),
+            opacity = 1
+  )
 m
+"************************************************************"
+#Useful functions I found for county level analysis
+"************************************************************"
+countyagg <- aggregate(counties, by="COUNTYFP10") #aggregate by county
+fips <- read.csv("data/FIP Codes.csv")
+countyagg <- merge(fips,countyagg$COUNTYFP10,by = intersect("county","COUNTYFP10"))
+
+"************************************************************"
+#rying possible ways to add legend
+"************************************************************"
+# pal <- colorNumeric(
+#   palette = "YlGnBu",
+#   domain =df0$gradrate
+# )
+# m <- leaflet() %>%
+#   setView(lng = -84.386330, lat = 33.753746, zoom = 8) %>%
+#   addPolygons(data = counties,smoothFactor = 0.2, fillOpacity = 1,
+#               color = ~pal(df0$gradrate)
+#               
+#   ) %>%
+#   addLegend("bottomright", pal = mycolor, values = ~df0$gradrate,
+#             title = "CWB Index",
+#             labFormat = labelFormat(prefix = "$"),
+#             opacity = 1
+#   )
+# m
