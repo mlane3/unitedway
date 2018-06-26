@@ -106,12 +106,15 @@ The term "levers" is a fitting descriptor, the objective of this Phase is to all
 
 
 # New Team Members:  How-to stop reading requirements and get started
-go to [Link](HowToContribute.MD)
+go to [Link](Contributor.MD)
 
 ## Licensing and Legal Information - this is a standard section, nothing to scare us here
 
 The proposed applications can be run using free (AGPL v3) Licenses on one or several standalone laptops for UWGA's internal use. Fees will only come into play if UWGA decides to publish the application on a server for wide-spread internal use or for use by the general public.
 
-RStudio is the R Language IDE and is available free of charge under the terms of an AGPL v3 license. This free license is perfectly sufficient for our needs, from a technical standpoint.  A commercial license with professional maintenance (8 Hours Response during Business Hours EST) can be purchased for $995 a year (list prices). (https://www.rstudio.com/products/rstudio/#Desktop)
+RStudio is the R Language IDE and is available free of charge under the terms of an AGPL v3 license. This free license is perfectly sufficient for our needs, from a technical standpoint.  A commercial license with professional maintenance (8 Hours Response during Business Hours EST) can be purchased for $995 a year (list prices). (https://www.rstudio.com/products/rstudio/#Desktop).  We thank Rstudio for their generosity.
 
-R Shiny is a web-based User Interface package for RStudio. The R Shiny extension is available as part of the RStudio Package at no additional charge
+R Shiny is a web-based User Interface package for RStudio. The R Shiny extension is available as part of the RStudio Package at no additional charge though you can sign up for a basic suscription package for $9.00
+
+This dashboard uses several graphics and mapping packages.  One of those is highcharter, which is a connection to Highcharts.
+Highcharts (http://highcharts.com) is a Highsoft product which is not free for commercial and Governmental use.  However, it is very much free for organizations like united way who are nonprofits.  We thank Highcharts for there generosity.
